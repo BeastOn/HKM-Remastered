@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="background">#212121</color>
+    <color name="card_barckground">#313131</color>
+    <color name="primaryText">#fff</color>
+    <color name="secondryText">#a1a1a1</color>
+    <color name="colorPrimary">#3f51b5</color>
+    <color name="colorSecondary">#303f9f</color>
+    <color name="colorAccent">#ff4081</color>
+    <color name="separatorColor">#c3c3c3</color>
+    <color name="separatorColor2">#282828</color>
+</resources>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="drawer_items">
+        <item>@string/cpuCtl</item>
+        <item>@string/gpuCtl</item>
+        <item>@string/miscCtl</item>
+        <item>@string/lcdCtl</item>
+        <item>@string/touchCtl</item>
+        <item>@string/soundCtl</item>
+    </string-array>
+</resources>

@@ -1,0 +1,40 @@
+<resources>
+    <string name="app_name">HellsCore Kernel Manager</string>
+
+    <string name="dialog_message_reqRoot">Requesting root access …</string>
+    <string name="dialog_message_failRoot">Failed to get root access …</string>
+
+    <!-- Drawer list items -->
+    <string name="cpuCtl">CPU Control</string>
+    <string name="gpuCtl">GPU Control</string>
+    <string name="miscCtl">Misc Control</string>
+    <string name="lcdCtl">LCD Control</string>
+    <string name="touchCtl">Touch Control</string>
+    <string name="soundCtl">Sound Control</string>
+
+    <!-- Actionbar items -->
+    <string name="action_refresh">Refresh</string>
+    <string name="action_apply">Apply</string>
+
+    <!-- CPU Control -->
+    <!-- CPU category -->
+    <string name="pref_category_cpu">CPU</string>
+    <string name="pref_cpu_governor">Governor</string>
+    <string name="pref_max_cpu_clock">Maximum frequency</string>
+    <string name="pref_min_cpu_clock">Minimum frequency</string>
+    <!-- MP-Decision category -->
+    <string name="pref_category_mpdec">MP-Decision / HotPlug</string>
+    <string name="pref_max_cores_online">Max cores online</string>
+    <string name="pref_min_cores_online">Min cores online</string>
+    <string name="pref_screenoff_max">Screen-Off Max Freq</string>
+    <string name="pref_screenoff_single_core">Screen-Off single core</string>
+    <string name="pref_cores_boosted">Cores boosted on touch</string>
+    <string name="pref_boost_duration">Boost lock duration</string>
+    <!-- C-States category -->
+    <string name="pref_category_cstates">C-States</string>
+    <string name="c0_state">C0 (WFI)</string>
+    <string name="c1_state">C1 (RET)</string>
+    <string name="c2_state">C2 (SPC)</string>
+    <string name="c3_state">C3 (PC)</string>
+
+</resources>

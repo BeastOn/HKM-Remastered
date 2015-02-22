@@ -1,0 +1,26 @@
+<resources>
+
+    <style name="AppTheme" parent="android:Theme.Holo.Light.DarkActionBar"></style>
+
+    <style name="categoryTitleStyle" parent="@android:style/Widget.Material.TextView">
+        <item name="android:textColor">?attr/categoryTitleColor</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:paddingStart">3dp</item>
+    </style>
+
+    <style name="buttonTitleStyle" parent="@android:style/Widget.Material.TextView">
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="buttonDetailStyle" parent="@android:style/Widget.Material.TextView">
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">@color/secondryText</item>
+        <item name="android:layout_marginTop">3dp</item>
+    </style>
+
+    <style name="mSwitchStyle">
+        <item name="android:textColor">@color/primaryText</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+</resources>
