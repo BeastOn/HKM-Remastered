@@ -3,6 +3,7 @@ package lb.themike10452.hellscorekernelmanagerl.utils;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -57,8 +58,9 @@ public class Tools {
 
     public void exec(String... cmd) {
         List<String> cmds = new ArrayList<>();
-        for (String line : cmd)
+        for (String line : cmd) {
             cmds.add(line);
+        }
 
         interactive.addCommand(cmds);
     }
@@ -69,13 +71,32 @@ public class Tools {
     }
 
     public String readLineFromFile(File file) {
+        try {
+            return readFromFile(file).get(0);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public List<String> readFromFile(String path) {
+        File file = new File(path);
+        return readFromFile(file);
+    }
+
+    public List<String> readFromFile(File file) {
         FileReader fileReader = null;
         if (file.exists()) {
             if (file.canRead()) {
                 BufferedReader bufferedReader = null;
+                List<String> lines = new ArrayList<>();
                 try {
+                    String line;
                     bufferedReader = new BufferedReader(fileReader = new FileReader(file));
-                    return bufferedReader.readLine();
+                    while ((line = bufferedReader.readLine()) != null) {
+                        if (line.length() > 0)
+                            lines.add(line);
+                    }
+                    return lines;
                 } catch (IOException ioe) {
                     return null;
                 } finally {
@@ -117,11 +138,10 @@ public class Tools {
 
                         if (exitCode == 0) {
                             if (stdErr.isEmpty()) {
-                                if (!stdOut.isEmpty())
-                                    return stdOut.get(0);
-                                else
-                                    return null;
-                            } else return null;
+                                return stdOut;
+                            } else {
+                                return null;
+                            }
                         } else {
                             return null;
                         }
@@ -134,6 +154,7 @@ public class Tools {
                 }
             }
         } else {
+            Log.v("TAG", file.getAbsolutePath() + " does not exist");
             return null;
         }
     }

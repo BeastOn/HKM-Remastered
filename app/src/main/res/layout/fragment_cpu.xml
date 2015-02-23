@@ -15,18 +15,18 @@
         android:paddingTop="8dp">
 
         <include
-            layout="@layout/prefs_cpu"
+            layout="@layout/prefs_cpu_cpu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
         <include
-            layout="@layout/prefs_mpdecision"
+            layout="@layout/prefs_cpu_mpdecision"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp" />
 
         <include
-            layout="@layout/prefs_cstates"
+            layout="@layout/prefs_cpu_cstates"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp" />

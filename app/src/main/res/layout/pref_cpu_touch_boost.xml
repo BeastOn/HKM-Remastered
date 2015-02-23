@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/screenOffMaxHolder"
+    android:id="@+id/touchBoostHolder"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
     <LinearLayout
-        android:id="@+id/screenOffMaxBtn"
+        android:id="@+id/touchBoostBtn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_toStartOf="@+id/mswitch"
+        android:layout_toStartOf="@+id/touchBoostSwitch"
         android:background="?android:attr/selectableItemBackground"
         android:clickable="true"
         android:orientation="vertical"
@@ -18,7 +18,7 @@
             style="@style/buttonTitleStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/pref_screenoff_max" />
+            android:text="@string/pref_touch_boost" />
 
         <TextView
             android:id="@+id/value"
@@ -28,7 +28,7 @@
     </LinearLayout>
 
     <Switch
-        android:id="@+id/mswitch"
+        android:id="@+id/touchBoostSwitch"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"

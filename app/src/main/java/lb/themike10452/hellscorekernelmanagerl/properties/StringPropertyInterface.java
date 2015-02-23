@@ -1,5 +1,5 @@
 package lb.themike10452.hellscorekernelmanagerl.properties;
 
-interface StringPropertyInterface extends HKMProperty {
+interface StringPropertyInterface extends HKMPropertyInterface {
     String getValue();
 }

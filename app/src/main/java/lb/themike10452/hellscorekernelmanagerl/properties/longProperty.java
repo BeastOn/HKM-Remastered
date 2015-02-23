@@ -2,13 +2,16 @@ package lb.themike10452.hellscorekernelmanagerl.properties;
 
 import android.support.annotation.NonNull;
 import android.util.Log;
+import android.view.View;
+import android.widget.TextView;
 
+import lb.themike10452.hellscorekernelmanagerl.R;
 import lb.themike10452.hellscorekernelmanagerl.utils.Tools;
 
 /**
  * Created by Mike on 2/22/2015.
  */
-public class longProperty implements longPropertyInterface {
+public class longProperty extends HKMProperty implements longPropertyInterface {
 
     public int FLAGS;
     private int viewId;
@@ -32,9 +35,9 @@ public class longProperty implements longPropertyInterface {
     }
 
     @Override
-    public int setValue(Object value) {
+    public int setValue(String value) {
         try {
-            return setValue((long) value, filePath);
+            return setValue(Long.parseLong(value), filePath);
         } catch (ClassCastException e) {
             Log.e("TAG", e.toString());
             return 1;
@@ -55,4 +58,22 @@ public class longProperty implements longPropertyInterface {
     public String getFilePath() {
         return filePath;
     }
+
+    @Override
+    public int getFlags() {
+        return FLAGS;
+    }
+
+    @Override
+    public void setDisplayedValue(Object _value, View holder) {
+        long value = (long) _value;
+        if (value == DEFAULT_VALUE) {
+            holder.setVisibility(View.GONE);
+        } else {
+            View disp = holder.findViewById(R.id.value);
+            if (disp instanceof TextView)
+                ((TextView) disp).setText(Long.toString(value));
+        }
+    }
+
 }

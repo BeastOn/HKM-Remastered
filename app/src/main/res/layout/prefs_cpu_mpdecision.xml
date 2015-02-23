@@ -31,27 +31,31 @@
             android:orientation="vertical"
             android:padding="3dp">
 
-            <include layout="@layout/pref_max_cores" />
+            <include layout="@layout/pref_cpu_max_cores" />
 
             <include layout="@layout/separator_secondary" />
 
-            <include layout="@layout/pref_min_cores" />
+            <include layout="@layout/pref_cpu_min_cores" />
 
             <include layout="@layout/separator_secondary" />
 
-            <include layout="@layout/pref_boosted_cores" />
+            <include layout="@layout/pref_cpu_boosted_cores" />
 
             <include layout="@layout/separator_secondary" />
 
-            <include layout="@layout/pref_boost_duration" />
+            <include layout="@layout/pref_cpu_boost_duration" />
 
             <include layout="@layout/separator_secondary" />
 
-            <include layout="@layout/pref_screenoff_max" />
+            <include layout="@layout/pref_cpu_screenoff_max" />
 
             <include layout="@layout/separator_secondary" />
 
-            <include layout="@layout/pref_screenoff_singlecore" />
+            <include layout="@layout/pref_cpu_screenoff_singlecore" />
+
+            <include layout="@layout/separator_secondary" />
+
+            <include layout="@layout/pref_cpu_touch_boost" />
         </LinearLayout>
     </LinearLayout>
 </android.support.v7.widget.CardView>

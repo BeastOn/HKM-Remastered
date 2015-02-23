@@ -2,13 +2,17 @@ package lb.themike10452.hellscorekernelmanagerl.properties;
 
 import android.support.annotation.NonNull;
 import android.util.Log;
+import android.view.View;
+import android.widget.Switch;
+import android.widget.TextView;
 
+import lb.themike10452.hellscorekernelmanagerl.R;
 import lb.themike10452.hellscorekernelmanagerl.utils.Tools;
 
 /**
  * Created by Mike on 2/22/2015.
  */
-public class intProperty implements intPropertyInterface {
+public class intProperty extends HKMProperty implements intPropertyInterface {
 
     public int FLAGS;
     protected int DEFAULT_VALUE;
@@ -36,9 +40,9 @@ public class intProperty implements intPropertyInterface {
     }
 
     @Override
-    public int setValue(Object value) {
+    public int setValue(String value) {
         try {
-            return setValue((int) value, filePath);
+            return setValue(Integer.parseInt(value), filePath);
         } catch (ClassCastException e) {
             Log.e("TAG", e.toString());
             return 1;
@@ -59,4 +63,38 @@ public class intProperty implements intPropertyInterface {
     public String getFilePath() {
         return filePath;
     }
+
+    @Override
+    public int getFlags() {
+        return FLAGS;
+    }
+
+    @Override
+    public void setDisplayedValue(Object _value, View holder) {
+        int value = (int) _value;
+        if (value == DEFAULT_VALUE) {
+            holder.setVisibility(View.GONE);
+        } else {
+            {
+                View disp = holder.findViewById(R.id.value);
+                if (disp != null) {
+                    if (disp instanceof Switch) {
+                        ((Switch) disp).setChecked(value == 1);
+                    } else if (disp instanceof TextView) {
+                        ((TextView) disp).setText(Integer.toString(value));
+                    }
+                } else if (holder instanceof Switch) {
+                    ((Switch) holder).setChecked(value == 1);
+                    return;
+                }
+            }
+            {
+                View disp = holder.findViewById(R.id.mswitch);
+                if (disp != null)
+                    if (disp instanceof Switch)
+                        ((Switch) disp).setChecked(value == 1);
+            }
+        }
+    }
+
 }

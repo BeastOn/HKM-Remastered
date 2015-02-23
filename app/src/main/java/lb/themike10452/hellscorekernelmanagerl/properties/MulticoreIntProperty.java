@@ -18,10 +18,10 @@ public class MultiCoreIntProperty extends intProperty {
     }
 
     @Override
-    public int setValue(Object value) {
+    public int setValue(String value) {
         try {
             for (String path : filePaths)
-                super.setValue((int) value, path);
+                super.setValue(Integer.parseInt(value), path);
             return 0;
         } catch (Exception e) {
             Log.e("TAG", e.toString());

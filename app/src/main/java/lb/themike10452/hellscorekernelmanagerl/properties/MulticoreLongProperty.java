@@ -18,10 +18,10 @@ public class MultiCoreLongProperty extends longProperty {
     }
 
     @Override
-    public int setValue(Object value) {
+    public int setValue(String value) {
         try {
             for (String path : filePaths)
-                super.setValue((long) value, path);
+                super.setValue(Long.parseLong(value), path);
             return 0;
         } catch (Exception e) {
             Log.e("TAG", e.toString());
