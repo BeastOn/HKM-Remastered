@@ -10,6 +10,7 @@ import lb.themike10452.hellscorekernelmanagerl.utils.Tools;
  */
 public class longProperty implements longPropertyInterface {
 
+    public int FLAGS;
     private int viewId;
     private long DEFAULT_VALUE;
     private String filePath;
@@ -18,6 +19,7 @@ public class longProperty implements longPropertyInterface {
         DEFAULT_VALUE = defaultValue;
         filePath = path;
         viewId = resId;
+        FLAGS = 0;
     }
 
     @Override

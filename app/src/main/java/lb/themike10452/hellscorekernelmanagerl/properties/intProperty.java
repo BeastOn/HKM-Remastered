@@ -10,6 +10,7 @@ import lb.themike10452.hellscorekernelmanagerl.utils.Tools;
  */
 public class intProperty implements intPropertyInterface {
 
+    public int FLAGS;
     protected int DEFAULT_VALUE;
     protected int viewId;
     protected String filePath;
@@ -18,6 +19,7 @@ public class intProperty implements intPropertyInterface {
         DEFAULT_VALUE = defaultValue;
         filePath = path;
         viewId = resId;
+        FLAGS = 0;
     }
 
     @Override

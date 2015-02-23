@@ -9,6 +9,7 @@ import lb.themike10452.hellscorekernelmanagerl.utils.Tools;
  */
 public class StringProperty implements StringPropertyInterface {
 
+    public int FLAGS;
     private String filePath;
     private String DEFAULT_VALUE;
     private int viewId;
@@ -17,6 +18,7 @@ public class StringProperty implements StringPropertyInterface {
         filePath = path;
         DEFAULT_VALUE = defaultValue;
         viewId = resId;
+        FLAGS = 0;
     }
 
     @Override
