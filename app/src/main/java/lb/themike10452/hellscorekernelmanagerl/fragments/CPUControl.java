@@ -15,8 +15,9 @@ import android.widget.TextView;
 import lb.themike10452.hellscorekernelmanagerl.MainActivity;
 import lb.themike10452.hellscorekernelmanagerl.R;
 import lb.themike10452.hellscorekernelmanagerl.properties.HKMProperty;
-import lb.themike10452.hellscorekernelmanagerl.properties.MulticoreIntProperty;
-import lb.themike10452.hellscorekernelmanagerl.properties.MulticoreLongProperty;
+import lb.themike10452.hellscorekernelmanagerl.properties.MultiCoreLongProperty;
+import lb.themike10452.hellscorekernelmanagerl.properties.MultiRootPathIntProperty;
+import lb.themike10452.hellscorekernelmanagerl.properties.MultiCoreIntProperty;
 import lb.themike10452.hellscorekernelmanagerl.properties.StringProperty;
 import lb.themike10452.hellscorekernelmanagerl.properties.intProperty;
 import lb.themike10452.hellscorekernelmanagerl.properties.longProperty;
@@ -36,18 +37,18 @@ public class CPUControl extends Fragment implements HKMFragment {
     private Activity mActivity;
     private long[] available_freqs;
 
-    private intProperty maxCoresProperty;
-    private intProperty minCoresProperty;
+    private MultiRootPathIntProperty maxCoresProperty;
+    private MultiRootPathIntProperty minCoresProperty;
     private intProperty boostedCoresProperty;
     private intProperty boostDurationProperty;
     private intProperty screenoffMaxStateProperty;
     private intProperty screenoffSglCoreProperty;
-    private MulticoreIntProperty c0wfiProperty;
-    private MulticoreIntProperty c1retProperty;
-    private MulticoreIntProperty c2spcProperty;
-    private MulticoreIntProperty c3pcProperty;
-    private MulticoreLongProperty maxFreqProperty;
-    private MulticoreLongProperty minFreqProperty;
+    private MultiCoreIntProperty c0wfiProperty;
+    private MultiCoreIntProperty c1retProperty;
+    private MultiCoreIntProperty c2spcProperty;
+    private MultiCoreIntProperty c3pcProperty;
+    private MultiCoreLongProperty maxFreqProperty;
+    private MultiCoreLongProperty minFreqProperty;
     private longProperty screenoffMaxProperty;
     private StringProperty governorProperty;
 
@@ -73,19 +74,19 @@ public class CPUControl extends Fragment implements HKMFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         governorProperty = new StringProperty(Library.GOV0, R.id.cpuGovHolder, ERR_STR);
-        maxFreqProperty = new MulticoreLongProperty(Library.MAX_FREQ_PATH, R.id.maxFreqHolder, ERR_INT);
-        minFreqProperty = new MulticoreLongProperty(Library.MIN_FREQ_PATH, R.id.minFreqHolder, ERR_INT);
-        maxCoresProperty = new intProperty(Library.MAX_CPUS_ONLINE_PATH0, R.id.maxCoresOnBtn, ERR_INT);
-        minCoresProperty = new intProperty(Library.MIN_CPUS_ONLINE_PATH0, R.id.minCoresOnBtn, ERR_INT);
+        maxFreqProperty = new MultiCoreLongProperty(Library.MAX_FREQ_PATH, R.id.maxFreqHolder, ERR_INT);
+        minFreqProperty = new MultiCoreLongProperty(Library.MIN_FREQ_PATH, R.id.minFreqHolder, ERR_INT);
+        maxCoresProperty = new MultiRootPathIntProperty(R.id.maxCoresOnBtn, ERR_INT, Library.MAX_CPUS_ONLINE_PATH0, Library.MAX_CPUS_ONLINE_PATH1);
+        minCoresProperty = new MultiRootPathIntProperty(R.id.minCoresOnBtn, ERR_INT, Library.MIN_CPUS_ONLINE_PATH0, Library.MIN_CPUS_ONLINE_PATH1);
         boostedCoresProperty = new intProperty(Library.BOOSTED_CPUS_PATH, R.id.boostedCoresBtn, ERR_INT);
         boostDurationProperty = new intProperty(Library.BOOST_LOCK_DURATION_PATH, R.id.boostDurationBtn, ERR_INT);
         screenoffMaxProperty = new longProperty(Library.SCREEN_OFF_MAX_FREQ, R.id.screenOffMaxHolder, ERR_INT);
         screenoffMaxStateProperty = new intProperty(Library.SCREEN_OFF_MAX_STATE, R.id.screenOffMaxHolder, ERR_INT);
         screenoffSglCoreProperty = new intProperty(Library.SCREEN_OFF_SINGLE_CORE_PATH, R.id.screenOffSglCoreHolder, ERR_INT);
-        c0wfiProperty = new MulticoreIntProperty(Library.CPU_IDLE_C0_PATH, R.id.c0_switch, ERR_INT);
-        c1retProperty = new MulticoreIntProperty(Library.CPU_IDLE_C1_PATH, R.id.c1_switch, ERR_INT);
-        c2spcProperty = new MulticoreIntProperty(Library.CPU_IDLE_C2_PATH, R.id.c2_switch, ERR_INT);
-        c3pcProperty = new MulticoreIntProperty(Library.CPU_IDLE_C3_PATH, R.id.c3_switch, ERR_INT);
+        c0wfiProperty = new MultiCoreIntProperty(Library.CPU_IDLE_C0_PATH, R.id.c0_switch, ERR_INT);
+        c1retProperty = new MultiCoreIntProperty(Library.CPU_IDLE_C1_PATH, R.id.c1_switch, ERR_INT);
+        c2spcProperty = new MultiCoreIntProperty(Library.CPU_IDLE_C2_PATH, R.id.c2_switch, ERR_INT);
+        c3pcProperty = new MultiCoreIntProperty(Library.CPU_IDLE_C3_PATH, R.id.c3_switch, ERR_INT);
         initProperties();
     }
 
@@ -142,8 +143,8 @@ public class CPUControl extends Fragment implements HKMFragment {
                 minCoresProperty,
                 boostedCoresProperty,
                 boostDurationProperty,
-                screenoffMaxProperty,
                 screenoffMaxStateProperty,
+                screenoffMaxProperty,
                 screenoffSglCoreProperty,
                 c0wfiProperty,
                 c1retProperty,
@@ -207,10 +208,10 @@ public class CPUControl extends Fragment implements HKMFragment {
                             {
                                 View disp = parent.findViewById(R.id.value);
                                 if (disp != null) {
-                                    if (disp instanceof TextView) {
-                                        ((TextView) disp).setText(Integer.toString(value));
-                                    } else if (disp instanceof Switch) {
+                                    if (disp instanceof Switch) {
                                         ((Switch) disp).setChecked(value == 1);
+                                    } else if (disp instanceof TextView) {
+                                        ((TextView) disp).setText(Integer.toString(value));
                                     }
                                 } else if (parent instanceof Switch) {
                                     ((Switch) parent).setChecked(value == 1);
