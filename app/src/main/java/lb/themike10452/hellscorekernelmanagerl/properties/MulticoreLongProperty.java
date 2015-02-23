@@ -5,11 +5,11 @@ import android.util.Log;
 /**
  * Created by Mike on 2/22/2015.
  */
-public class MulticoreLongProperty extends longProperty {
+public class MultiCoreLongProperty extends longProperty {
 
     private String[] filePaths;
 
-    public MulticoreLongProperty(String pathLook, int resId, int defaultValue) {
+    public MultiCoreLongProperty(String pathLook, int resId, int defaultValue) {
         super(String.format(pathLook, 0), resId, defaultValue);
         filePaths = new String[4];
         for (int i = 0; i < filePaths.length; i++) {

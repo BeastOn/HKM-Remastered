@@ -10,9 +10,9 @@ import lb.themike10452.hellscorekernelmanagerl.utils.Tools;
  */
 public class intProperty implements intPropertyInterface {
 
-    private int DEFAULT_VALUE;
-    private int viewId;
-    private String filePath;
+    protected int DEFAULT_VALUE;
+    protected int viewId;
+    protected String filePath;
 
     public intProperty(@NonNull String path, int resId, int defaultValue) {
         DEFAULT_VALUE = defaultValue;
@@ -22,8 +22,12 @@ public class intProperty implements intPropertyInterface {
 
     @Override
     public int getValue() {
+        return getValue(filePath);
+    }
+
+    protected int getValue(String path) {
         try {
-            return Integer.parseInt(Tools.getInstance().readLineFromFile(filePath));
+            return Integer.parseInt(Tools.getInstance().readLineFromFile(path));
         } catch (Exception e) {
             return DEFAULT_VALUE;
         }
