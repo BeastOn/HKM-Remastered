@@ -16,7 +16,7 @@
     <string name="action_refresh">Refresh</string>
     <string name="action_apply">Apply</string>
 
-    <!-- CPU Control -->
+    <!-- #CPU Control -->
     <!-- CPU category -->
     <string name="pref_category_cpu">CPU</string>
     <string name="pref_cpu_governor">Governor</string>
@@ -37,5 +37,9 @@
     <string name="c1_state">C1 (RET)</string>
     <string name="c2_state">C2 (SPC)</string>
     <string name="c3_state">C3 (PC)</string>
+    <!-- Voltages -->
+    <string name="pref_category_voltages">Voltages</string>
+    <string name="frequency">Frequency</string>
+    <string name="voltage">Voltage</string>
 
 </resources>

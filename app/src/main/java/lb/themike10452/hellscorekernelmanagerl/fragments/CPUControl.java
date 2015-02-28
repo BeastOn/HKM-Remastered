@@ -1,17 +1,15 @@
 package lb.themike10452.hellscorekernelmanagerl.fragments;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Point;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.NumberPicker;
 import android.widget.PopupWindow;
@@ -22,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import lb.themike10452.hellscorekernelmanagerl.CustomAdapters.VoltagesAdapter;
 import lb.themike10452.hellscorekernelmanagerl.MainActivity;
 import lb.themike10452.hellscorekernelmanagerl.R;
 import lb.themike10452.hellscorekernelmanagerl.properties.HKMPropertyInterface;
@@ -39,7 +38,7 @@ import lb.themike10452.hellscorekernelmanagerl.utils.Tools;
 /**
  * Created by Mike on 2/22/2015.
  */
-public class CPUControl extends Fragment implements HKMFragment {
+public class CPUControl extends Fragment implements HKMFragment, View.OnClickListener {
 
     private static final String ERR_STR = "hkm_n_a";
     private static final int ERR_INT = -1;
@@ -47,8 +46,7 @@ public class CPUControl extends Fragment implements HKMFragment {
     private static CPUControl instance;
 
     private Activity mActivity;
-    private long[] available_freqs;
-    private String[] available_governors;
+    private VoltagesAdapter mVoltagesAdapter;
 
     private MultiRootPathIntProperty maxCoresProperty;
     private MultiRootPathIntProperty minCoresProperty;
@@ -68,107 +66,53 @@ public class CPUControl extends Fragment implements HKMFragment {
     private StringProperty governorProperty;
 
     private HKMPropertyInterface[] properties;
+    private String[] available_governors;
+    private long[] available_freqs;
 
     private View mView;
 
-    private View.OnClickListener listClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            final HKMPropertyInterface property = PropertyUtils.findProperty(properties, v);
+    @Override
+    public void onClick(final View v) {
+        final HKMPropertyInterface property = PropertyUtils.findProperty(properties, v);
 
-            if (property != null) {
+        if (property != null) {
 
-                final List<String> choices = new ArrayList<>();
+            final List<String> choices = new ArrayList<>();
 
-                if (property instanceof intProperty) {
-                    int flags = ((intProperty) property).FLAGS;
-                    if ((PropertyUtils.FLAG_CPU_CORES & flags) == PropertyUtils.FLAG_CPU_CORES) {
-                        if ((PropertyUtils.FLAG_CPU_CORES_ALLOW_ZERO & flags) == PropertyUtils.FLAG_CPU_CORES_ALLOW_ZERO) {
-                            choices.add("0");
-                        }
-                        for (int i = 1; i <= 4; i++) {
-                            choices.add(Integer.toString(i));
-                        }
+            if (property instanceof intProperty) {
+                int flags = ((intProperty) property).FLAGS;
+                if ((PropertyUtils.FLAG_CPU_CORES & flags) == PropertyUtils.FLAG_CPU_CORES) {
+                    if ((PropertyUtils.FLAG_CPU_CORES_ALLOW_ZERO & flags) == PropertyUtils.FLAG_CPU_CORES_ALLOW_ZERO) {
+                        choices.add("0");
                     }
-                } else if (property instanceof StringProperty) {
-                    if (property == governorProperty && available_governors != null) {
-                        choices.addAll(Arrays.asList(available_governors));
-                    }
-                } else if (property instanceof longProperty) {
-                    if (property == screenoffMaxProperty && available_freqs != null) {
-                        for (long l : available_freqs) {
-                            choices.add(Long.toString(l));
-                        }
+                    for (int i = 1; i <= 4; i++) {
+                        choices.add(Integer.toString(i));
                     }
                 }
-
-                if (!choices.isEmpty()) {
-                    final CharSequence[] listItems = choices.toArray(new CharSequence[choices.size()]);
-                    new AlertDialog.Builder(mActivity)
-                            .setCancelable(true)
-                            .setItems(listItems, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    View disp = findViewById(property.getViewId()).findViewById(R.id.value);
-                                    if (disp != null && disp instanceof TextView)
-                                        ((TextView) disp).setText(listItems[which]);
-                                }
-                            })
-                            .show();
+            } else if (property instanceof StringProperty) {
+                if (property == governorProperty && available_governors != null) {
+                    choices.addAll(Arrays.asList(available_governors));
+                }
+            } else if (property instanceof longProperty || property instanceof MultiLineValueProperty) {
+                if (available_freqs != null) {
+                    for (long l : available_freqs) {
+                        choices.add(Long.toString(l));
+                    }
                 }
             }
-        }
-    };
 
-    private View.OnClickListener pickerClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(final View v) {
-            HKMPropertyInterface property = PropertyUtils.findProperty(properties, v);
-            if (property != null) {
-                final List<String> values = new ArrayList<>();
-                for (int i = 0; i < available_freqs.length; i++) {
-                    values.add(Long.toString(available_freqs[i]));
-                }
-
-                Point p = new Point();
-                mActivity.getWindowManager().getDefaultDisplay().getSize(p);
-
+            if (!choices.isEmpty()) {
                 PopupWindow popupWindow = new PopupWindow(mActivity);
                 popupWindow.setWindowLayoutMode(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
                 popupWindow.setHeight(1);
-                popupWindow.setWidth(p.x);
+                popupWindow.setWidth(1000);
                 popupWindow.setFocusable(true);
                 popupWindow.setBackgroundDrawable(getResources().getDrawable(R.drawable.popup_window_background));
                 popupWindow.setClippingEnabled(false);
                 popupWindow.setElevation(10f);
+                popupWindow.showAsDropDown(v, 300, 0);
 
-                if (property == screenoffMaxProperty) {
-                    View layout = ((LayoutInflater) mActivity
-                            .getSystemService(Context.LAYOUT_INFLATER_SERVICE))
-                            .inflate(R.layout.simple_picker_layout, null, false);
-
-                    popupWindow.setContentView(layout);
-                    popupWindow.showAsDropDown(v, v.getWidth() - 300, 0);
-
-                    final NumberPicker picker1 = (NumberPicker) layout.findViewById(R.id.numberPicker);
-                    picker1.setMinValue(0);
-                    picker1.setMaxValue(available_freqs.length - 1);
-                    picker1.setValue(values.indexOf(((TextView) findViewById(property.getViewId()).findViewById(R.id.value)).getText().toString()));
-                    picker1.setDisplayedValues(values.toArray(new String[values.size()]));
-                    picker1.setWrapSelectorWheel(false);
-
-                    popupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
-                        @Override
-                        public void onDismiss() {
-                            String newValue = values.get(picker1.getValue());
-                            View disp = v.findViewById(R.id.value);
-                            if (disp != null && disp instanceof TextView) {
-                                ((TextView) disp).setText(newValue);
-                            }
-                        }
-                    });
-
-                } else if (property instanceof MultiLineValueProperty) {
+                if (property instanceof MultiLineValueProperty) {
                     View layout = ((LayoutInflater) mActivity
                             .getSystemService(Context.LAYOUT_INFLATER_SERVICE))
                             .inflate(R.layout.quad_picker_layout, null, false);
@@ -190,26 +134,50 @@ public class CPUControl extends Fragment implements HKMFragment {
                         pickers[i] = (NumberPicker) parent.getChildAt(i).findViewById(R.id.numberPicker);
                         pickers[i].setMinValue(0);
                         pickers[i].setMaxValue(available_freqs.length - 1);
-                        pickers[i].setValue(values.indexOf(currentValues[i].trim()));
-                        pickers[i].setDisplayedValues(values.toArray(new String[values.size()]));
+                        pickers[i].setValue(choices.indexOf(currentValues[i].trim()));
+                        pickers[i].setDisplayedValues(choices.toArray(new String[choices.size()]));
                         pickers[i].setWrapSelectorWheel(false);
                         pickers[i].setPadding(3, 0, 3, 0);
                     }
-
                     popupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
                         @Override
                         public void onDismiss() {
                             String newValues = "";
                             for (NumberPicker picker : pickers)
-                                newValues = newValues.concat(values.get(picker.getValue())).concat(" ");
+                                newValues = newValues.concat(choices.get(picker.getValue())).concat(" ");
                             newValues = newValues.trim();
                             touchBoostProperty.setDisplayedValue(Arrays.asList(newValues.split(" ")), v);
+                        }
+                    });
+                } else {
+                    View layout = ((LayoutInflater) mActivity
+                            .getSystemService(Context.LAYOUT_INFLATER_SERVICE))
+                            .inflate(R.layout.simple_picker_layout, null, false);
+                    popupWindow.setContentView(layout);
+                    popupWindow.showAsDropDown(v, 300, 0);
+
+                    final NumberPicker picker = (NumberPicker) layout.findViewById(R.id.numberPicker);
+                    picker.setMinValue(0);
+                    picker.setMaxValue(choices.size() - 1);
+                    picker.setValue(choices.indexOf(((TextView) findViewById(property.getViewId()).findViewById(R.id.value)).getText().toString()));
+                    picker.setDisplayedValues(choices.toArray(new String[choices.size()]));
+                    picker.setWrapSelectorWheel(false);
+
+                    popupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
+                        @Override
+                        public void onDismiss() {
+                            String newValue = choices.get(picker.getValue());
+                            View disp = v.findViewById(R.id.value);
+                            if (disp != null && disp instanceof TextView) {
+                                ((TextView) disp).setText(newValue);
+                            }
                         }
                     });
                 }
             }
         }
-    };
+    }
+
 
     public static CPUControl getInstance() {
         return instance != null ? instance : new CPUControl();
@@ -260,7 +228,11 @@ public class CPUControl extends Fragment implements HKMFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return mView = inflater.inflate(R.layout.fragment_cpu, container, false);
+        mView = inflater.inflate(R.layout.fragment_cpu, container, false);
+        View vddPanel = findViewById(R.id.vdd_panel);
+        mVoltagesAdapter = new VoltagesAdapter(mActivity, vddPanel);
+        ((FrameLayout) mView.findViewById(R.id.globalOffsetContainer)).addView(mVoltagesAdapter.getView(-1, null, null));
+        return mView;
     }
 
     @Override
@@ -301,14 +273,12 @@ public class CPUControl extends Fragment implements HKMFragment {
         maxFreq.setOnSeekBarChangeListener(listener);
         minFreq.setOnSeekBarChangeListener(listener);
 
-        findViewById(governorProperty.getViewId()).setOnClickListener(listClickListener);
-        findViewById(maxCoresProperty.getViewId()).setOnClickListener(listClickListener);
-        findViewById(minCoresProperty.getViewId()).setOnClickListener(listClickListener);
-        findViewById(boostedCoresProperty.getViewId()).setOnClickListener(listClickListener);
-
-        findViewById(screenoffMaxProperty.getViewId()).setOnClickListener(pickerClickListener);
-        findViewById(touchBoostProperty.getViewId()).setOnClickListener(pickerClickListener);
-
+        findViewById(governorProperty.getViewId()).setOnClickListener(this);
+        findViewById(maxCoresProperty.getViewId()).setOnClickListener(this);
+        findViewById(minCoresProperty.getViewId()).setOnClickListener(this);
+        findViewById(boostedCoresProperty.getViewId()).setOnClickListener(this);
+        findViewById(screenoffMaxProperty.getViewId()).setOnClickListener(this);
+        findViewById(touchBoostProperty.getViewId()).setOnClickListener(this);
     }
 
     private void initProperties() {
@@ -380,6 +350,8 @@ public class CPUControl extends Fragment implements HKMFragment {
                     }
                 }
 
+                mVoltagesAdapter.invalidate();
+
                 return null;
             }
 
@@ -414,6 +386,11 @@ public class CPUControl extends Fragment implements HKMFragment {
                     }
                 }
 
+                ((LinearLayout) findViewById(R.id.vdd_panel)).removeAllViews();
+                for (int i = 0; i < mVoltagesAdapter.getCount(); i++) {
+                    ((LinearLayout) findViewById(R.id.vdd_panel)).addView(mVoltagesAdapter.getView(i, null, null));
+                }
+
                 mActivity.sendBroadcast(new Intent(MainActivity.ACTION_HIDE_TOUCH_BARRIER));
             }
         }.execute();
@@ -441,6 +418,7 @@ public class CPUControl extends Fragment implements HKMFragment {
                 }
             }
         }
+        mVoltagesAdapter.flush();
     }
 
     private View findViewById(int id) {
