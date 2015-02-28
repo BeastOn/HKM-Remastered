@@ -101,9 +101,15 @@ public class MainActivity extends Activity {
             }
         };
 
+
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(ACTION_HIDE_TOUCH_BARRIER);
+        filter.addAction(ACTION_SHOW_TOUCH_BARRIER);
+        registerReceiver(broadcastReceiver, filter);
+
         drawerLayout = (DrawerLayout) findViewById(R.id.drawerLayout);
         listView = (ListView) findViewById(R.id.left_drawer);
-        listView.setAdapter(new ArrayAdapter<String>(this, R.layout.drawer_item, R.id.text, getResources().getStringArray(R.array.drawer_items)));
+        listView.setAdapter(new ArrayAdapter<>(this, R.layout.drawer_item, R.id.text, getResources().getStringArray(R.array.drawer_items)));
         drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.app_name, R.string.app_name);
         drawerLayout.setDrawerListener(drawerToggle);
 
@@ -114,7 +120,11 @@ public class MainActivity extends Activity {
         progressDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
             @Override
             public void onDismiss(DialogInterface dialog) {
-                launch();
+                try {
+                    launch();
+                } catch (IllegalStateException e) {
+                    e.printStackTrace();
+                }
             }
         });
 
@@ -130,17 +140,8 @@ public class MainActivity extends Activity {
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(ACTION_HIDE_TOUCH_BARRIER);
-        filter.addAction(ACTION_SHOW_TOUCH_BARRIER);
-        registerReceiver(broadcastReceiver, filter);
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
+    protected void onDestroy() {
+        super.onDestroy();
         unregisterReceiver(broadcastReceiver);
     }
 
