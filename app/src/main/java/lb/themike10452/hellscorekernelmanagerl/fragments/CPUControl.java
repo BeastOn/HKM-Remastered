@@ -328,27 +328,11 @@ public class CPUControl extends Fragment implements HKMFragment, View.OnClickLis
                     }
                 }
 
-                String tmp = Tools.getInstance().readLineFromFile(Library.AVAIL_FREQ_PATH);
-                if (tmp != null) {
-                    String[] freqs = tmp.split(" ");
-                    available_freqs = new long[freqs.length];
-                    try {
-                        for (int i = 0; i < freqs.length; i++) {
-                            available_freqs[i] = Long.parseLong(freqs[i]);
-                        }
-                    } catch (NumberFormatException e) {
-                        available_freqs = null;
-                    }
-                }
+                if (available_freqs == null)
+                    fetchFrequencies();
 
-                tmp = Tools.getInstance().readLineFromFile(Library.AVAIL_GOV_PATH);
-                if (tmp != null) {
-                    try {
-                        available_governors = tmp.split(" ");
-                    } catch (Exception e) {
-                        available_governors = null;
-                    }
-                }
+                if (available_governors == null)
+                    fetchGovernors();
 
                 mVoltagesAdapter.invalidate();
 
@@ -419,6 +403,32 @@ public class CPUControl extends Fragment implements HKMFragment, View.OnClickLis
             }
         }
         mVoltagesAdapter.flush();
+    }
+
+    private void fetchFrequencies() {
+        String tmp = Tools.getInstance().readLineFromFile(Library.AVAIL_FREQ_PATH);
+        if (tmp != null) {
+            String[] freqs = tmp.split(" ");
+            available_freqs = new long[freqs.length];
+            try {
+                for (int i = 0; i < freqs.length; i++) {
+                    available_freqs[i] = Long.parseLong(freqs[i]);
+                }
+            } catch (NumberFormatException e) {
+                available_freqs = null;
+            }
+        }
+    }
+
+    private void fetchGovernors() {
+        String tmp = Tools.getInstance().readLineFromFile(Library.AVAIL_GOV_PATH);
+        if (tmp != null) {
+            try {
+                available_governors = tmp.split(" ");
+            } catch (Exception e) {
+                available_governors = null;
+            }
+        }
     }
 
     private View findViewById(int id) {
