@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.LinearLayout;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -54,6 +55,16 @@ public class VoltagesAdapter extends ArrayAdapter<CPUVoltageProperty> {
                 }
             }
         }
+
+        containerView.post(new Runnable() {
+            @Override
+            public void run() {
+                ((LinearLayout) containerView).removeAllViews();
+                for (int i = 0; i < getCount(); i++) {
+                    ((LinearLayout) containerView).addView(getView(i, null, null));
+                }
+            }
+        });
     }
 
     private void recycle() {

@@ -370,11 +370,6 @@ public class CPUControl extends Fragment implements HKMFragment, View.OnClickLis
                     }
                 }
 
-                ((LinearLayout) findViewById(R.id.vdd_panel)).removeAllViews();
-                for (int i = 0; i < mVoltagesAdapter.getCount(); i++) {
-                    ((LinearLayout) findViewById(R.id.vdd_panel)).addView(mVoltagesAdapter.getView(i, null, null));
-                }
-
                 mActivity.sendBroadcast(new Intent(MainActivity.ACTION_HIDE_TOUCH_BARRIER));
             }
         }.execute();
