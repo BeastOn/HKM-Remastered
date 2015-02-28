@@ -21,11 +21,13 @@ public class MultiLineValueProperty implements HKMPropertyInterface {
     protected int viewId;
     protected String DEFAULT_VALUE;
     protected String filePath;
+    protected View mContainer;
 
-    public MultiLineValueProperty(int resId, String path, String defaultValue) {
+    public MultiLineValueProperty(View container, String path, String defaultValue) {
         filePath = path;
         DEFAULT_VALUE = defaultValue;
-        viewId = resId;
+        mContainer = container;
+        viewId = container.getId();
         FLAGS = 0;
     }
 
@@ -97,12 +99,12 @@ public class MultiLineValueProperty implements HKMPropertyInterface {
     }
 
     @Override
-    public String readDisplayedValue(View holder) {
+    public String readDisplayedValue() {
         String value = null;
-        if (holder instanceof Switch) {
-            value = ((Switch) holder).isChecked() ? "1" : "0";
+        if (mContainer instanceof Switch) {
+            value = ((Switch) mContainer).isChecked() ? "1" : "0";
         } else {
-            View disp = holder.findViewById(R.id.value);
+            View disp = mContainer.findViewById(R.id.value);
             if (disp != null) {
                 if (disp instanceof Switch) {
                     value = ((Switch) disp).isChecked() ? "1" : "0";
@@ -113,7 +115,7 @@ public class MultiLineValueProperty implements HKMPropertyInterface {
                     }
                 }
             } else {
-                disp = holder.findViewById(R.id.mswitch);
+                disp = mContainer.findViewById(R.id.mswitch);
                 if (disp != null && disp instanceof Switch) {
                     value = ((Switch) disp).isChecked() ? "1" : "0";
                 }
@@ -123,18 +125,18 @@ public class MultiLineValueProperty implements HKMPropertyInterface {
     }
 
     @Override
-    public void setDisplayedValue(Object _value, View parent) {
+    public void setDisplayedValue(Object _value) {
         List<String> value = (List<String>) _value;
         if (value == null || value.isEmpty()) {
-            parent.setVisibility(View.GONE);
+            mContainer.setVisibility(View.GONE);
         } else {
-            View disp = parent.findViewById(R.id.value);
+            View disp = mContainer.findViewById(R.id.value);
             if (disp != null)
                 if (disp instanceof TextView) {
-                    if (parent instanceof TextView) {
-                        ((TextView) parent).setText(Arrays.toString(value.toArray(new String[value.size()])));
+                    if (mContainer instanceof TextView) {
+                        ((TextView) mContainer).setText(Arrays.toString(value.toArray(new String[value.size()])));
                     } else {
-                        View v = parent.findViewById(R.id.value);
+                        View v = mContainer.findViewById(R.id.value);
                         if (v != null && v instanceof TextView) {
                             ((TextView) v).setText(Arrays.toString(value.toArray(new String[value.size()])));
                         }

@@ -1,6 +1,7 @@
 package lb.themike10452.hellscorekernelmanagerl.properties;
 
 import android.support.annotation.NonNull;
+import android.view.View;
 
 import java.util.Arrays;
 
@@ -11,8 +12,8 @@ public class MultiRootPathStringProperty extends StringProperty {
 
     String[] filePaths;
 
-    public MultiRootPathStringProperty(int resId, String defaultValue, @NonNull String... paths) {
-        super("", resId, defaultValue);
+    public MultiRootPathStringProperty(View container, String defaultValue, @NonNull String... paths) {
+        super("", container, defaultValue);
         filePaths = paths;
     }
 

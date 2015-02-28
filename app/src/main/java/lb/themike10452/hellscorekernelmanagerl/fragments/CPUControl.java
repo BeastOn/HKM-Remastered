@@ -146,7 +146,7 @@ public class CPUControl extends Fragment implements HKMFragment, View.OnClickLis
                             for (NumberPicker picker : pickers)
                                 newValues = newValues.concat(choices.get(picker.getValue())).concat(" ");
                             newValues = newValues.trim();
-                            touchBoostProperty.setDisplayedValue(Arrays.asList(newValues.split(" ")), v);
+                            touchBoostProperty.setDisplayedValue(Arrays.asList(newValues.split(" ")));
                         }
                     });
                 } else {
@@ -167,10 +167,7 @@ public class CPUControl extends Fragment implements HKMFragment, View.OnClickLis
                         @Override
                         public void onDismiss() {
                             String newValue = choices.get(picker.getValue());
-                            View disp = v.findViewById(R.id.value);
-                            if (disp != null && disp instanceof TextView) {
-                                ((TextView) disp).setText(newValue);
-                            }
+                            property.setDisplayedValue(newValue);
                         }
                     });
                 }
@@ -194,39 +191,6 @@ public class CPUControl extends Fragment implements HKMFragment, View.OnClickLis
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        governorProperty = new StringProperty(Library.GOV0, R.id.govBtn, ERR_STR);
-        maxFreqProperty = new MultiCoreLongProperty(Library.MAX_FREQ_PATH, R.id.maxFreqHolder, ERR_INT);
-        minFreqProperty = new MultiCoreLongProperty(Library.MIN_FREQ_PATH, R.id.minFreqHolder, ERR_INT);
-
-        maxCoresProperty = new MultiRootPathIntProperty(R.id.maxCoresOnBtn, ERR_INT, Library.MAX_CPUS_ONLINE_PATH0, Library.MAX_CPUS_ONLINE_PATH1);
-        minCoresProperty = new MultiRootPathIntProperty(R.id.minCoresOnBtn, ERR_INT, Library.MIN_CPUS_ONLINE_PATH0, Library.MIN_CPUS_ONLINE_PATH1);
-        boostedCoresProperty = new intProperty(Library.BOOSTED_CPUS_PATH, R.id.boostedCoresBtn, ERR_INT);
-        boostDurationProperty = new intProperty(Library.BOOST_LOCK_DURATION_PATH, R.id.boostDurationBtn, ERR_INT);
-        screenoffMaxProperty = new longProperty(Library.SCREEN_OFF_MAX_FREQ, R.id.screenOffMaxBtn, ERR_INT);
-        screenoffMaxStateProperty = new intProperty(Library.SCREEN_OFF_MAX_STATE, R.id.screenOffMaxStateSwitch, ERR_INT);
-        screenoffSglCoreProperty = new intProperty(Library.SCREEN_OFF_SINGLE_CORE_PATH, R.id.screenOffSglCoreHolder, ERR_INT);
-        touchBoostProperty = new MultiLineValueProperty(R.id.touchBoostBtn, Library.TOUCH_BOOST_FREQS_PATH, ERR_STR);
-        touchBoostStateProperty = new intProperty(Library.TOUCH_BOOST_PATH, R.id.touchBoostSwitch, ERR_INT);
-
-        c0wfiProperty = new MultiCoreIntProperty(Library.CPU_IDLE_C0_PATH, R.id.c0_switch, ERR_INT);
-        c1retProperty = new MultiCoreIntProperty(Library.CPU_IDLE_C1_PATH, R.id.c1_switch, ERR_INT);
-        c2spcProperty = new MultiCoreIntProperty(Library.CPU_IDLE_C2_PATH, R.id.c2_switch, ERR_INT);
-        c3pcProperty = new MultiCoreIntProperty(Library.CPU_IDLE_C3_PATH, R.id.c3_switch, ERR_INT);
-
-        governorProperty.FLAGS = PropertyUtils.FLAG_VIEW_COMBO;
-        maxCoresProperty.FLAGS = PropertyUtils.FLAG_CPU_CORES;
-        minCoresProperty.FLAGS = PropertyUtils.FLAG_CPU_CORES;
-        boostedCoresProperty.FLAGS = PropertyUtils.FLAG_CPU_CORES | PropertyUtils.FLAG_CPU_CORES_ALLOW_ZERO;
-        screenoffMaxProperty.FLAGS = PropertyUtils.FLAG_VIEW_COMBO;
-        touchBoostProperty.FLAGS = PropertyUtils.FLAG_VIEW_COMBO;
-
-        initProperties();
-    }
-
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         mView = inflater.inflate(R.layout.fragment_cpu, container, false);
         View vddPanel = findViewById(R.id.vdd_panel);
@@ -238,7 +202,54 @@ public class CPUControl extends Fragment implements HKMFragment, View.OnClickLis
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        refresh();
+
+        governorProperty = new StringProperty(Library.GOV0, findViewById(R.id.govBtn), ERR_STR);
+        maxFreqProperty = new MultiCoreLongProperty(Library.MAX_FREQ_PATH, findViewById(R.id.maxFreqHolder), ERR_INT);
+        minFreqProperty = new MultiCoreLongProperty(Library.MIN_FREQ_PATH, findViewById(R.id.minFreqHolder), ERR_INT);
+
+        maxCoresProperty = new MultiRootPathIntProperty(findViewById(R.id.maxCoresOnBtn), ERR_INT, Library.MAX_CPUS_ONLINE_PATH0, Library.MAX_CPUS_ONLINE_PATH1) {
+            @Override
+            public void setDisplayedValue(Object _value) {
+                super.setDisplayedValue(_value);
+                if (_value instanceof String) {
+                    int thisValue = Integer.parseInt((String) _value);
+                    int thatValue = Integer.parseInt(minCoresProperty.readDisplayedValue());
+                    minCoresProperty.setDisplayedValue(Math.min(thisValue, thatValue));
+                }
+            }
+        };
+        minCoresProperty = new MultiRootPathIntProperty(findViewById(R.id.minCoresOnBtn), ERR_INT, Library.MIN_CPUS_ONLINE_PATH0, Library.MIN_CPUS_ONLINE_PATH1) {
+            @Override
+            public void setDisplayedValue(Object _value) {
+                super.setDisplayedValue(_value);
+                if (_value instanceof String) {
+                    int thisValue = Integer.parseInt((String) _value);
+                    int thatValue = Integer.parseInt(maxCoresProperty.readDisplayedValue());
+                    maxCoresProperty.setDisplayedValue(Math.max(thisValue, thatValue));
+                }
+            }
+        };
+        boostedCoresProperty = new intProperty(Library.BOOSTED_CPUS_PATH, findViewById(R.id.boostedCoresBtn), ERR_INT);
+        boostDurationProperty = new intProperty(Library.BOOST_LOCK_DURATION_PATH, findViewById(R.id.boostDurationBtn), ERR_INT);
+        screenoffMaxProperty = new longProperty(Library.SCREEN_OFF_MAX_FREQ, findViewById(R.id.screenOffMaxBtn), ERR_INT);
+        screenoffMaxStateProperty = new intProperty(Library.SCREEN_OFF_MAX_STATE, findViewById(R.id.screenOffMaxStateSwitch), ERR_INT);
+        screenoffSglCoreProperty = new intProperty(Library.SCREEN_OFF_SINGLE_CORE_PATH, findViewById(R.id.screenOffSglCoreHolder), ERR_INT);
+        touchBoostProperty = new MultiLineValueProperty(findViewById(R.id.touchBoostBtn), Library.TOUCH_BOOST_FREQS_PATH, ERR_STR);
+        touchBoostStateProperty = new intProperty(Library.TOUCH_BOOST_PATH, findViewById(R.id.touchBoostSwitch), ERR_INT);
+
+        c0wfiProperty = new MultiCoreIntProperty(Library.CPU_IDLE_C0_PATH, findViewById(R.id.c0_switch), ERR_INT);
+        c1retProperty = new MultiCoreIntProperty(Library.CPU_IDLE_C1_PATH, findViewById(R.id.c1_switch), ERR_INT);
+        c2spcProperty = new MultiCoreIntProperty(Library.CPU_IDLE_C2_PATH, findViewById(R.id.c2_switch), ERR_INT);
+        c3pcProperty = new MultiCoreIntProperty(Library.CPU_IDLE_C3_PATH, findViewById(R.id.c3_switch), ERR_INT);
+
+        governorProperty.FLAGS = PropertyUtils.FLAG_VIEW_COMBO;
+        maxCoresProperty.FLAGS = PropertyUtils.FLAG_CPU_CORES;
+        minCoresProperty.FLAGS = PropertyUtils.FLAG_CPU_CORES;
+        boostedCoresProperty.FLAGS = PropertyUtils.FLAG_CPU_CORES | PropertyUtils.FLAG_CPU_CORES_ALLOW_ZERO;
+        screenoffMaxProperty.FLAGS = PropertyUtils.FLAG_VIEW_COMBO;
+        touchBoostProperty.FLAGS = PropertyUtils.FLAG_VIEW_COMBO;
+
+        initProperties();
 
         final SeekBar maxFreq = (SeekBar) findViewById(maxFreqProperty.getViewId()).findViewById(R.id.seekBar);
         final SeekBar minFreq = (SeekBar) findViewById(minFreqProperty.getViewId()).findViewById(R.id.seekBar);
@@ -261,12 +272,10 @@ public class CPUControl extends Fragment implements HKMFragment, View.OnClickLis
 
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
-
             }
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-
             }
         };
 
@@ -279,6 +288,8 @@ public class CPUControl extends Fragment implements HKMFragment, View.OnClickLis
         findViewById(boostedCoresProperty.getViewId()).setOnClickListener(this);
         findViewById(screenoffMaxProperty.getViewId()).setOnClickListener(this);
         findViewById(touchBoostProperty.getViewId()).setOnClickListener(this);
+
+        refresh();
     }
 
     private void initProperties() {
@@ -352,11 +363,11 @@ public class CPUControl extends Fragment implements HKMFragment, View.OnClickLis
                     } catch (Exception ignored) {
                     }
 
-                    property.setDisplayedValue(values[i], parent);
+                    property.setDisplayedValue(values[i]);
 
                     if (property instanceof longProperty) {
                         long value = (long) values[i];
-                        property.setDisplayedValue(values[i], parent);
+                        property.setDisplayedValue(values[i]);
                         View disp = parent.findViewById(R.id.seekBar);
                         if (disp != null && disp instanceof SeekBar) {
                             SeekBar seekBar = (SeekBar) disp;
@@ -381,7 +392,7 @@ public class CPUControl extends Fragment implements HKMFragment, View.OnClickLis
             boolean isCombo = (PropertyUtils.FLAG_VIEW_COMBO & property.getFlags()) == PropertyUtils.FLAG_VIEW_COMBO;
             View holder = findViewById(property.getViewId());
             if (holder.getVisibility() == View.VISIBLE && (!isCombo || ((View) holder.getParent()).getVisibility() == View.VISIBLE)) {
-                String value = property.readDisplayedValue(holder);
+                String value = property.readDisplayedValue();
                 if (value != null) {
                     if (property == touchBoostProperty) {
                         String str = value;

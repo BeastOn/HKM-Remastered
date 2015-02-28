@@ -14,14 +14,15 @@ import lb.themike10452.hellscorekernelmanagerl.utils.Tools;
 public class longProperty extends HKMProperty implements longPropertyInterface {
 
     public int FLAGS;
-    private int viewId;
-    private long DEFAULT_VALUE;
-    private String filePath;
+    protected int viewId;
+    protected long DEFAULT_VALUE;
+    protected String filePath;
 
-    public longProperty(@NonNull String path, int resId, long defaultValue) {
+    public longProperty(@NonNull String path, View container, long defaultValue) {
         DEFAULT_VALUE = defaultValue;
         filePath = path;
-        viewId = resId;
+        mContainer = container;
+        viewId = container.getId();
         FLAGS = 0;
     }
 
@@ -65,12 +66,17 @@ public class longProperty extends HKMProperty implements longPropertyInterface {
     }
 
     @Override
-    public void setDisplayedValue(Object _value, View holder) {
-        long value = (long) _value;
-        if (value == DEFAULT_VALUE) {
-            holder.setVisibility(View.GONE);
+    public void setDisplayedValue(Object _value) {
+        long value;
+        if (_value instanceof String) {
+            value = Long.parseLong((String) _value);
         } else {
-            View disp = holder.findViewById(R.id.value);
+            value = (long) _value;
+        }
+        if (value == DEFAULT_VALUE) {
+            mContainer.setVisibility(View.GONE);
+        } else {
+            View disp = mContainer.findViewById(R.id.value);
             if (disp instanceof TextView)
                 ((TextView) disp).setText(Long.toString(value));
         }

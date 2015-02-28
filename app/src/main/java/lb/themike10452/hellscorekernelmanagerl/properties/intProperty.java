@@ -19,10 +19,11 @@ public class intProperty extends HKMProperty implements intPropertyInterface {
     protected int viewId;
     protected String filePath;
 
-    public intProperty(@NonNull String path, int resId, int defaultValue) {
+    public intProperty(@NonNull String path, View container, int defaultValue) {
         DEFAULT_VALUE = defaultValue;
         filePath = path;
-        viewId = resId;
+        mContainer = container;
+        viewId = container.getId();
         FLAGS = 0;
     }
 
@@ -70,26 +71,31 @@ public class intProperty extends HKMProperty implements intPropertyInterface {
     }
 
     @Override
-    public void setDisplayedValue(Object _value, View holder) {
-        int value = (int) _value;
+    public void setDisplayedValue(Object _value) {
+        int value;
+        if (_value instanceof String) {
+            value = Integer.parseInt((String) _value);
+        } else {
+            value = (int) _value;
+        }
         if (value == DEFAULT_VALUE) {
-            holder.setVisibility(View.GONE);
+            mContainer.setVisibility(View.GONE);
         } else {
             {
-                View disp = holder.findViewById(R.id.value);
+                View disp = mContainer.findViewById(R.id.value);
                 if (disp != null) {
                     if (disp instanceof Switch) {
                         ((Switch) disp).setChecked(value == 1);
                     } else if (disp instanceof TextView) {
                         ((TextView) disp).setText(Integer.toString(value));
                     }
-                } else if (holder instanceof Switch) {
-                    ((Switch) holder).setChecked(value == 1);
+                } else if (mContainer instanceof Switch) {
+                    ((Switch) mContainer).setChecked(value == 1);
                     return;
                 }
             }
             {
-                View disp = holder.findViewById(R.id.mswitch);
+                View disp = mContainer.findViewById(R.id.mswitch);
                 if (disp != null)
                     if (disp instanceof Switch)
                         ((Switch) disp).setChecked(value == 1);

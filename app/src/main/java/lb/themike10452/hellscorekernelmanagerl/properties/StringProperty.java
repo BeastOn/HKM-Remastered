@@ -17,10 +17,11 @@ public class StringProperty extends HKMProperty implements StringPropertyInterfa
     protected String DEFAULT_VALUE;
     protected int viewId;
 
-    public StringProperty(String path, int resId, String defaultValue) {
+    public StringProperty(String path, View container, String defaultValue) {
         filePath = path;
         DEFAULT_VALUE = defaultValue;
-        viewId = resId;
+        mContainer = container;
+        viewId = container.getId();
         FLAGS = 0;
     }
 
@@ -65,12 +66,12 @@ public class StringProperty extends HKMProperty implements StringPropertyInterfa
     }
 
     @Override
-    public void setDisplayedValue(Object _value, View holder) {
+    public void setDisplayedValue(Object _value) {
         String value = _value.toString();
         if (DEFAULT_VALUE.equals(value)) {
-            holder.setVisibility(View.GONE);
+            mContainer.setVisibility(View.GONE);
         } else {
-            View disp = holder.findViewById(R.id.value);
+            View disp = mContainer.findViewById(R.id.value);
             if (disp != null)
                 if (disp instanceof TextView) {
                     ((TextView) disp).setText(value);

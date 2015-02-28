@@ -14,7 +14,7 @@ public interface HKMPropertyInterface {
 
     int getFlags();
 
-    String readDisplayedValue(View holder);
+    String readDisplayedValue();
 
-    void setDisplayedValue(Object value, View parent);
+    void setDisplayedValue(Object value);
 }

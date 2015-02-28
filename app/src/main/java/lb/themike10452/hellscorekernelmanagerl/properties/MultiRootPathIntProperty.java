@@ -1,6 +1,7 @@
 package lb.themike10452.hellscorekernelmanagerl.properties;
 
 import android.support.annotation.NonNull;
+import android.view.View;
 
 /**
  * Created by Mike on 2/23/2015.
@@ -9,8 +10,8 @@ public class MultiRootPathIntProperty extends intProperty {
 
     String[] filePaths;
 
-    public MultiRootPathIntProperty(int resId, int defaultValue, @NonNull String... paths) {
-        super("", resId, defaultValue);
+    public MultiRootPathIntProperty(View container, int defaultValue, @NonNull String... paths) {
+        super("", container, defaultValue);
         filePaths = paths;
     }
 

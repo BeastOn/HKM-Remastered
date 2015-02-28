@@ -1,6 +1,7 @@
 package lb.themike10452.hellscorekernelmanagerl.properties;
 
 import android.util.Log;
+import android.view.View;
 
 /**
  * Created by Mike on 2/22/2015.
@@ -9,8 +10,8 @@ public class MultiCoreIntProperty extends intProperty {
 
     private String[] filePaths;
 
-    public MultiCoreIntProperty(String pathLook, int resId, int defaultValue) {
-        super(String.format(pathLook, 0), resId, defaultValue);
+    public MultiCoreIntProperty(String pathLook, View container, int defaultValue) {
+        super(String.format(pathLook, 0), container, defaultValue);
         filePaths = new String[4];
         for (int i = 0; i < filePaths.length; i++) {
             filePaths[i] = String.format(pathLook, i);

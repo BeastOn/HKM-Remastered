@@ -11,16 +11,18 @@ import lb.themike10452.hellscorekernelmanagerl.R;
  */
 public class HKMProperty {
 
-    public HKMProperty() {
+    protected View mContainer;
 
+    public HKMProperty() {
+        //required empty constructor
     }
 
-    public String readDisplayedValue(View parent) {
+    public String readDisplayedValue() {
         String value = null;
-        if (parent instanceof Switch) {
-            value = ((Switch) parent).isChecked() ? "1" : "0";
+        if (mContainer instanceof Switch) {
+            value = ((Switch) mContainer).isChecked() ? "1" : "0";
         } else {
-            View disp = parent.findViewById(R.id.value);
+            View disp = mContainer.findViewById(R.id.value);
             if (disp != null) {
                 if (disp instanceof Switch) {
                     value = ((Switch) disp).isChecked() ? "1" : "0";
@@ -31,7 +33,7 @@ public class HKMProperty {
                     }
                 }
             } else {
-                disp = parent.findViewById(R.id.mswitch);
+                disp = mContainer.findViewById(R.id.mswitch);
                 if (disp != null && disp instanceof Switch) {
                     value = ((Switch) disp).isChecked() ? "1" : "0";
                 }
