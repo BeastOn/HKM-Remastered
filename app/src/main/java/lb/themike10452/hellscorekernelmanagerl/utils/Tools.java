@@ -2,7 +2,6 @@ package lb.themike10452.hellscorekernelmanagerl.utils;
 
 import android.os.Handler;
 import android.os.Message;
-import android.support.annotation.NonNull;
 import android.util.Log;
 
 import java.io.BufferedReader;
@@ -73,6 +72,18 @@ public class Tools {
     public String readLineFromFile(File file) {
         try {
             return readFromFile(file).get(0);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public String readBlockFromFile(File file) {
+        try {
+            StringBuilder fileData = new StringBuilder();
+            for (String line : readFromFile(file)) {
+                fileData.append(line).append("\n");
+            }
+            return fileData.toString().trim();
         } catch (Exception e) {
             return null;
         }
@@ -164,7 +175,7 @@ public class Tools {
         private InputStream inputStream;
         private List<String> result;
 
-        public Streamer(@NonNull InputStream inputStream, @NonNull List<String> result) {
+        public Streamer(InputStream inputStream, List<String> result) {
             this.result = result;
             this.inputStream = inputStream;
         }

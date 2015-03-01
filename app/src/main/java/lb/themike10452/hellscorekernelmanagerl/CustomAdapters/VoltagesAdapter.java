@@ -1,10 +1,12 @@
 package lb.themike10452.hellscorekernelmanagerl.CustomAdapters;
 
 import android.content.Context;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 
 import java.io.File;
@@ -23,12 +25,13 @@ import lb.themike10452.hellscorekernelmanagerl.utils.Tools;
 public class VoltagesAdapter extends ArrayAdapter<CPUVoltageProperty> {
 
     public static final long VDD_STEP = 12500;
+    public static final long UV_MV_STEP = 10;
+
+    public static int mode;
 
     private Context mContext;
     private View containerView;
     private List<CPUVoltageProperty> list;
-
-    private int mode;
 
     public VoltagesAdapter(Context context, View container) {
         super(context, R.layout.modifier_layout, new CPUVoltageProperty[0]);
@@ -40,17 +43,28 @@ public class VoltagesAdapter extends ArrayAdapter<CPUVoltageProperty> {
 
     private void init() {
         list.clear();
-        File vdd_table = new File(Library.VDD_LEVELS);
-        if (vdd_table.exists()) {
+        mode = -1;
+        File voltage_table;
+        voltage_table = new File(Library.VDD_LEVELS);
+        if (voltage_table.exists()) {
             mode = 1;
-            List<String> rawData = Tools.getInstance().readFromFile(vdd_table);
+        } else {
+            voltage_table = new File(Library.UV_MV_TABLE);
+            if (voltage_table.exists()) {
+                mode = 2;
+            }
+        }
+
+        if (mode != -1) {
+            List<String> rawData = Tools.getInstance().readFromFile(voltage_table);
             for (String line : rawData) {
                 if (line.contains(":")) {
-                    String[] couple = line.split(":");
-                    couple[0] = couple[0].replace("mhz", "").trim();
+                    String[] couple = line.replace("mV", "").replace("mhz", "").split(":");
+                    couple[0] = couple[0].trim();
                     couple[1] = couple[1].trim();
 
                     View container = LayoutInflater.from(mContext).inflate(R.layout.voltage_ctrl_layout, null, false);
+                    ((EditText) container.findViewById(R.id.value)).setInputType(TypedValue.TYPE_NULL);
                     list.add(new CPUVoltageProperty(couple[0], couple[1], container));
                 }
             }
@@ -68,25 +82,35 @@ public class VoltagesAdapter extends ArrayAdapter<CPUVoltageProperty> {
     }
 
     private void recycle() {
+        File voltage_table;
         switch (mode) {
             case 1:
-                File vdd_table = new File(Library.VDD_LEVELS);
-                List<String> rawData = Tools.getInstance().readFromFile(vdd_table);
-                int i = 0;
-                for (String line : rawData) {
-                    if (line.contains(":")) {
-                        final CPUVoltageProperty property = list.get(i++);
-                        final String[] couple = line.split(":");
-                        couple[0] = couple[0].replace("mhz", "").trim();
-                        couple[1] = couple[1].trim();
-                        containerView.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                property.setDisplayedValue(couple[0], couple[1]);
-                            }
-                        });
-                    }
+                voltage_table = new File(Library.VDD_LEVELS);
+                break;
+            case 2:
+                voltage_table = new File(Library.UV_MV_TABLE);
+                break;
+            default:
+                voltage_table = null;
+                break;
+        }
+        if (voltage_table != null) {
+            List<String> rawData = Tools.getInstance().readFromFile(voltage_table);
+            int i = 0;
+            for (String line : rawData) {
+                if (line.contains(":")) {
+                    final CPUVoltageProperty property = list.get(i++);
+                    final String[] couple = line.replace("mhz", "").replace("mV", "").split(":");
+                    couple[0] = couple[0].trim();
+                    couple[1] = couple[1].trim();
+                    containerView.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            property.setDisplayedValue(couple[0], couple[1]);
+                        }
+                    });
                 }
+            }
         }
     }
 
@@ -105,6 +129,15 @@ public class VoltagesAdapter extends ArrayAdapter<CPUVoltageProperty> {
                     for (CPUVoltageProperty property : list) {
                         Tools.getInstance().exec("echo " + property.getFrequency() + " " + property.getVoltage() + " > " + vdd_table.getAbsolutePath());
                     }
+                    break;
+                case 2:
+                    File uv_mv_table = new File(Library.UV_MV_TABLE);
+                    String params = "";
+                    for (CPUVoltageProperty property : list) {
+                        params = params.concat(property.getVoltage()).concat(" ");
+                    }
+                    Tools.getInstance().exec("echo ".concat(params).concat(" > ").concat(uv_mv_table.getAbsolutePath()));
+                    break;
             }
         }
     }

@@ -28,6 +28,7 @@ public class Library {
     public static String SCREEN_OFF_MAX_STATE = "/sys/devices/system/cpu/cpu0/cpufreq/screen_off_max";
     public static String AVAIL_FREQ_PATH = "/sys/devices/system/cpu/cpu0/cpufreq/scaling_available_frequencies";
     public static String AVAIL_GOV_PATH = "/sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors";
+    public static String CPU_GOV_CFG_PATH = "/sys/devices/system/cpu/cpufreq/%s/";
     public static String CPU_IDLE_C0_PATH = "/sys/module/pm_8x60/modes/cpu%s/wfi/idle_enabled";
     public static String CPU_IDLE_C1_PATH = "/sys/module/pm_8x60/modes/cpu%s/retention/idle_enabled";
     public static String CPU_IDLE_C2_PATH = "/sys/module/pm_8x60/modes/cpu%s/standalone_power_collapse/idle_enabled";
@@ -56,6 +57,7 @@ public class Library {
     public static String NET_TCP_AVAILABLE = "/proc/sys/net/ipv4/tcp_available_congestion_control";
     public static String NET_TCP_CONGST = "/proc/sys/net/ipv4/tcp_congestion_control";
     public static String VDD_LEVELS = "/sys/devices/system/cpu/cpufreq/vdd_table/vdd_levels";
+    public static String UV_MV_TABLE = "/sys/devices/system/cpu/cpu0/cpufreq/UV_mV_table";
     public static String CPU_TIME_IN_STATE = "/sys/devices/system/cpu/cpu0/cpufreq/stats/time_in_state";
     public static String VIBRATOR_AMP = "/sys/class/timed_output/vibrator/amp";
     public static String GPU_AVAIL_FREQ_PATH = "/sys/devices/platform/kgsl-3d0.0/kgsl/kgsl-3d0/gpu_available_frequencies";

@@ -2,13 +2,20 @@ package lb.themike10452.hellscorekernelmanagerl.fragments;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.app.SharedElementCallback;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.transition.Explode;
+import android.transition.Fade;
+import android.transition.TransitionInflater;
+import android.util.Pair;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateInterpolator;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.NumberPicker;
@@ -21,7 +28,9 @@ import java.util.Arrays;
 import java.util.List;
 
 import lb.themike10452.hellscorekernelmanagerl.CustomAdapters.VoltagesAdapter;
+import lb.themike10452.hellscorekernelmanagerl.CustomWidgets.NumberModifier;
 import lb.themike10452.hellscorekernelmanagerl.MainActivity;
+import lb.themike10452.hellscorekernelmanagerl.MainActivity.mTransactionManager;
 import lb.themike10452.hellscorekernelmanagerl.R;
 import lb.themike10452.hellscorekernelmanagerl.properties.HKMPropertyInterface;
 import lb.themike10452.hellscorekernelmanagerl.properties.MultiCoreIntProperty;
@@ -47,6 +56,7 @@ public class CPUControl extends Fragment implements HKMFragment, View.OnClickLis
 
     private Activity mActivity;
     private VoltagesAdapter mVoltagesAdapter;
+    private mTransactionManager transactionManager;
 
     private MultiRootPathIntProperty maxCoresProperty;
     private MultiRootPathIntProperty minCoresProperty;
@@ -73,6 +83,36 @@ public class CPUControl extends Fragment implements HKMFragment, View.OnClickLis
 
     @Override
     public void onClick(final View v) {
+
+        if (v == findViewById(R.id.govCfgBtn)) {
+            Fragment fragment = CPUGovernorCfg.getInstance(transactionManager);
+            Bundle b = new Bundle();
+            b.putString("title", governorProperty.readDisplayedValue());
+            fragment.setArguments(b);
+
+            int fast = getResources().getInteger(R.integer.duration_transition_fast);
+
+            setExitTransition(new Explode().setDuration(fast + 300).setStartDelay(0).setInterpolator(new AccelerateInterpolator()));
+            setSharedElementReturnTransition(TransitionInflater.from(mActivity).inflateTransition(R.transition.move));
+
+            fragment.setReturnTransition(new Fade().setDuration(fast));
+            fragment.setSharedElementEnterTransition(TransitionInflater.from(mActivity).inflateTransition(R.transition.move));
+            fragment.setEnterTransition(new Fade().setStartDelay(fast));
+            fragment.setEnterSharedElementCallback(new SharedElementCallback() {
+                @Override
+                public void onSharedElementStart(List<String> sharedElementNames, List<View> sharedElements, List<View> sharedElementSnapshots) {
+                    super.onSharedElementStart(sharedElementNames, sharedElements, sharedElementSnapshots);
+                    sharedElements.get(0).setVisibility(View.INVISIBLE);
+                }
+            });
+
+            Pair<View, String> pair1 = new Pair<>(findViewById(R.id.card), "card");
+            Pair<View, String> pair2 = new Pair<>(findViewById(R.id.govCfgBtn), "govCfgBtn");
+
+            transactionManager.performTransaction(fragment, true, pair1, pair2);
+            return;
+        }
+
         final HKMPropertyInterface property = PropertyUtils.findProperty(properties, v);
 
         if (property != null) {
@@ -88,11 +128,45 @@ public class CPUControl extends Fragment implements HKMFragment, View.OnClickLis
                     for (int i = 1; i <= 4; i++) {
                         choices.add(Integer.toString(i));
                     }
+                } else {
+                    final NumberModifier modifier = new NumberModifier(mActivity);
+                    modifier.setValue(property.readDisplayedValue());
+                    modifier.setPadding(20, 20, 20, 20);
+                    modifier.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
+
+                    PopupWindow popupWindow = getPopupWindow();
+                    popupWindow.setContentView(modifier);
+                    popupWindow.showAsDropDown(v, v.getMeasuredWidth() - modifier.getMeasuredWidth(), 0);
+                    popupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
+                        @Override
+                        public void onDismiss() {
+                            property.setDisplayedValue(modifier.getValue());
+                        }
+                    });
                 }
             } else if (property instanceof StringProperty) {
                 if (property == governorProperty && available_governors != null) {
                     choices.addAll(Arrays.asList(available_governors));
                 }
+
+                View layout = LayoutInflater.from(mActivity).inflate(R.layout.simple_picker_layout, null, false);
+                layout.measure(View.MeasureSpec.EXACTLY, View.MeasureSpec.EXACTLY);
+                PopupWindow popupWindow = getPopupWindow();
+                popupWindow.setContentView(layout);
+                popupWindow.showAsDropDown(v, v.getMeasuredWidth() / 2 - layout.getMeasuredWidth() / 2, 0);
+                final NumberPicker picker = (NumberPicker) layout.findViewById(R.id.numberPicker);
+                picker.setMinValue(0);
+                picker.setMaxValue(choices.size() - 1);
+                picker.setDisplayedValues(choices.toArray(new String[choices.size()]));
+                picker.setValue(choices.indexOf(property.readDisplayedValue()));
+                picker.setWrapSelectorWheel(false);
+                popupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
+                    @Override
+                    public void onDismiss() {
+                        property.setDisplayedValue(choices.get(picker.getValue()));
+                    }
+                });
+                return;
             } else if (property instanceof longProperty || property instanceof MultiLineValueProperty) {
                 if (available_freqs != null) {
                     for (long l : available_freqs) {
@@ -102,15 +176,7 @@ public class CPUControl extends Fragment implements HKMFragment, View.OnClickLis
             }
 
             if (!choices.isEmpty()) {
-                PopupWindow popupWindow = new PopupWindow(mActivity);
-                popupWindow.setWindowLayoutMode(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                popupWindow.setHeight(1);
-                popupWindow.setWidth(1000);
-                popupWindow.setFocusable(true);
-                popupWindow.setBackgroundDrawable(getResources().getDrawable(R.drawable.popup_window_background));
-                popupWindow.setClippingEnabled(false);
-                popupWindow.setElevation(10f);
-                popupWindow.showAsDropDown(v, 300, 0);
+                PopupWindow popupWindow = getPopupWindow();
 
                 if (property instanceof MultiLineValueProperty) {
                     View layout = ((LayoutInflater) mActivity
@@ -150,23 +216,22 @@ public class CPUControl extends Fragment implements HKMFragment, View.OnClickLis
                         }
                     });
                 } else {
-                    View layout = ((LayoutInflater) mActivity
-                            .getSystemService(Context.LAYOUT_INFLATER_SERVICE))
-                            .inflate(R.layout.simple_picker_layout, null, false);
-                    popupWindow.setContentView(layout);
-                    popupWindow.showAsDropDown(v, 300, 0);
+                    final NumberModifier modifier = new NumberModifier(mActivity);
+                    modifier.setPadding(20, 20, 20, 20);
+                    modifier.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
+                    popupWindow.setContentView(modifier);
+                    popupWindow.showAsDropDown(v, v.getMeasuredWidth() - modifier.getMeasuredWidth(), 0);
 
-                    final NumberPicker picker = (NumberPicker) layout.findViewById(R.id.numberPicker);
-                    picker.setMinValue(0);
-                    picker.setMaxValue(choices.size() - 1);
-                    picker.setValue(choices.indexOf(((TextView) findViewById(property.getViewId()).findViewById(R.id.value)).getText().toString()));
-                    picker.setDisplayedValues(choices.toArray(new String[choices.size()]));
-                    picker.setWrapSelectorWheel(false);
+                    modifier.setMin(0);
+                    modifier.setMax(choices.size() - 1);
+                    modifier.setDisplayedValues(choices.toArray(new String[choices.size()]));
+                    modifier.setValue(choices.indexOf(((TextView) findViewById(property.getViewId()).findViewById(R.id.value)).getText().toString()));
+                    modifier.setInputType(TypedValue.TYPE_NULL);
 
                     popupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
                         @Override
                         public void onDismiss() {
-                            String newValue = choices.get(picker.getValue());
+                            String newValue = choices.get(modifier.getSelectionIndex());
                             property.setDisplayedValue(newValue);
                         }
                     });
@@ -176,8 +241,12 @@ public class CPUControl extends Fragment implements HKMFragment, View.OnClickLis
     }
 
 
-    public static CPUControl getInstance() {
-        return instance != null ? instance : new CPUControl();
+    public static CPUControl getInstance(mTransactionManager manager) {
+        if (instance == null)
+            instance = new CPUControl();
+        if (manager != null)
+            instance.transactionManager = manager;
+        return instance;
     }
 
     public CPUControl() {
@@ -196,6 +265,7 @@ public class CPUControl extends Fragment implements HKMFragment, View.OnClickLis
         View vddPanel = findViewById(R.id.vdd_panel);
         mVoltagesAdapter = new VoltagesAdapter(mActivity, vddPanel);
         ((FrameLayout) mView.findViewById(R.id.globalOffsetContainer)).addView(mVoltagesAdapter.getView(-1, null, null));
+        transactionManager.setActiveFragment(this);
         return mView;
     }
 
@@ -288,8 +358,10 @@ public class CPUControl extends Fragment implements HKMFragment, View.OnClickLis
         findViewById(boostedCoresProperty.getViewId()).setOnClickListener(this);
         findViewById(screenoffMaxProperty.getViewId()).setOnClickListener(this);
         findViewById(touchBoostProperty.getViewId()).setOnClickListener(this);
+        findViewById(boostDurationProperty.getViewId()).setOnClickListener(this);
+        findViewById(R.id.govCfgBtn).setOnClickListener(this);
 
-        refresh();
+        refresh(false);
     }
 
     private void initProperties() {
@@ -313,14 +385,14 @@ public class CPUControl extends Fragment implements HKMFragment, View.OnClickLis
         };
     }
 
-    public void refresh() {
+    public void refresh(final boolean byUser) {
         new AsyncTask<Void, Void, Void>() {
             Object[] values;
 
             @Override
             protected void onPreExecute() {
                 super.onPreExecute();
-                mActivity.sendBroadcast(new Intent(MainActivity.ACTION_SHOW_TOUCH_BARRIER));
+                //mActivity.sendBroadcast(new Intent(MainActivity.ACTION_SHOW_TOUCH_BARRIER));
                 values = new Object[properties.length];
             }
 
@@ -345,7 +417,16 @@ public class CPUControl extends Fragment implements HKMFragment, View.OnClickLis
                 if (available_governors == null)
                     fetchGovernors();
 
-                mVoltagesAdapter.invalidate();
+                if (byUser) {
+                    mVoltagesAdapter.invalidate();
+                } else {
+                    mView.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            mVoltagesAdapter.invalidate();
+                        }
+                    }, 1000);
+                }
 
                 return null;
             }
@@ -435,6 +516,18 @@ public class CPUControl extends Fragment implements HKMFragment, View.OnClickLis
                 available_governors = null;
             }
         }
+    }
+
+    private PopupWindow getPopupWindow() {
+        PopupWindow popupWindow = new PopupWindow(mActivity);
+        popupWindow.setWindowLayoutMode(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        popupWindow.setHeight(1);
+        popupWindow.setWidth(1000);
+        popupWindow.setFocusable(true);
+        popupWindow.setBackgroundDrawable(getResources().getDrawable(R.drawable.popup_window_background));
+        popupWindow.setClippingEnabled(false);
+        popupWindow.setElevation(10f);
+        return popupWindow;
     }
 
     private View findViewById(int id) {

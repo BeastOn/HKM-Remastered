@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/cpuGovHolder"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:id="@+id/cpuGovHolder">
+    android:clipChildren="false"
+    android:clipToPadding="false">
 
     <LinearLayout
         android:id="@+id/govBtn"
@@ -12,6 +14,8 @@
         android:layout_toStartOf="@+id/govCfgBtn"
         android:background="?android:attr/selectableItemBackground"
         android:clickable="true"
+        android:clipChildren="false"
+        android:clipToPadding="false"
         android:orientation="vertical"
         android:padding="3dp">
 
@@ -25,7 +29,8 @@
             android:id="@+id/value"
             style="@style/buttonDetailStyle"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:transitionName="govName" />
     </LinearLayout>
 
     <ImageButton
@@ -38,5 +43,6 @@
         android:layout_centerVertical="true"
         android:background="?android:attr/selectableItemBackgroundBorderless"
         android:scaleType="center"
-        android:src="@drawable/ic_settings_24px" />
+        android:src="@drawable/ic_settings_24px"
+        android:transitionName="govCfgBtn" />
 </RelativeLayout>

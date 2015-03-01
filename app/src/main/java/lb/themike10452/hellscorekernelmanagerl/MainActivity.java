@@ -1,7 +1,7 @@
 package lb.themike10452.hellscorekernelmanagerl;
 
 import android.app.Activity;
-import android.app.FragmentManager;
+import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
@@ -12,8 +12,10 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.Nullable;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -37,10 +39,10 @@ public class MainActivity extends Activity {
     private ActionBarDrawerToggle drawerToggle;
     private BroadcastReceiver broadcastReceiver;
     private DrawerLayout drawerLayout;
-    private FragmentManager fragmentManager;
     private ListView listView;
     private ProgressDialog progressDialog;
     private HKMFragment activeFragment;
+    private mTransactionManager transactionManager;
 
     private Handler mHandler = new Handler() {
         @Override
@@ -64,7 +66,7 @@ public class MainActivity extends Activity {
             switch (item.getItemId()) {
                 case R.id.action_refresh:
                     if (activeFragment != null)
-                        activeFragment.refresh();
+                        activeFragment.refresh(true);
                     return true;
                 case R.id.action_apply:
                     if (activeFragment != null)
@@ -80,8 +82,6 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        fragmentManager = getFragmentManager();
-
         progressDialog = new ProgressDialog(this);
         progressDialog.setTitle(R.string.dialog_message_reqRoot);
         progressDialog.setIndeterminate(true);
@@ -91,16 +91,20 @@ public class MainActivity extends Activity {
         broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                if (ACTION_SHOW_TOUCH_BARRIER.equals(intent.getAction())) {
-                    findViewById(R.id.touchBarrier).setVisibility(View.VISIBLE);
-                    findViewById(R.id.fragContainer).setEnabled(false);
-                } else if (ACTION_HIDE_TOUCH_BARRIER.equals(intent.getAction())) {
-                    findViewById(R.id.touchBarrier).setVisibility(View.GONE);
-                    findViewById(R.id.fragContainer).setEnabled(true);
+                if (intent.getAction() != null) {
+                    switch (intent.getAction()) {
+                        case ACTION_SHOW_TOUCH_BARRIER:
+                            findViewById(R.id.touchBarrier).setVisibility(View.VISIBLE);
+                            findViewById(R.id.fragContainer).setEnabled(false);
+                            break;
+                        case ACTION_HIDE_TOUCH_BARRIER:
+                            findViewById(R.id.touchBarrier).setVisibility(View.GONE);
+                            findViewById(R.id.fragContainer).setEnabled(true);
+                            break;
+                    }
                 }
             }
         };
-
 
         IntentFilter filter = new IntentFilter();
         filter.addAction(ACTION_HIDE_TOUCH_BARRIER);
@@ -146,12 +150,10 @@ public class MainActivity extends Activity {
     }
 
     private void launch() {
-        FragmentTransaction transaction = fragmentManager.beginTransaction();
-        transaction.add(R.id.fragContainer, CPUControl.getInstance());
-        transaction.commit();
-        assert getActionBar() != null;
-        getActionBar().setTitle(R.string.cpuCtl);
-        activeFragment = CPUControl.getInstance();
+        transactionManager = new mTransactionManager(this, R.id.fragContainer);
+        Fragment fragment = CPUControl.getInstance(transactionManager);
+        transactionManager.performTransaction(fragment, false, null);
+        transactionManager.setActionBarTitle(getString(R.string.cpuCtl));
     }
 
     private void handle(Message msg) {
@@ -177,4 +179,47 @@ public class MainActivity extends Activity {
     private void toast(String msg) {
         Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
     }
+
+    public class mTransactionManager {
+        private Activity mActivity;
+        private int containerId;
+
+        public mTransactionManager(Activity activity, int redId) {
+            mActivity = activity;
+            containerId = redId;
+        }
+
+        @SafeVarargs
+        public final void performTransaction(Fragment fragment, boolean addToBackTrace, @Nullable Pair<View, String>... sharedViews) {
+            activeFragment = (HKMFragment) fragment;
+
+            FragmentTransaction transaction = mActivity.getFragmentManager().beginTransaction();
+
+            if (sharedViews != null) {
+                for (Pair<View, String> p : sharedViews) {
+                    transaction.addSharedElement(p.first, p.second);
+                }
+            }
+            if (addToBackTrace) {
+                transaction.addToBackStack(fragment.toString());
+            }
+            transaction.replace(containerId, fragment);
+            transaction.commit();
+        }
+
+        public void popBackStack() {
+            mActivity.getFragmentManager().popBackStack();
+        }
+
+        public void setActiveFragment(HKMFragment fragment) {
+            activeFragment = fragment;
+        }
+
+        public void setActionBarTitle(String title) {
+            if (mActivity.getActionBar() != null) {
+                mActivity.getActionBar().setTitle(title);
+            }
+        }
+    }
+
 }

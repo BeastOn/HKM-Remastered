@@ -18,9 +18,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:backgroundTint="@color/colorAccent"
-        android:focusable="false"
         android:gravity="center"
-        android:inputType="none"
+        android:inputType="number"
         android:minWidth="80dp"
         android:textAppearance="?android:attr/textAppearanceSmall" />
 

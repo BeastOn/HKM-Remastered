@@ -63,6 +63,15 @@ public class CPUVoltageProperty implements View.OnClickListener {
 
     @Override
     public void onClick(View v) {
-        modifyValue(v == INC ? VoltagesAdapter.VDD_STEP : -VoltagesAdapter.VDD_STEP);
+        long offset = 0;
+        switch (VoltagesAdapter.mode) {
+            case 1:
+                offset = VoltagesAdapter.VDD_STEP;
+                break;
+            case 2:
+                offset = VoltagesAdapter.UV_MV_STEP;
+                break;
+        }
+        modifyValue(v == INC ? offset : -offset);
     }
 }
