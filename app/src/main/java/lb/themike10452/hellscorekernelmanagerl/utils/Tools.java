@@ -2,7 +2,6 @@ package lb.themike10452.hellscorekernelmanagerl.utils;
 
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -96,77 +95,72 @@ public class Tools {
 
     public List<String> readFromFile(File file) {
         FileReader fileReader = null;
-        if (file.exists()) {
-            if (file.canRead()) {
-                BufferedReader bufferedReader = null;
-                List<String> lines = new ArrayList<>();
-                try {
-                    String line;
-                    bufferedReader = new BufferedReader(fileReader = new FileReader(file));
-                    while ((line = bufferedReader.readLine()) != null) {
-                        if (line.length() > 0)
-                            lines.add(line);
-                    }
-                    return lines;
-                } catch (IOException ioe) {
-                    return null;
-                } finally {
-                    try {
-                        if (bufferedReader != null)
-                            bufferedReader.close();
-                        if (fileReader != null)
-                            fileReader.close();
-                    } catch (Exception ignored) {
-                    }
+        if (file.canRead()) {
+            BufferedReader bufferedReader = null;
+            List<String> lines = new ArrayList<>();
+            try {
+                String line;
+                bufferedReader = new BufferedReader(fileReader = new FileReader(file));
+                while ((line = bufferedReader.readLine()) != null) {
+                    if (line.length() > 0)
+                        lines.add(line);
                 }
-            } else {
+                return lines;
+            } catch (IOException ioe) {
+                return null;
+            } finally {
                 try {
-                    Process p = new ProcessBuilder("su", "-c", "/system/bin/sh").start();
-
-                    OutputStream outputStream = p.getOutputStream();
-                    OutputStreamWriter writer = new OutputStreamWriter(outputStream);
-                    writer.write(String.format("cat %s", file.getAbsolutePath()));
-                    writer.flush();
-                    writer.close();
-                    outputStream.close();
-
-                    stdOut.clear();
-                    stdErr.clear();
-
-                    Streamer outStreamer = new Streamer(p.getInputStream(), stdOut);
-                    Streamer errStreamer = new Streamer(p.getErrorStream(), stdOut);
-
-                    outStreamer.start();
-                    errStreamer.start();
-
-                    try {
-                        int exitCode = p.waitFor();
-                        try {
-                            outStreamer.join();
-                            errStreamer.join();
-                        } catch (InterruptedException ignored) {
-                        }
-
-                        if (exitCode == 0) {
-                            if (stdErr.isEmpty()) {
-                                return stdOut;
-                            } else {
-                                return null;
-                            }
-                        } else {
-                            return null;
-                        }
-                    } catch (InterruptedException e) {
-                        return null;
-                    }
-
-                } catch (IOException ioe) {
-                    return null;
+                    if (bufferedReader != null)
+                        bufferedReader.close();
+                    if (fileReader != null)
+                        fileReader.close();
+                } catch (Exception ignored) {
                 }
             }
         } else {
-            Log.v("TAG", file.getAbsolutePath() + " does not exist");
-            return null;
+            try {
+                Process p = new ProcessBuilder("su", "-c", "/system/bin/sh").start();
+
+                OutputStream outputStream = p.getOutputStream();
+                OutputStreamWriter writer = new OutputStreamWriter(outputStream);
+                writer.write(String.format("cat %s", file.getAbsolutePath()));
+                writer.flush();
+                writer.close();
+                outputStream.close();
+
+                stdOut.clear();
+                stdErr.clear();
+
+                Streamer outStreamer = new Streamer(p.getInputStream(), stdOut);
+                Streamer errStreamer = new Streamer(p.getErrorStream(), stdOut);
+
+                outStreamer.start();
+                errStreamer.start();
+
+                try {
+                    int exitCode = p.waitFor();
+                    try {
+                        outStreamer.join();
+                        errStreamer.join();
+                    } catch (InterruptedException ignored) {
+                    }
+
+                    if (exitCode == 0) {
+                        if (stdErr.isEmpty()) {
+                            return stdOut;
+                        } else {
+                            return null;
+                        }
+                    } else {
+                        return null;
+                    }
+                } catch (InterruptedException e) {
+                    return null;
+                }
+
+            } catch (IOException ioe) {
+                return null;
+            }
         }
     }
 
