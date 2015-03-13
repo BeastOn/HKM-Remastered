@@ -125,11 +125,15 @@ public class SoundControl extends Fragment implements Observer {
         for (FauxSoundProperty property : properties) {
             if (property != null) {
                 mContainer.addView(property.getView());
-                property.setDisplayedValue(property.getValue());
             }
         }
 
-        refresh(false);
+        mContainer.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                refresh(false);
+            }
+        }, 100);
     }
 
     @Override
