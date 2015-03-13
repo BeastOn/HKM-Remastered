@@ -312,7 +312,10 @@ public class MainActivity extends Activity {
                 if (addToBackTrace) {
                     transaction.addToBackStack(fragment.toString());
                 } else {
-                    manager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                    try {
+                        manager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                    } catch (IllegalStateException ignored) {
+                    }
                 }
                 transaction.replace(containerId, fragment);
                 transaction.commit();
