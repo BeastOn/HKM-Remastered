@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <transitionSet xmlns:android="http://schemas.android.com/apk/res/android"
-    android:interpolator="@android:interpolator/anticipate">
+    android:interpolator="@android:interpolator/accelerate_decelerate">
     <changeImageTransform android:duration="@integer/duration_transition_fast" />
     <changeTransform android:duration="@integer/duration_transition_fast" />
     <changeBounds android:duration="@integer/duration_transition_fast" />

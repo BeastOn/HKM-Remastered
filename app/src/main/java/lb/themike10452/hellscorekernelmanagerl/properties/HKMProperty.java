@@ -4,12 +4,14 @@ import android.view.View;
 import android.widget.Switch;
 import android.widget.TextView;
 
+import java.util.Observable;
+
 import lb.themike10452.hellscorekernelmanagerl.R;
 
 /**
  * Created by Mike on 2/23/2015.
  */
-public class HKMProperty {
+public class HKMProperty extends Observable {
 
     protected View mContainer;
 

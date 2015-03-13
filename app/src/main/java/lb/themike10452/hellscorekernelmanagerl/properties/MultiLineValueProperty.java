@@ -10,7 +10,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import lb.themike10452.hellscorekernelmanagerl.R;
-import lb.themike10452.hellscorekernelmanagerl.utils.Tools;
+import lb.themike10452.hellscorekernelmanagerl.utils.HKMTools;
 
 /**
  * Created by Mike on 2/23/2015.
@@ -18,10 +18,11 @@ import lb.themike10452.hellscorekernelmanagerl.utils.Tools;
 public class MultiLineValueProperty implements HKMPropertyInterface {
 
     public int FLAGS;
-    protected int viewId;
     protected String DEFAULT_VALUE;
     protected String filePath;
     protected View mContainer;
+    protected View topAncestor;
+    protected int viewId;
 
     public MultiLineValueProperty(View container, String path, String defaultValue) {
         filePath = path;
@@ -36,7 +37,7 @@ public class MultiLineValueProperty implements HKMPropertyInterface {
     }
 
     protected List<String> getValue(String path) {
-        return Tools.getInstance().readFromFile(path);
+        return HKMTools.getInstance().readFromFile(path);
     }
 
     @Override
@@ -46,7 +47,7 @@ public class MultiLineValueProperty implements HKMPropertyInterface {
 
     @Override
     public int setValue(String value) {
-        Tools.getInstance().exec("echo " + value + " > " + filePath);
+        HKMTools.getInstance().addCommand("echo " + value + " > " + filePath);
         return 0;
     }
 
@@ -82,7 +83,7 @@ public class MultiLineValueProperty implements HKMPropertyInterface {
     protected int setValue(List<String> lines, String path) {
         if (lines != null && lines.size() > 0) {
             for (String line : lines) {
-                Tools.getInstance().exec("echo ".concat(line).concat(" > ").concat(path));
+                HKMTools.getInstance().addCommand("echo ".concat(line).concat(" > ").concat(path));
             }
         }
         return 0;
@@ -91,6 +92,11 @@ public class MultiLineValueProperty implements HKMPropertyInterface {
     @Override
     public int getViewId() {
         return viewId;
+    }
+
+    @Override
+    public View getView() {
+        return mContainer;
     }
 
     @Override
@@ -127,9 +133,23 @@ public class MultiLineValueProperty implements HKMPropertyInterface {
     @Override
     public void setDisplayedValue(Object _value) {
         List<String> value = (List<String>) _value;
+
+        if ((PropertyUtils.FLAG_VIEW_COMBO & FLAGS) == PropertyUtils.FLAG_VIEW_COMBO) {
+            if (topAncestor == null) {
+                topAncestor = mContainer;
+                while (topAncestor.getId() != R.id.firstChild) {
+                    topAncestor = (View) topAncestor.getParent();
+                }
+                topAncestor = (View) topAncestor.getParent();
+            }
+        } else if (topAncestor == null) {
+            topAncestor = mContainer;
+        }
+
         if (value == null || value.isEmpty()) {
-            mContainer.setVisibility(View.GONE);
+            topAncestor.setVisibility(View.GONE);
         } else {
+            topAncestor.setVisibility(View.VISIBLE);
             View disp = mContainer.findViewById(R.id.value);
             if (disp != null)
                 if (disp instanceof TextView) {

@@ -7,7 +7,7 @@ import android.widget.Switch;
 import android.widget.TextView;
 
 import lb.themike10452.hellscorekernelmanagerl.R;
-import lb.themike10452.hellscorekernelmanagerl.utils.Tools;
+import lb.themike10452.hellscorekernelmanagerl.utils.HKMTools;
 
 /**
  * Created by Mike on 2/22/2015.
@@ -15,9 +15,10 @@ import lb.themike10452.hellscorekernelmanagerl.utils.Tools;
 public class intProperty extends HKMProperty implements intPropertyInterface {
 
     public int FLAGS;
+    protected String filePath;
+    protected View topAncestor;
     protected int DEFAULT_VALUE;
     protected int viewId;
-    protected String filePath;
 
     public intProperty(@NonNull String path, View container, int defaultValue) {
         DEFAULT_VALUE = defaultValue;
@@ -34,7 +35,7 @@ public class intProperty extends HKMProperty implements intPropertyInterface {
 
     protected int getValue(String path) {
         try {
-            return Integer.parseInt(Tools.getInstance().readLineFromFile(path));
+            return Integer.parseInt(HKMTools.getInstance().readLineFromFile(path));
         } catch (Exception e) {
             return DEFAULT_VALUE;
         }
@@ -51,13 +52,18 @@ public class intProperty extends HKMProperty implements intPropertyInterface {
     }
 
     protected int setValue(int value, String path) {
-        Tools.getInstance().exec("echo ".concat("\"" + value + "\"").concat(" > ").concat(path));
+        HKMTools.getInstance().addCommand("echo ".concat("\"" + value + "\"").concat(" > ").concat(path));
         return 0;
     }
 
     @Override
     public int getViewId() {
         return viewId;
+    }
+
+    @Override
+    public View getView() {
+        return mContainer;
     }
 
     @Override
@@ -78,9 +84,23 @@ public class intProperty extends HKMProperty implements intPropertyInterface {
         } else {
             value = (int) _value;
         }
+
+        if ((PropertyUtils.FLAG_VIEW_COMBO & FLAGS) == PropertyUtils.FLAG_VIEW_COMBO) {
+            if (topAncestor == null) {
+                topAncestor = mContainer;
+                while (topAncestor.getId() != R.id.firstChild) {
+                    topAncestor = (View) topAncestor.getParent();
+                }
+                topAncestor = (View) topAncestor.getParent();
+            }
+        } else if (topAncestor == null) {
+            topAncestor = mContainer;
+        }
+
         if (value == DEFAULT_VALUE) {
-            mContainer.setVisibility(View.GONE);
+            topAncestor.setVisibility(View.GONE);
         } else {
+            topAncestor.setVisibility(View.VISIBLE);
             {
                 View disp = mContainer.findViewById(R.id.value);
                 if (disp != null) {

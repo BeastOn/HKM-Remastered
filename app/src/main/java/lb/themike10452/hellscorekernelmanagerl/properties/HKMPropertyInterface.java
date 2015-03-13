@@ -12,6 +12,8 @@ public interface HKMPropertyInterface {
 
     int getViewId();
 
+    View getView();
+
     int getFlags();
 
     String readDisplayedValue();

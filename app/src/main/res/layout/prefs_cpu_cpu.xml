@@ -40,11 +40,7 @@
 
             <include layout="@layout/pref_cpu_governor" />
 
-            <include layout="@layout/separator_secondary" />
-
             <include layout="@layout/pref_cpu_max_freq" />
-
-            <include layout="@layout/separator_secondary" />
 
             <include layout="@layout/pref_cpu_min_freq" />
 

@@ -5,7 +5,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import lb.themike10452.hellscorekernelmanagerl.R;
-import lb.themike10452.hellscorekernelmanagerl.utils.Tools;
+import lb.themike10452.hellscorekernelmanagerl.utils.HKMTools;
 
 /**
  * Created by Mike on 2/22/2015.
@@ -15,6 +15,7 @@ public class StringProperty extends HKMProperty implements StringPropertyInterfa
     public int FLAGS;
     protected String filePath;
     protected String DEFAULT_VALUE;
+    protected View topAncestor;
     protected int viewId;
 
     public StringProperty(String path, View container, String defaultValue) {
@@ -31,7 +32,7 @@ public class StringProperty extends HKMProperty implements StringPropertyInterfa
     }
 
     protected String getValue(String path) {
-        String value = Tools.getInstance().readLineFromFile(path);
+        String value = HKMTools.getInstance().readLineFromFile(path);
         return value != null ? value : DEFAULT_VALUE;
     }
 
@@ -46,13 +47,18 @@ public class StringProperty extends HKMProperty implements StringPropertyInterfa
     }
 
     protected int setValue(String value, String path) {
-        Tools.getInstance().exec("echo ".concat("\"" + value + "\"").concat(" > ").concat(path));
+        HKMTools.getInstance().addCommand("echo ".concat("\"" + value + "\"").concat(" > ").concat(path));
         return 0;
     }
 
     @Override
     public int getViewId() {
         return viewId;
+    }
+
+    @Override
+    public View getView() {
+        return mContainer;
     }
 
     @Override
@@ -68,10 +74,24 @@ public class StringProperty extends HKMProperty implements StringPropertyInterfa
     @Override
     public void setDisplayedValue(Object _value) {
         String value = _value.toString();
+
+        if ((PropertyUtils.FLAG_VIEW_COMBO & FLAGS) == PropertyUtils.FLAG_VIEW_COMBO) {
+            if (topAncestor == null) {
+                topAncestor = mContainer;
+                while (topAncestor.getId() != R.id.firstChild) {
+                    topAncestor = (View) topAncestor.getParent();
+                }
+                topAncestor = (View) topAncestor.getParent();
+            }
+        } else if (topAncestor == null) {
+            topAncestor = mContainer;
+        }
+
         if (DEFAULT_VALUE.equals(value)) {
-            mContainer.setVisibility(View.GONE);
+            topAncestor.setVisibility(View.GONE);
         } else {
-            View disp = mContainer.findViewById(R.id.value);
+            topAncestor.setVisibility(View.VISIBLE);
+            View disp = topAncestor.findViewById(R.id.value);
             if (disp != null)
                 if (disp instanceof TextView) {
                     ((TextView) disp).setText(value);

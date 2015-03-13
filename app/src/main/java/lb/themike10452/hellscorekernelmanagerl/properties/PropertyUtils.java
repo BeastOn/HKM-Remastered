@@ -11,6 +11,9 @@ public class PropertyUtils {
     public static final int FLAG_VIEW_COMBO             = 0x00000100;
     public static final int FLAG_MULTIROOT_SIMUL        = 0x00001000;
 
+    public static final String ERR_STR = "hkm_n_a";
+    public static final int ERR_INT = -99;
+
     public static HKMPropertyInterface findProperty(HKMPropertyInterface[] properties, View v) {
         int id = v.getId();
         for (HKMPropertyInterface property : properties)

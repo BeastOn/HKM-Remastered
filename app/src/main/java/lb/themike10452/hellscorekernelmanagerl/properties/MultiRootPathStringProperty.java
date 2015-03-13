@@ -42,4 +42,9 @@ public class MultiRootPathStringProperty extends StringProperty {
 
         return DEFAULT_VALUE;
     }
+
+    @Override
+    public View getView() {
+        return mContainer;
+    }
 }

@@ -3,9 +3,17 @@
     <string-array name="drawer_items">
         <item>@string/cpuCtl</item>
         <item>@string/gpuCtl</item>
-        <item>@string/miscCtl</item>
+        <!--item>@string/miscCtl</item>
         <item>@string/lcdCtl</item>
-        <item>@string/touchCtl</item>
+        <item>@string/touchCtl</item-->
         <item>@string/soundCtl</item>
     </string-array>
+
+    <string-array name="gpu_governors">
+        <item>simple</item>
+        <item>interactive</item>
+        <item>ondemand</item>
+        <item>performance</item>
+    </string-array>
+
 </resources>

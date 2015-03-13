@@ -1,8 +1,5 @@
 <resources>
-    <string name="app_name">HellsCore Kernel Manager</string>
-
-    <string name="dialog_message_reqRoot">Requesting root access …</string>
-    <string name="dialog_message_failRoot">Failed to get root access …</string>
+    <string name="app_name" translatable="false">HellsCore Kernel Manager</string>
 
     <!-- Drawer list items -->
     <string name="cpuCtl">CPU Control</string>
@@ -13,19 +10,23 @@
     <string name="soundCtl">Sound Control</string>
 
     <!-- Actionbar items -->
+    <string name="action_setOnBoot">Set on boot</string>
     <string name="action_refresh">Refresh</string>
     <string name="action_apply">Apply</string>
 
     <!-- #CPU Control -->
     <!-- CPU category -->
     <string name="pref_category_cpu">CPU</string>
-    <string name="pref_cpu_governor">Governor</string>
-    <string name="pref_max_cpu_clock">Maximum frequency</string>
-    <string name="pref_min_cpu_clock">Minimum frequency</string>
+    <string name="pref_governor">Governor</string>
+    <string name="pref_max_freq">Maximum frequency</string>
+    <string name="pref_min_freq">Minimum frequency</string>
     <!-- MP-Decision category -->
     <string name="pref_category_mpdec">MP-Decision / HotPlug</string>
+    <string name="pref_msm_mpdecision">Enable MSM MPDecision</string>
+    <string name="pref_msm_hotplug">Enable MSM Hotplug</string>
     <string name="pref_max_cores_online">Max cores online</string>
     <string name="pref_min_cores_online">Min cores online</string>
+    <string name="pref_max_cores_susp">Max suspended cores</string>
     <string name="pref_screenoff_max">Screen-Off Max Freq</string>
     <string name="pref_screenoff_single_core">Screen-Off single core</string>
     <string name="pref_cores_boosted">Cores boosted on touch</string>
@@ -33,13 +34,45 @@
     <string name="pref_touch_boost">Touch boost</string>
     <!-- C-States category -->
     <string name="pref_category_cstates">C-States</string>
-    <string name="c0_state">C0 (WFI)</string>
-    <string name="c1_state">C1 (RET)</string>
-    <string name="c2_state">C2 (SPC)</string>
-    <string name="c3_state">C3 (PC)</string>
+    <string name="c0_state" translatable="false">C0 (WFI)</string>
+    <string name="c1_state" translatable="false">C1 (RET)</string>
+    <string name="c2_state" translatable="false">C2 (SPC)</string>
+    <string name="c3_state" translatable="false">C3 (PC)</string>
     <!-- Voltages -->
     <string name="pref_category_voltages">Voltages</string>
     <string name="frequency">Frequency</string>
     <string name="voltage">Voltage</string>
+
+    <!-- #GPU Control -->
+    <string name="pref_category_gpu">GPU</string>
+    <string name="pref_policy">Policy</string>
+
+    <!-- #Sound Control -->
+    <string name="pref_category_sndprofiles">Sound profiles</string>
+    <string name="pref_category_tuning">Manual tuning</string>
+    <string name="left">Left</string>
+    <string name="right">Right</string>
+    <string name="pref_hp_gain">Headphone Gain</string>
+    <string name="pref_pa_gain">PowerAmp Gain</string>
+    <string name="pref_spk_gain">Speaker Gain</string>
+    <string name="pref_mic_gain">Microphone Gain</string>
+    <string name="pref_camc_gain">Camcorder Gain</string>
+
+    <!-- Toast messages -->
+    <string name="message_applied_successfully">Applied successfully</string>
+    <string name="message_set_on_boot_enabled">Set on boot enabled</string>
+    <string name="message_set_on_boot_disabled">Set on boot disabled</string>
+    <string name="message_script_failed">Failed to write script</string>
+
+    <!-- Dialog messages -->
+    <string name="dialog_message_reqRoot">Requesting root access …</string>
+    <string name="dialog_message_failRoot">Failed to get root access …</string>
+    <string name="dialog_message_bootScript">The boot script on /system/su.d needs to be installed or updated. Install it now?</string>
+
+    <!-- Button labels -->
+    <string name="button_install">Install</string>
+    <string name="button_later">Later</string>
+
+    <string name="disclaimer_gpu_governors">Some listed governors might not work with your kernel.</string>
 
 </resources>

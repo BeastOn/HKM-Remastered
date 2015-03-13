@@ -5,18 +5,26 @@
     android:layout_height="wrap_content"
     android:background="?android:attr/selectableItemBackground"
     android:clickable="true"
-    android:orientation="vertical"
-    android:padding="3dp">
+    android:orientation="vertical">
 
-    <TextView
-        style="@style/buttonTitleStyle"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/pref_max_cores_online" />
+        android:orientation="vertical"
+        android:padding="3dp">
 
-    <TextView
-        android:id="@+id/value"
-        style="@style/buttonDetailStyle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        <TextView
+            style="@style/buttonTitleStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/pref_max_cores_online" />
+
+        <TextView
+            android:id="@+id/value"
+            style="@style/buttonDetailStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+    <include layout="@layout/separator_secondary" />
 </LinearLayout>

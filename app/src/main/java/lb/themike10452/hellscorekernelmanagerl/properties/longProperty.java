@@ -6,7 +6,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import lb.themike10452.hellscorekernelmanagerl.R;
-import lb.themike10452.hellscorekernelmanagerl.utils.Tools;
+import lb.themike10452.hellscorekernelmanagerl.utils.HKMTools;
 
 /**
  * Created by Mike on 2/22/2015.
@@ -14,9 +14,10 @@ import lb.themike10452.hellscorekernelmanagerl.utils.Tools;
 public class longProperty extends HKMProperty implements longPropertyInterface {
 
     public int FLAGS;
+    protected String filePath;
+    protected View topAncestor;
     protected int viewId;
     protected long DEFAULT_VALUE;
-    protected String filePath;
 
     public longProperty(@NonNull String path, View container, long defaultValue) {
         DEFAULT_VALUE = defaultValue;
@@ -28,8 +29,12 @@ public class longProperty extends HKMProperty implements longPropertyInterface {
 
     @Override
     public long getValue() {
+        return getValue(filePath);
+    }
+
+    protected long getValue(String path) {
         try {
-            return Long.parseLong(Tools.getInstance().readLineFromFile(filePath));
+            return Long.parseLong(HKMTools.getInstance().readLineFromFile(path));
         } catch (Exception e) {
             return DEFAULT_VALUE;
         }
@@ -46,13 +51,18 @@ public class longProperty extends HKMProperty implements longPropertyInterface {
     }
 
     protected int setValue(long value, String path) {
-        Tools.getInstance().exec("echo ".concat("\"" + value + "\"").concat(" > ").concat(path));
+        HKMTools.getInstance().addCommand("echo ".concat("\"" + value + "\"").concat(" > ").concat(path));
         return 0;
     }
 
     @Override
     public int getViewId() {
         return viewId;
+    }
+
+    @Override
+    public View getView() {
+        return mContainer;
     }
 
     @Override
@@ -73,9 +83,23 @@ public class longProperty extends HKMProperty implements longPropertyInterface {
         } else {
             value = (long) _value;
         }
+
+        if ((PropertyUtils.FLAG_VIEW_COMBO & FLAGS) == PropertyUtils.FLAG_VIEW_COMBO) {
+            if (topAncestor == null) {
+                topAncestor = mContainer;
+                while (topAncestor.getId() != R.id.firstChild) {
+                    topAncestor = (View) topAncestor.getParent();
+                }
+                topAncestor = (View) topAncestor.getParent();
+            }
+        } else if (topAncestor == null) {
+            topAncestor = mContainer;
+        }
+
         if (value == DEFAULT_VALUE) {
-            mContainer.setVisibility(View.GONE);
+            topAncestor.setVisibility(View.GONE);
         } else {
+            topAncestor.setVisibility(View.VISIBLE);
             View disp = mContainer.findViewById(R.id.value);
             if (disp instanceof TextView)
                 ((TextView) disp).setText(Long.toString(value));
