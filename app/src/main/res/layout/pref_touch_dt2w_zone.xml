@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/topAncestor"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <lb.themike10452.hellscorekernelmanagerl.CustomWidgets.PreferenceButton
+        android:id="@+id/dt2wZoneBtn"
+        style="@style/clickableLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:title="@string/pref_dt2w_zone" />
+
+    <ImageButton
+        android:id="@+id/noteBtn"
+        android:layout_width="48dp"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/dt2wZoneBtn"
+        android:layout_alignParentEnd="true"
+        android:layout_alignTop="@+id/dt2wZoneBtn"
+        android:background="?android:attr/selectableItemBackgroundBorderless"
+        android:scaleType="centerInside"
+        android:src="@drawable/ic_info_24px" />
+</RelativeLayout>

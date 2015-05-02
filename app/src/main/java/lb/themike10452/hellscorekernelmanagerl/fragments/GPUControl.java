@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.NumberPicker;
 import android.widget.PopupWindow;
 import android.widget.SeekBar;
@@ -21,28 +22,24 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import lb.themike10452.hellscorekernelmanagerl.CustomAdapters.GPUVoltagesAdapter;
 import lb.themike10452.hellscorekernelmanagerl.CustomAdapters.SeekBarProgressAdapter;
 import lb.themike10452.hellscorekernelmanagerl.R;
-import lb.themike10452.hellscorekernelmanagerl.Settings;
-import lb.themike10452.hellscorekernelmanagerl.properties.HKMPropertyInterface;
-import lb.themike10452.hellscorekernelmanagerl.properties.MultiLineValueProperty;
 import lb.themike10452.hellscorekernelmanagerl.properties.MultiRootPathLongProperty;
 import lb.themike10452.hellscorekernelmanagerl.properties.MultiRootPathStringProperty;
 import lb.themike10452.hellscorekernelmanagerl.properties.PropertyUtils;
 import lb.themike10452.hellscorekernelmanagerl.properties.StringProperty;
-import lb.themike10452.hellscorekernelmanagerl.properties.intProperty;
+import lb.themike10452.hellscorekernelmanagerl.properties.interfaces.HKMPropertyInterface;
 import lb.themike10452.hellscorekernelmanagerl.properties.longProperty;
 import lb.themike10452.hellscorekernelmanagerl.utils.HKMTools;
 import lb.themike10452.hellscorekernelmanagerl.utils.Library;
 
 import static lb.themike10452.hellscorekernelmanagerl.Settings.Constants.SET_GPU_SETTINGS_ON_BOOT;
-import static lb.themike10452.hellscorekernelmanagerl.properties.PropertyUtils.ERR_INT;
-import static lb.themike10452.hellscorekernelmanagerl.properties.PropertyUtils.ERR_STR;
+import static lb.themike10452.hellscorekernelmanagerl.Settings.Constants.SHARED_PREFS_ID;
 import static lb.themike10452.hellscorekernelmanagerl.utils.HKMTools.ScriptUtils.GPU_SETTINGS_SCRIPT_NAME;
 
 /**
@@ -53,6 +50,7 @@ public class GPUControl extends Fragment implements View.OnClickListener {
     private static GPUControl instance;
 
     private Activity mActivity;
+    private GPUVoltagesAdapter voltagesAdapter;
     private SharedPreferences sharedPreferences;
     private View mView;
 
@@ -78,7 +76,7 @@ public class GPUControl extends Fragment implements View.OnClickListener {
             PopupWindow popupWindow = getPopupWindow();
             TextView textView = new TextView(mActivity);
             textView.setPadding(20, 20, 20, 20);
-            textView.setText(getText(R.string.disclaimer_gpu_governors));
+            textView.setText(getText(R.string.note_unsupported_options));
             textView.measure(View.MeasureSpec.EXACTLY, View.MeasureSpec.EXACTLY);
             popupWindow.setContentView(textView);
             popupWindow.setAnimationStyle(R.style.popUpAnimation);
@@ -120,7 +118,7 @@ public class GPUControl extends Fragment implements View.OnClickListener {
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         mActivity = activity;
-        sharedPreferences = mActivity.getSharedPreferences(Settings.Constants.SHARED_PREFS_ID, Context.MODE_PRIVATE);
+        sharedPreferences = mActivity.getSharedPreferences(SHARED_PREFS_ID, Context.MODE_PRIVATE);
     }
 
     @Override
@@ -167,9 +165,11 @@ public class GPUControl extends Fragment implements View.OnClickListener {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        governorProperty = new MultiRootPathStringProperty(findViewById(R.id.govBtn), ERR_STR, Library.GPU_GOV_PATH0, Library.GPU_GOV_PATH1);
-        maxFreqProperty = new MultiRootPathLongProperty(findViewById(R.id.maxFreqHolder), ERR_INT, Library.GPU_MAX_CLK_PATH0, Library.GPU_MAX_CLK_PATH1);
-        policyProperty = new MultiRootPathStringProperty(findViewById(R.id.gpuPolicyBtn), ERR_STR, Library.GPU_POLICY_PATH0, Library.GPU_POLICY_PATH1);
+        governorProperty = new MultiRootPathStringProperty(findViewById(R.id.govBtn), Library.GPU_GOVERNOR_1, Library.GPU_GOVERNOR_2);
+        maxFreqProperty = new MultiRootPathLongProperty(findViewById(R.id.maxFreqHolder), Library.GPU_MAX_FREQ_1, Library.GPU_MAX_FREQ_2);
+        policyProperty = new MultiRootPathStringProperty(findViewById(R.id.gpuPolicyBtn), Library.GPU_POLICY_1, Library.GPU_POLICY_2);
+
+        voltagesAdapter = new GPUVoltagesAdapter(mActivity, (LinearLayout) findViewById(R.id.vdd_panel).findViewById(R.id.usefulContent));
 
         governorProperty.FLAGS = PropertyUtils.FLAG_VIEW_COMBO;
 
@@ -198,38 +198,31 @@ public class GPUControl extends Fragment implements View.OnClickListener {
 
     public void refresh(boolean fromUser) {
         new AsyncTask<Void, Void, Void>() {
-            Object[] values;
+            String[] values;
 
             @Override
             protected void onPreExecute() {
                 super.onPreExecute();
-                values = new Object[properties.length];
+                values = new String[properties.length];
             }
 
             @Override
             protected Void doInBackground(Void... params) {
                 for (int i = 0; i < properties.length; i++) {
-                    HKMPropertyInterface property = properties[i];
-                    if (property instanceof intProperty) {
-                        values[i] = ((intProperty) property).getValue();
-                    } else if (property instanceof StringProperty) {
-                        values[i] = ((StringProperty) property).getValue();
-                    } else if (property instanceof longProperty) {
-                        values[i] = ((longProperty) property).getValue();
-                    } else if (property instanceof MultiLineValueProperty) {
-                        values[i] = ((MultiLineValueProperty) property).getValue();
-                    }
+                    values[i] = properties[i].getValue();
                 }
 
-                if (available_freqs == null)
+                if (available_freqs == null) {
                     fetchFrequencies();
-
-                if (available_governors == null)
+                }
+                if (available_governors == null) {
                     fetchGovernors();
-
+                }
                 if (available_policies == null) {
                     fetchPolicies();
                 }
+
+                voltagesAdapter.recycle();
 
                 return null;
             }
@@ -240,23 +233,13 @@ public class GPUControl extends Fragment implements View.OnClickListener {
 
                 for (int i = 0; i < properties.length; i++) {
                     HKMPropertyInterface property = properties[i];
-                    View holder = property.getView();
-                    try {
-                        if ((PropertyUtils.FLAG_VIEW_COMBO & property.getFlags()) == PropertyUtils.FLAG_VIEW_COMBO) {
-                            while (holder.getId() != R.id.firstChild) {
-                                holder = (View) holder.getParent();
-                            }
-                            holder = (View) holder.getParent();
-                        }
-                    } catch (Exception ignored) {
-                    }
 
                     property.setDisplayedValue(values[i]);
 
                     if (property instanceof longProperty) {
-                        long value = (long) values[i];
-                        View disp = holder.findViewById(R.id.seekBar);
-                        if (disp != null && disp instanceof SeekBar) {
+                        Long value = HKMTools.parseLong(values[i]);
+                        View disp = property.getTopAncestor().findViewById(R.id.seekBar);
+                        if (disp != null && value != null && disp instanceof SeekBar) {
                             SeekBar seekBar = (SeekBar) disp;
                             if (available_freqs != null && available_freqs.length > 0) {
                                 if (property == maxFreqProperty) {
@@ -267,6 +250,8 @@ public class GPUControl extends Fragment implements View.OnClickListener {
                         }
                     }
                 }
+
+                HKMTools.removeEmptyCards((LinearLayout) findViewById(R.id.cardContainer));
             }
         }.execute();
     }
@@ -275,16 +260,7 @@ public class GPUControl extends Fragment implements View.OnClickListener {
         HKMTools tools = HKMTools.getInstance();
         tools.getReady();
         for (HKMPropertyInterface property : properties) {
-            boolean isCombo = (PropertyUtils.FLAG_VIEW_COMBO & property.getFlags()) == PropertyUtils.FLAG_VIEW_COMBO;
-            View holder = property.getView();
-            View parentView = holder;
-            if (isCombo) {
-                while (parentView.getId() != R.id.firstChild) {
-                    parentView = (View) parentView.getParent();
-                }
-                parentView = (View) parentView.getParent();
-            }
-            if (holder.getVisibility() == View.VISIBLE && (!isCombo || parentView.getVisibility() == View.VISIBLE)) {
+            if (property.isVisible()) {
                 String value = property.readDisplayedValue();
                 if (value != null) {
                     property.setValue(value);
@@ -303,7 +279,7 @@ public class GPUControl extends Fragment implements View.OnClickListener {
         }, 100);
 
         if (fromUser)
-            Toast.makeText(mActivity.getApplicationContext(), R.string.message_applied_successfully, Toast.LENGTH_SHORT).show();
+            Toast.makeText(mActivity.getApplicationContext(), R.string.message_action_successful, Toast.LENGTH_SHORT).show();
     }
 
     public void changeSetOnBootState(boolean enabled) {
@@ -313,9 +289,9 @@ public class GPUControl extends Fragment implements View.OnClickListener {
     }
 
     private void fetchFrequencies() {
-        String tmp = HKMTools.getInstance().readLineFromFile(Library.GPU_AVAIL_FREQ_PATH0);
+        String tmp = HKMTools.getInstance().readLineFromFile(Library.GPU_AVAIL_FREQS_1);
         if (tmp == null) {
-            tmp = HKMTools.getInstance().readLineFromFile(Library.GPU_AVAIL_FREQ_PATH1);
+            tmp = HKMTools.getInstance().readLineFromFile(Library.GPU_AVAIL_FREQ2_2);
         }
         if (tmp != null) {
             String[] freqs = tmp.split(" ");
@@ -361,17 +337,7 @@ public class GPUControl extends Fragment implements View.OnClickListener {
     }
 
     private void createScript(List<String> commandList) {
-        boolean sobEnabled = sharedPreferences.getBoolean(SET_GPU_SETTINGS_ON_BOOT, false);
-        if (!sobEnabled) {
-            HKMTools.ScriptUtils.clearScript(mActivity.getApplicationContext(), GPU_SETTINGS_SCRIPT_NAME);
-        } else {
-            try {
-                HKMTools.ScriptUtils.writeScript(mActivity.getApplicationContext(), GPU_SETTINGS_SCRIPT_NAME, commandList, false);
-            } catch (IOException e) {
-                Toast.makeText(mActivity.getApplicationContext(), R.string.message_script_failed, Toast.LENGTH_SHORT).show();
-                Toast.makeText(mActivity.getApplicationContext(), e.toString(), Toast.LENGTH_SHORT).show();
-            }
-        }
+        HKMTools.ScriptUtils.createScript(mActivity.getApplicationContext(), sharedPreferences, SET_GPU_SETTINGS_ON_BOOT, GPU_SETTINGS_SCRIPT_NAME, commandList);
     }
 
     private View findViewById(int resId) {

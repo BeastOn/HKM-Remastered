@@ -13,6 +13,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -24,6 +25,7 @@ import android.util.Pair;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.AccelerateInterpolator;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -41,7 +43,10 @@ import at.markushi.ui.action.DrawerAction;
 import lb.themike10452.hellscorekernelmanagerl.CustomAdapters.DrawerAdapter;
 import lb.themike10452.hellscorekernelmanagerl.fragments.CPUControl;
 import lb.themike10452.hellscorekernelmanagerl.fragments.GPUControl;
+import lb.themike10452.hellscorekernelmanagerl.fragments.LCDControl;
+import lb.themike10452.hellscorekernelmanagerl.fragments.MiscControls;
 import lb.themike10452.hellscorekernelmanagerl.fragments.SoundControl;
+import lb.themike10452.hellscorekernelmanagerl.fragments.TouchControl;
 import lb.themike10452.hellscorekernelmanagerl.utils.HKMTools;
 
 import static lb.themike10452.hellscorekernelmanagerl.Settings.Constants.REFERENCE_TOKEN;
@@ -201,6 +206,7 @@ public class MainActivity extends Activity {
     protected void onDestroy() {
         super.onDestroy();
         unregisterReceiver(broadcastReceiver);
+        HKMTools.getInstance().stopShell();
     }
 
     private void launch() {
@@ -208,6 +214,16 @@ public class MainActivity extends Activity {
         Fragment fragment = CPUControl.getInstance(transactionManager);
         transactionManager.performTransaction(fragment, false, true, null);
         transactionManager.setActionBarTitle(getString(R.string.cpuCtl));
+        if (!Build.DEVICE.equalsIgnoreCase("mako")) {
+            String sample = getString(R.string.lcdCtl);
+            for (int i = 0; i < listView.getChildCount(); i++) {
+                if (sample.equals(((TextView) listView.getChildAt(i).findViewById(R.id.text)).getText())) {
+                    ViewGroup.LayoutParams params = listView.getChildAt(i).getLayoutParams();
+                    params.height = 1;
+                    listView.getChildAt(i).setLayoutParams(params);
+                }
+            }
+        }
     }
 
     private void handle(Message msg) {
@@ -232,8 +248,17 @@ public class MainActivity extends Activity {
                         transactionManager.performTransaction(GPUControl.getInstance(), false, true, getString(R.string.gpuCtl));
                         return;
                     case 2:
+                        transactionManager.performTransaction(LCDControl.getInstance(), false, true, getString(R.string.lcdCtl));
+                        return;
+                    case 3:
+                        transactionManager.performTransaction(TouchControl.getInstance(), false, true, getString(R.string.touchCtl));
+                        return;
+                    case 4:
                         transactionManager.performTransaction(SoundControl.getInstance(), false, true, getString(R.string.soundCtl));
                         return;
+                    //case 5:
+                    //    transactionManager.performTransaction(MiscControls.getInstance(), false, true, getString(R.string.miscCtl));
+                    //    return;
                 }
         }
         if (msg.what == ACTION_INIT_SYSTEM_SCRIPT) {
@@ -273,7 +298,7 @@ public class MainActivity extends Activity {
                                         dialog.dismiss();
                                     }
                                     Toast.makeText(getApplicationContext(),
-                                            b ? R.string.message_applied_successfully : R.string.message_script_failed,
+                                            b ? R.string.message_action_successful : R.string.message_script_failed,
                                             Toast.LENGTH_SHORT).show();
                                 }
                             }.execute();
@@ -318,7 +343,7 @@ public class MainActivity extends Activity {
                     }
                 }
                 transaction.replace(containerId, fragment);
-                transaction.commit();
+                transaction.commitAllowingStateLoss();
                 activeFragment = fragment;
             }
             invalidateOptionsMenu();

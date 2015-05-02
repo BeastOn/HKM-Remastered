@@ -1,9 +1,12 @@
 package lb.themike10452.hellscorekernelmanagerl.utils;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
+import android.view.View;
+import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -14,12 +17,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import lb.themike10452.hellscorekernelmanagerl.R;
+
 /**
  * Created by Mike on 2/22/2015.
  */
 public class HKMTools {
 
-    public final static int FLAG_ROOT_STATE = 0001;
+    public final static int FLAG_ROOT_STATE = 1;
 
     private static HKMTools instance;
 
@@ -33,6 +38,22 @@ public class HKMTools {
 
     public static HKMTools getInstance() {
         return instance != null ? instance : new HKMTools();
+    }
+
+    public static Integer parseInt(String str) {
+        try {
+            return Integer.parseInt(str);
+        } catch (NumberFormatException nfe) {
+            return null;
+        }
+    }
+
+    public static Long parseLong(String str) {
+        try {
+            return Long.parseLong(str);
+        } catch (NumberFormatException nfe) {
+            return null;
+        }
     }
 
     public static int indexOf(long obj, long[] objs) {
@@ -67,12 +88,45 @@ public class HKMTools {
         }
     }
 
+    public static void removeEmptyCards(LinearLayout container) {
+        int count = container.getChildCount();
+        for (int i = 0; i < count; i++) {
+            if (container.getChildAt(i).getVisibility() == View.VISIBLE) {
+                LinearLayout cardLayout = (LinearLayout) container.getChildAt(i).findViewById(R.id.usefulContent);
+                if (cardLayout != null) {
+                    int prefCount;
+                    int visibleViews = prefCount = cardLayout.getChildCount();
+                    for (int j = 0; j < prefCount; j++) {
+                        if (cardLayout.getChildAt(j).getVisibility() != View.VISIBLE) {
+                            visibleViews--;
+                        }
+                    }
+                    if (visibleViews < 1) {
+                        final View v = container.getChildAt(i);
+                        v.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                v.setVisibility(View.GONE);
+                            }
+                        });
+                    }
+                }
+            }
+        }
+    }
+
     public void initRootShell(final Handler handler) {
         mShell = new SUShell(handler);
         Message message = new Message();
         message.arg1 = FLAG_ROOT_STATE;
         message.arg2 = mShell.startShell() ? 0 : 1;
         handler.sendMessage(message);
+    }
+
+    public void stopShell() {
+        if (mShell != null) {
+            mShell.stopShell();
+        }
     }
 
     public void getReady() {
@@ -164,10 +218,26 @@ public class HKMTools {
         public static final String CPU_SETTINGS_SCRIPT_NAME = "98cpu_settings";
         public static final String GOV_SETTINGS_SCRIPT_NAME = "99cpu_gov_settings";
         public static final String GPU_SETTINGS_SCRIPT_NAME = "90gpu_settings";
+        public static final String LCD_SETTINGS_SCRIPT_NAME = "90lcd_settings";
         public static final String SND_SETTINGS_SCRIPT_NAME = "90sound_settings";
+        public static final String TTC_SETTINGS_SCRIPT_NAME = "90touch_settings";
         public static final String SYS_SCRIPT_PATH = "/system/su.d/90kernelSettings";
 
         private static String scriptsDir;
+
+        public static void createScript(Context context, SharedPreferences preferences, String prefKey, String scriptName, List<String> commandList) {
+            boolean sobEnabled = preferences.getBoolean(prefKey, false);
+            if (!sobEnabled) {
+                clearScript(context, scriptName);
+            } else {
+                try {
+                    writeScript(context, scriptName, commandList, isDelicate(scriptName));
+                } catch (IOException e) {
+                    Toast.makeText(context, R.string.message_script_failed, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, e.toString(), Toast.LENGTH_SHORT).show();
+                }
+            }
+        }
 
         public static void writeScript(Context appContext, String scriptName, List<String> commandList, boolean isDelicate) throws IOException {
             initScriptsDir(appContext);
@@ -238,6 +308,11 @@ public class HKMTools {
 
         private static void initScriptsDir(Context context) {
             getScriptsDir(context);
+        }
+
+        private static boolean isDelicate(String scriptName) {
+            return scriptName.equals(CPU_SETTINGS_SCRIPT_NAME) ||
+                    scriptName.equals(GPU_SETTINGS_SCRIPT_NAME);
         }
 
     }

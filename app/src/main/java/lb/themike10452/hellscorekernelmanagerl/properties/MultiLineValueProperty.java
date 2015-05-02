@@ -2,166 +2,55 @@ package lb.themike10452.hellscorekernelmanagerl.properties;
 
 import android.support.annotation.NonNull;
 import android.view.View;
-import android.widget.Switch;
-import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import lb.themike10452.hellscorekernelmanagerl.R;
+import lb.themike10452.hellscorekernelmanagerl.properties.interfaces.HKMPropertyInterface;
 import lb.themike10452.hellscorekernelmanagerl.utils.HKMTools;
 
 /**
  * Created by Mike on 2/23/2015.
  */
-public class MultiLineValueProperty implements HKMPropertyInterface {
+public class MultiLineValueProperty extends HKMProperty {
 
-    public int FLAGS;
-    protected String DEFAULT_VALUE;
-    protected String filePath;
-    protected View mContainer;
-    protected View topAncestor;
-    protected int viewId;
-
-    public MultiLineValueProperty(View container, String path, String defaultValue) {
+    public MultiLineValueProperty(View container, String path) {
         filePath = path;
-        DEFAULT_VALUE = defaultValue;
         mContainer = container;
         viewId = container.getId();
         FLAGS = 0;
     }
 
-    public List<String> getValue() {
-        return getValue(filePath);
+    public List<String> getValueAsList() {
+        return HKMTools.getInstance().readFromFile(filePath);
     }
 
-    protected List<String> getValue(String path) {
-        return HKMTools.getInstance().readFromFile(path);
-    }
-
-    @Override
-    public String getFilePath() {
-        return filePath;
-    }
-
-    @Override
-    public int setValue(String value) {
-        HKMTools.getInstance().addCommand("echo " + value + " > " + filePath);
-        return 0;
-    }
-
-    public int setValue(@NonNull Object values, Object prefixes, Object suffixes) {
-        List<String> valist = (List<String>) values;
-        List<String> prelist = null;
-        List<String> suflist = null;
-
-        try {
-            prelist = (List<String>) prefixes;
-        } catch (Exception ignored) {
-        }
-        try {
-            suflist = (List<String>) suffixes;
-        } catch (Exception ignored) {
-        }
-
+    public void setValue(@NonNull List<String> values, List<String> prefixes, List<String> suffixes) {
         List<String> _values = new ArrayList<>();
-        for (int i = 0; i < valist.size(); i++) {
+        for (int i = 0; i < values.size(); i++) {
             String line = "";
-            if (prelist != null && prelist.size() > i)
-                line = line.concat(prelist.get(i)).concat(" ");
-            line = line.concat(valist.get(i));
-            if (suflist != null && suflist.size() > i)
-                line = line.concat(" ").concat(suflist.get(i));
+            if (prefixes != null && prefixes.size() > i)
+                line = line.concat(prefixes.get(i)).concat(" ");
+            line = line.concat(values.get(i));
+            if (suffixes != null && suffixes.size() > i)
+                line = line.concat(" ").concat(suffixes.get(i));
 
             _values.add(line);
         }
 
-        return setValue(_values, filePath);
+        setValue(_values);
     }
 
-    protected int setValue(List<String> lines, String path) {
+    protected void setValue(List<String> lines) {
         if (lines != null && lines.size() > 0) {
             for (String line : lines) {
-                HKMTools.getInstance().addCommand("echo ".concat(line).concat(" > ").concat(path));
+                super.setValue(line);
             }
         }
-        return 0;
     }
 
-    @Override
-    public int getViewId() {
-        return viewId;
-    }
-
-    @Override
-    public View getView() {
-        return mContainer;
-    }
-
-    @Override
-    public int getFlags() {
-        return FLAGS;
-    }
-
-    @Override
-    public String readDisplayedValue() {
-        String value = null;
-        if (mContainer instanceof Switch) {
-            value = ((Switch) mContainer).isChecked() ? "1" : "0";
-        } else {
-            View disp = mContainer.findViewById(R.id.value);
-            if (disp != null) {
-                if (disp instanceof Switch) {
-                    value = ((Switch) disp).isChecked() ? "1" : "0";
-                } else if (disp instanceof TextView) {
-                    try {
-                        value = ((TextView) disp).getText().toString();
-                    } catch (Exception ignored) {
-                    }
-                }
-            } else {
-                disp = mContainer.findViewById(R.id.mswitch);
-                if (disp != null && disp instanceof Switch) {
-                    value = ((Switch) disp).isChecked() ? "1" : "0";
-                }
-            }
-        }
-        return value;
-    }
-
-    @Override
-    public void setDisplayedValue(Object _value) {
-        List<String> value = (List<String>) _value;
-
-        if ((PropertyUtils.FLAG_VIEW_COMBO & FLAGS) == PropertyUtils.FLAG_VIEW_COMBO) {
-            if (topAncestor == null) {
-                topAncestor = mContainer;
-                while (topAncestor.getId() != R.id.firstChild) {
-                    topAncestor = (View) topAncestor.getParent();
-                }
-                topAncestor = (View) topAncestor.getParent();
-            }
-        } else if (topAncestor == null) {
-            topAncestor = mContainer;
-        }
-
-        if (value == null || value.isEmpty()) {
-            topAncestor.setVisibility(View.GONE);
-        } else {
-            topAncestor.setVisibility(View.VISIBLE);
-            View disp = mContainer.findViewById(R.id.value);
-            if (disp != null)
-                if (disp instanceof TextView) {
-                    if (mContainer instanceof TextView) {
-                        ((TextView) mContainer).setText(Arrays.toString(value.toArray(new String[value.size()])));
-                    } else {
-                        View v = mContainer.findViewById(R.id.value);
-                        if (v != null && v instanceof TextView) {
-                            ((TextView) v).setText(Arrays.toString(value.toArray(new String[value.size()])));
-                        }
-                    }
-                }
-        }
+    public void setDisplayedValue(List<String> value) {
+        super.setDisplayedValue(value != null ? Arrays.toString(value.toArray()) : null);
     }
 }

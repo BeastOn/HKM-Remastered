@@ -4,10 +4,10 @@
     <!-- Drawer list items -->
     <string name="cpuCtl">CPU Control</string>
     <string name="gpuCtl">GPU Control</string>
-    <string name="miscCtl">Misc Control</string>
     <string name="lcdCtl">LCD Control</string>
     <string name="touchCtl">Touch Control</string>
     <string name="soundCtl">Sound Control</string>
+    <string name="miscCtl">Misc Controls</string>
 
     <!-- Actionbar items -->
     <string name="action_setOnBoot">Set on boot</string>
@@ -46,6 +46,26 @@
     <!-- #GPU Control -->
     <string name="pref_category_gpu">GPU</string>
     <string name="pref_policy">Policy</string>
+    <string name="pref_vdd_dig_low">VDD DIG LOW</string>
+    <string name="pref_vdd_dig_normal">VDD DIG NORMAL</string>
+    <string name="pref_vdd_dig_high">VDD DIG HIGH</string>
+
+    <!-- #Touch Control -->
+    <string name="pref_category_config">Config</string>
+    <string name="pref_dt2w">Double tap to wake</string>
+    <string name="pref_s2w">Sweep to wake / Sweep to sleep</string>
+    <string name="pref_s2d">Sweep to dim</string>
+    <string name="pref_tw">Touch wake</string>
+    <string name="pref_dt2w_feather">Double tap to wake feather radius</string>
+    <string name="pref_dt2w_zone">Double tap to wake trigger zone</string>
+    <string name="pref_tw_timeout">Touch wake timeout</string>
+    <string name="pref_summary_dt2w">Double tap on the screen to wake the phone.</string>
+    <string name="pref_summary_s2d">Swipe on the navigation bar to dim the screen.</string>
+    <string name="pref_summary_s2w">
+        Swipe on the screen from left to right to wake the phone or swipe on the navigation bar from right to left to lock the phone.
+        Some kernels do not support s2w+s2s or s2s.
+    </string>
+    <string name="pref_summary_tw">When the screen locks wake the phone by touching the screen within the specified timeout.</string>
 
     <!-- #Sound Control -->
     <string name="pref_category_sndprofiles">Sound profiles</string>
@@ -58,21 +78,52 @@
     <string name="pref_mic_gain">Microphone Gain</string>
     <string name="pref_camc_gain">Camcorder Gain</string>
 
+    <!-- #LCD Control -->
+    <string name="pref_category_profiles">Profiles</string>
+    <string name="pref_category_kcal">KCal</string>
+    <string name="pref_category_kgamma">KGamma</string>
+    <string name="pref_category_brightness">Brightness</string>
+    <string name="pref_active_profile">Active profile</string>
+    <string name="pref_save_profile">Save current settings in a custom profile</string>
+    <string name="pref_delete_profile">Delete an existing custom profile</string>
+    <string name="pref_exp_brigthness">Exponential brightness</string>
+    <string name="pref_max_brigthness">Maximum brightness</string>
+    <string name="pref_min_brigthness">Minimum brightness</string>
+    <string name="red">Red</string>
+    <string name="green">Green</string>
+    <string name="blue">Blue</string>
+    <string name="button_save">Save</string>
+    <string name="hint_alias">Alias</string>
+    <string name="profile_alias_custom">Custom</string>
+    <string name="message_alias_empty">Profile alias is empty</string>
+    <string name="message_custom_empty">No custom profiles found</string>
+
+    <!-- #MISC Controls -->
+    <string name="pref_category_general">General</string>
+    <string name="pref_io_scheduler">I/O Scheduler</string>
+    <string name="pref_read_ahead_buffer">Read ahead buffer</string>
+    <string name="pref_tcp_congestion">TCP Congestion algorithm</string>
+
     <!-- Toast messages -->
-    <string name="message_applied_successfully">Applied successfully</string>
+    <string name="message_action_successful">Action successful</string>
+    <string name="message_action_unsuccessful">Error. Action unsuccessful</string>
     <string name="message_set_on_boot_enabled">Set on boot enabled</string>
     <string name="message_set_on_boot_disabled">Set on boot disabled</string>
     <string name="message_script_failed">Failed to write script</string>
 
     <!-- Dialog messages -->
     <string name="dialog_message_reqRoot">Requesting root access …</string>
-    <string name="dialog_message_failRoot">Failed to get root access …</string>
+    <string name="dialog_message_failRoot">Failed to get root access</string>
     <string name="dialog_message_bootScript">The boot script on /system/su.d needs to be installed or updated. Install it now?</string>
+
+    <!-- Notifications -->
+    <string name="notification_message_settings_applied">Settings applied successfully.</string>
+    <string name="notification_message_dirty_reboot">Dirty reboot detected. Press here to apply previous CPU settings.</string>
 
     <!-- Button labels -->
     <string name="button_install">Install</string>
     <string name="button_later">Later</string>
 
-    <string name="disclaimer_gpu_governors">Some listed governors might not work with your kernel.</string>
-
+    <!-- side notes -->
+    <string name="note_unsupported_options">Some of the listed options might not work with your kernel.</string>
 </resources>

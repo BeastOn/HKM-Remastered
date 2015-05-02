@@ -3,7 +3,7 @@
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    card_view:cardBackgroundColor="@color/card_barckground"
+    card_view:cardBackgroundColor="@color/card_background"
     card_view:cardCornerRadius="4dp">
 
     <LinearLayout
@@ -27,11 +27,14 @@
             android:background="@color/separatorColor" />
 
         <LinearLayout
+            android:id="@+id/usefulContent"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:animateLayoutChanges="true"
+            android:divider="@drawable/divider"
             android:orientation="vertical"
-            android:padding="3dp">
+            android:padding="3dp"
+            android:showDividers="middle">
 
             <include layout="@layout/pref_cpu_mpdec_enabled" />
 
@@ -42,17 +45,44 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:animateLayoutChanges="true"
-                android:orientation="vertical">
+                android:divider="@drawable/divider"
+                android:orientation="vertical"
+                android:showDividers="middle">
 
-                <include layout="@layout/pref_cpu_max_cores" />
+                <lb.themike10452.hellscorekernelmanagerl.CustomWidgets.PreferenceButton
+                    android:id="@+id/maxCoresOnBtn"
+                    style="@style/clickableLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:title="@string/pref_max_cores_online" />
 
-                <include layout="@layout/pref_cpu_min_cores" />
+                <lb.themike10452.hellscorekernelmanagerl.CustomWidgets.PreferenceButton
+                    android:id="@+id/minCoresOnBtn"
+                    style="@style/clickableLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:title="@string/pref_min_cores_online" />
 
-                <include layout="@layout/pref_cpu_max_susp" />
+                <lb.themike10452.hellscorekernelmanagerl.CustomWidgets.PreferenceButton
+                    android:id="@+id/maxCoresSuspBtn"
+                    style="@style/clickableLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:title="@string/pref_max_cores_susp" />
 
-                <include layout="@layout/pref_cpu_boosted_cores" />
+                <lb.themike10452.hellscorekernelmanagerl.CustomWidgets.PreferenceButton
+                    android:id="@+id/boostedCoresBtn"
+                    style="@style/clickableLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:title="@string/pref_cores_boosted" />
 
-                <include layout="@layout/pref_cpu_boost_duration" />
+                <lb.themike10452.hellscorekernelmanagerl.CustomWidgets.PreferenceButton
+                    android:id="@+id/boostDurationBtn"
+                    style="@style/clickableLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:title="@string/pref_boost_duration" />
 
                 <include layout="@layout/pref_cpu_screenoff_max" />
 

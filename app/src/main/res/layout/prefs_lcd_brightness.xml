@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:clipChildren="false"
+    android:clipToPadding="false"
+    android:orientation="vertical"
+    card_view:cardBackgroundColor="@color/card_background"
+    card_view:cardCornerRadius="4dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        android:orientation="vertical"
+        android:padding="3dp">
+
+        <TextView
+            style="@style/categoryTitleStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/pref_category_brightness" />
+
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="1dp"
+            android:layout_marginBottom="5dp"
+            android:layout_marginTop="5dp"
+            android:background="@color/separatorColor" />
+
+        <LinearLayout
+            android:id="@+id/usefulContent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            android:divider="@drawable/divider"
+            android:orientation="vertical"
+            android:paddingBottom="3dp"
+            android:paddingEnd="3dp"
+            android:paddingStart="3dp"
+            android:showDividers="middle">
+
+            <Switch
+                android:id="@+id/expBr_switch"
+                style="@style/mSwitchStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/pref_exp_brigthness" />
+
+            <lb.themike10452.hellscorekernelmanagerl.CustomWidgets.PreferenceButton
+                android:id="@+id/maxBrightness"
+                style="@style/clickableLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:title="@string/pref_max_brigthness" />
+
+            <lb.themike10452.hellscorekernelmanagerl.CustomWidgets.PreferenceButton
+                android:id="@+id/minBrightness"
+                style="@style/clickableLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:title="@string/pref_min_brigthness" />
+        </LinearLayout>
+    </LinearLayout>
+</android.support.v7.widget.CardView>

@@ -1,45 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/screenOffMaxHolder"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/topAncestor"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:layout_height="wrap_content">
 
-    <RelativeLayout
-        android:id="@+id/firstChild"
+    <lb.themike10452.hellscorekernelmanagerl.CustomWidgets.PreferenceButton
+        android:id="@+id/screenOffMaxBtn"
+        style="@style/clickableLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_toStartOf="@+id/screenOffMaxStateSwitch"
+        android:title="@string/pref_screenoff_max" />
 
-        <LinearLayout
-            android:id="@+id/screenOffMaxBtn"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_toStartOf="@+id/screenOffMaxStateSwitch"
-            android:background="?android:attr/selectableItemBackground"
-            android:clickable="true"
-            android:orientation="vertical"
-            android:padding="3dp">
-
-            <TextView
-                style="@style/buttonTitleStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/pref_screenoff_max" />
-
-            <TextView
-                android:id="@+id/value"
-                style="@style/buttonDetailStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-        </LinearLayout>
-
-        <Switch
-            android:id="@+id/screenOffMaxStateSwitch"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true" />
-    </RelativeLayout>
-
-    <include layout="@layout/separator_secondary" />
-</LinearLayout>
+    <Switch
+        android:id="@+id/screenOffMaxStateSwitch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true" />
+</RelativeLayout>

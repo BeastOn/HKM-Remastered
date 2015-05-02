@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:clipChildren="false"
+    android:clipToPadding="false"
+    card_view:cardBackgroundColor="@color/card_background"
+    card_view:cardCornerRadius="4dp">
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        android:orientation="vertical"
+        android:padding="3dp">
+
+        <TextView
+            style="@style/categoryTitleStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/pref_category_config" />
+
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="1dp"
+            android:layout_marginBottom="5dp"
+            android:layout_marginTop="5dp"
+            android:background="@color/separatorColor" />
+
+        <LinearLayout
+            android:id="@+id/usefulContent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:animateLayoutChanges="true"
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            android:divider="@drawable/divider"
+            android:orientation="vertical"
+            android:padding="3dp"
+            android:showDividers="middle">
+
+            <include
+                layout="@layout/pref_touch_dt2w_zone"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <lb.themike10452.hellscorekernelmanagerl.CustomWidgets.PreferenceButton
+                android:id="@+id/dt2wFeatherBtn"
+                style="@style/clickableLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:title="@string/pref_dt2w_feather" />
+
+            <lb.themike10452.hellscorekernelmanagerl.CustomWidgets.PreferenceButton
+                android:id="@+id/twTimeoutBtn"
+                style="@style/clickableLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:title="@string/pref_tw_timeout" />
+
+        </LinearLayout>
+    </LinearLayout>
+</android.support.v7.widget.CardView>

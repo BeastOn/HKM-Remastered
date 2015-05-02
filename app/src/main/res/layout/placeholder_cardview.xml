@@ -5,5 +5,5 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:transitionName="card"
-    card_view:cardBackgroundColor="@color/card_barckground"
+    card_view:cardBackgroundColor="@color/card_background"
     card_view:cardCornerRadius="4dp" />

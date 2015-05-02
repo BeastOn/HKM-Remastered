@@ -15,7 +15,7 @@
         android:layout_height="wrap_content"
         android:clipChildren="false"
         android:clipToPadding="false"
-        card_view:cardBackgroundColor="@color/card_barckground"
+        card_view:cardBackgroundColor="@color/card_background"
         card_view:cardCornerRadius="4dp">
 
         <LinearLayout

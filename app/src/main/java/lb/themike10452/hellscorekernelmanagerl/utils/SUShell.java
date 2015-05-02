@@ -1,14 +1,13 @@
 package lb.themike10452.hellscorekernelmanagerl.utils;
 
 import android.os.Handler;
-import android.util.Log;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 /**
  * Created by Mike on 3/6/2015.
@@ -18,10 +17,11 @@ public class SUShell {
     protected static final String VALID_EOF = "--@M^I*K#E_--";
     protected static final String ERR_EOF = "--!@M^I*K#E_--";
     protected static boolean running;
-    private Handler mHandler;
     private ArrayList<String> STDIN;
+    private Handler mHandler;
+    private OutputStreamWriter outputStreamWriter;
     private Process process;
-    private StreamReader streamHandler;
+    private StreamReader streamReader;
     private Thread readerThread;
 
     public SUShell(Handler handler) {
@@ -33,22 +33,26 @@ public class SUShell {
     public boolean startShell() {
         if (!running) {
             try {
-                process = new ProcessBuilder("su", "-c", "/system/bin/sh")
+                process = new ProcessBuilder("/system/bin/sh", "-c", "su")
                         .redirectErrorStream(false)
                         .start();
-                streamHandler = new StreamReader(process, STDIN);
-                readerThread = new Thread(streamHandler);
+
+                outputStreamWriter = new OutputStreamWriter(process.getOutputStream());
+                streamReader = new StreamReader(process.getInputStream(), STDIN);
+                readerThread = new Thread(streamReader);
                 readerThread.start();
 
-                while (STDIN.size() == 0) {
+                run("id");
+
+                /*while (STDIN.size() == 0) {
                     if (run("id") == null)
                         return false;
-                }
+                }*/
 
                 return STDIN.size() > 0
                         && STDIN.get(0).contains("uid=0");
 
-            } catch (IOException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
                 return false;
             }
@@ -63,6 +67,11 @@ public class SUShell {
             @Override
             public void run() {
                 readerThread.interrupt();
+                try {
+                    outputStreamWriter.close();
+                    process.destroy();
+                } catch (Exception ignored) {
+                }
             }
         }, 100);
     }
@@ -70,10 +79,11 @@ public class SUShell {
     public synchronized List<String> run(String cmd) {
         clear();
         try {
-            streamHandler.addCommand(cmd);
-            while (streamHandler.hasUnfinishedJobs()) {
-                //wait
-            }
+            streamReader.addCommand(cmd);
+
+            //wait for unfinished jobs
+            while (streamReader.hasUnfinishedJobs()) ;
+
             if (STDIN.size() == 0 || STDIN.contains(ERR_EOF)) {
                 return null;
             } else {
@@ -92,42 +102,36 @@ public class SUShell {
     public class StreamReader implements Runnable {
 
         private List<String> STDIN;
-        private Process process;
+        private InputStream inputStream;
         private boolean hasUnfinishedJobs;
 
-        public StreamReader(Process process, List<String> STDIN) {
-            this.process = process;
+        public StreamReader(InputStream inputStream, List<String> STDIN) {
+            this.inputStream = inputStream;
             this.STDIN = STDIN;
         }
 
         @Override
         public void run() {
             running = true;
-            setHasUnfinishedJobs(true);
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            try {
-                while (running) {
-                    String line;
-                    while (running && (line = reader.readLine()) != null) {
-                        boolean reachedEOF = line.equals(VALID_EOF) || line.equals(ERR_EOF);
+            Scanner scanner = new Scanner(inputStream);
+            while (running && scanner.hasNextLine()) {
+                String line = scanner.nextLine();
+                boolean reachedEOF = line.equals(VALID_EOF) || line.equals(ERR_EOF);
 
-                        if (!line.equals(VALID_EOF))
-                            addToStdIn(line);
+                if (!line.equals(VALID_EOF))
+                    addToStdIn(line);
 
-                        setHasUnfinishedJobs(!reachedEOF);
-                    }
-                    setHasUnfinishedJobs(false);
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
+                setHasUnfinishedJobs(!reachedEOF);
             }
+            setHasUnfinishedJobs(false);
+            running = false;
+            scanner.close();
         }
 
         public synchronized void addCommand(String command) throws IOException {
             setHasUnfinishedJobs(true);
-            OutputStreamWriter writer = new OutputStreamWriter(process.getOutputStream());
-            writer.write(command.concat(" && echo ").concat(VALID_EOF).concat(" || echo ").concat(ERR_EOF).concat("\n"));
-            writer.flush();
+            outputStreamWriter.write(command.concat(" && echo ").concat(VALID_EOF).concat(" || echo ").concat(ERR_EOF).concat("\n"));
+            outputStreamWriter.flush();
         }
 
         private synchronized void addToStdIn(String line) {

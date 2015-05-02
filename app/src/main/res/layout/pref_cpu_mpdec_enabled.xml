@@ -14,7 +14,4 @@
         android:paddingStart="3dp"
         android:paddingTop="10dp"
         android:text="@string/pref_msm_mpdecision" />
-
-    <include layout="@layout/separator_secondary" />
-
 </LinearLayout>

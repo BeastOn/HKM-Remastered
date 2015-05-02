@@ -3,43 +3,34 @@
     android:id="@+id/minFreqHolder"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:padding="3dp">
 
-    <LinearLayout
-        android:layout_width="match_parent"
+    <RelativeLayout
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="3dp">
+        android:layout_marginTop="5dp"
+        android:gravity="center"
+        android:orientation="horizontal">
 
-        <RelativeLayout
+        <TextView
+            android:id="@+id/minCpuClockTitle"
+            style="@style/buttonTitleStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:gravity="center"
-            android:orientation="horizontal">
+            android:layout_marginEnd="5dp"
+            android:text="@string/pref_min_freq" />
 
-            <TextView
-                android:id="@+id/minCpuClockTitle"
-                style="@style/buttonTitleStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="5dp"
-                android:text="@string/pref_min_freq" />
+        <TextView
+            android:id="@+id/value"
+            style="@style/buttonDetailStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@+id/minCpuClockTitle" />
+    </RelativeLayout>
 
-            <TextView
-                android:id="@+id/value"
-                style="@style/buttonDetailStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_toEndOf="@+id/minCpuClockTitle" />
-        </RelativeLayout>
-
-        <SeekBar
-            android:id="@+id/seekBar"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content" />
-    </LinearLayout>
-
-    <include layout="@layout/separator_secondary" />
-
+    <SeekBar
+        android:id="@+id/seekBar"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" />
 </LinearLayout>

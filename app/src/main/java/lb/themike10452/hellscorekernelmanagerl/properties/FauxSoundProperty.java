@@ -26,8 +26,8 @@ public class FauxSoundProperty extends intProperty {
     private SeekBar seekBar;
     private int min, max, opMode;
 
-    public FauxSoundProperty(@NonNull String path, View container, int titleId, int defaultValue, int minValue, int maxValue, int mode) {
-        super(path, container, defaultValue);
+    public FauxSoundProperty(@NonNull String path, View container, int titleId, int minValue, int maxValue, int mode) {
+        super(path, container);
         seekBar = (SeekBar) container.findViewById(R.id.seekBar);
         min = minValue;
         max = maxValue;
@@ -58,19 +58,22 @@ public class FauxSoundProperty extends intProperty {
     }
 
     @Override
-    public void setDisplayedValue(Object _value) {
-        super.setDisplayedValue(_value);
-        int value;
-        if (_value instanceof String) {
-            value = Integer.parseInt((String) _value);
-        } else {
-            value = (int) _value;
+    public void setDisplayedValue(String value) {
+        super.setDisplayedValue(value);
+        if (value != null) {
+            int i = Integer.parseInt(value);
+            seekBar.setProgress(i - min);
         }
+    }
+
+    @Override
+    public void setDisplayedValue(int value) {
+        super.setDisplayedValue(value);
         seekBar.setProgress(value - min);
     }
 
     @Override
-    public int getValue() {
+    public String getValue() {
         switch (opMode) {
             case MODE_SINGLE:
                 return decode(HKMTools.getInstance().readLineFromFile(filePath));
@@ -82,11 +85,11 @@ public class FauxSoundProperty extends intProperty {
             case MODE_RIGHT_AMP:
                 return decode(HKMTools.getInstance().readLineFromFile(filePath).split(" ")[1]);
         }
-        return DEFAULT_VALUE;
+        return null;
     }
 
     @Override
-    public int setValue(String value) {
+    public void setValue(String value) {
         switch (opMode) {
             case MODE_SINGLE:
                 value = encode(parse(value), 0);
@@ -98,22 +101,17 @@ public class FauxSoundProperty extends intProperty {
             case MODE_LEFT_AMP:
                 if (complement != null) {
                     value = encode(parse(value), parse(complement.readDisplayedValue()));
-                } else {
-                    return 1;
                 }
                 break;
             case MODE_RIGHT:
             case MODE_RIGHT_AMP:
                 if (complement != null) {
                     value = encode(parse(complement.readDisplayedValue()), parse(value));
-                } else {
-                    return 1;
                 }
                 break;
         }
 
-        HKMTools.getInstance().addCommand("echo ".concat("\"" + value + "\"").concat(" > ").concat(filePath));
-        return 0;
+        super.setValue(value);
     }
 
     public FauxSoundProperty getComplement() {
@@ -154,17 +152,17 @@ public class FauxSoundProperty extends intProperty {
         }
     }
 
-    private int decode(String value) {
+    private String decode(String value) {
         int a = Integer.parseInt(value.trim());
         switch (opMode) {
             case MODE_LEFT_AMP:
             case MODE_RIGHT_AMP:
-                return (short) (22 - a);
+                return Integer.toString(22 - a);
             default:
                 if (a > 10) {
                     a -= 256;
                 }
-                return a;
+                return Integer.toString(a);
         }
 
     }

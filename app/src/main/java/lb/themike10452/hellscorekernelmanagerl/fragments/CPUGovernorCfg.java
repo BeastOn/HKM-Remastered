@@ -22,17 +22,16 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import lb.themike10452.hellscorekernelmanagerl.CustomWidgets.NumberModifier;
 import lb.themike10452.hellscorekernelmanagerl.R;
-import lb.themike10452.hellscorekernelmanagerl.Settings;
 import lb.themike10452.hellscorekernelmanagerl.utils.HKMTools;
 import lb.themike10452.hellscorekernelmanagerl.utils.Library;
 
 import static lb.themike10452.hellscorekernelmanagerl.Settings.Constants.SET_GOV_SETTINGS_ON_BOOT;
+import static lb.themike10452.hellscorekernelmanagerl.Settings.Constants.SHARED_PREFS_ID;
 import static lb.themike10452.hellscorekernelmanagerl.utils.HKMTools.ScriptUtils.GOV_SETTINGS_SCRIPT_NAME;
 
 /**
@@ -61,7 +60,7 @@ public class CPUGovernorCfg extends Fragment {
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         mActivity = activity;
-        sharedPreferences = mActivity.getSharedPreferences(Settings.Constants.SHARED_PREFS_ID, Context.MODE_PRIVATE);
+        sharedPreferences = mActivity.getSharedPreferences(SHARED_PREFS_ID, Context.MODE_PRIVATE);
     }
 
     @Override
@@ -139,7 +138,7 @@ public class CPUGovernorCfg extends Fragment {
         createScript(tools.getRecentCommandsList());
         tools.flush();
         if (fromUser) {
-            Toast.makeText(mActivity.getApplicationContext(), R.string.message_applied_successfully, Toast.LENGTH_SHORT).show();
+            Toast.makeText(mActivity.getApplicationContext(), R.string.message_action_successful, Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -163,17 +162,7 @@ public class CPUGovernorCfg extends Fragment {
     }
 
     private void createScript(List<String> commandList) {
-        boolean sobEnabled = sharedPreferences.getBoolean(SET_GOV_SETTINGS_ON_BOOT, false);
-        if (!sobEnabled) {
-            HKMTools.ScriptUtils.clearScript(mActivity.getApplicationContext(), GOV_SETTINGS_SCRIPT_NAME);
-        } else {
-            try {
-                HKMTools.ScriptUtils.writeScript(mActivity.getApplicationContext(), GOV_SETTINGS_SCRIPT_NAME, commandList, true);
-            } catch (IOException e) {
-                Toast.makeText(mActivity.getApplicationContext(), R.string.message_script_failed, Toast.LENGTH_SHORT).show();
-                Toast.makeText(mActivity.getApplicationContext(), e.toString(), Toast.LENGTH_SHORT).show();
-            }
-        }
+        HKMTools.ScriptUtils.createScript(mActivity.getApplicationContext(), sharedPreferences, SET_GOV_SETTINGS_ON_BOOT, GOV_SETTINGS_SCRIPT_NAME, commandList);
     }
 
     class mAdapter extends ArrayAdapter<File> {

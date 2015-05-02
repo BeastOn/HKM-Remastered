@@ -5,7 +5,7 @@
     android:layout_height="wrap_content"
     android:clipChildren="false"
     android:clipToPadding="false"
-    card_view:cardBackgroundColor="@color/card_barckground"
+    card_view:cardBackgroundColor="@color/card_background"
     card_view:cardCornerRadius="4dp">
 
 
@@ -32,15 +32,23 @@
             android:background="@color/separatorColor" />
 
         <LinearLayout
+            android:id="@+id/usefulContent"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:animateLayoutChanges="true"
             android:clipChildren="false"
             android:clipToPadding="false"
+            android:divider="@drawable/divider"
             android:orientation="vertical"
-            android:padding="3dp">
+            android:padding="3dp"
+            android:showDividers="middle">
 
-            <include layout="@layout/pref_gpu_policy" />
+            <lb.themike10452.hellscorekernelmanagerl.CustomWidgets.PreferenceButton
+                android:id="@+id/gpuPolicyBtn"
+                style="@style/clickableLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:title="@string/pref_policy" />
 
             <include layout="@layout/pref_cpu_governor" />
 

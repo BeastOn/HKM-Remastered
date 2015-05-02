@@ -30,21 +30,18 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import at.markushi.ui.action.CloseAction;
 import at.markushi.ui.action.DrawerAction;
+import lb.themike10452.hellscorekernelmanagerl.CustomAdapters.CPUVoltagesAdapter;
 import lb.themike10452.hellscorekernelmanagerl.CustomAdapters.SeekBarProgressAdapter;
-import lb.themike10452.hellscorekernelmanagerl.CustomAdapters.VoltagesAdapter;
 import lb.themike10452.hellscorekernelmanagerl.CustomWidgets.NumberModifier;
 import lb.themike10452.hellscorekernelmanagerl.MainActivity;
 import lb.themike10452.hellscorekernelmanagerl.MainActivity.mTransactionManager;
 import lb.themike10452.hellscorekernelmanagerl.R;
-import lb.themike10452.hellscorekernelmanagerl.Settings;
-import lb.themike10452.hellscorekernelmanagerl.properties.HKMPropertyInterface;
 import lb.themike10452.hellscorekernelmanagerl.properties.MultiCoreIntProperty;
 import lb.themike10452.hellscorekernelmanagerl.properties.MultiCoreLongProperty;
 import lb.themike10452.hellscorekernelmanagerl.properties.MultiLineValueProperty;
@@ -52,13 +49,14 @@ import lb.themike10452.hellscorekernelmanagerl.properties.MultiRootPathIntProper
 import lb.themike10452.hellscorekernelmanagerl.properties.PropertyUtils;
 import lb.themike10452.hellscorekernelmanagerl.properties.StringProperty;
 import lb.themike10452.hellscorekernelmanagerl.properties.intProperty;
+import lb.themike10452.hellscorekernelmanagerl.properties.interfaces.HKMPropertyInterface;
 import lb.themike10452.hellscorekernelmanagerl.properties.longProperty;
 import lb.themike10452.hellscorekernelmanagerl.utils.HKMTools;
 import lb.themike10452.hellscorekernelmanagerl.utils.Library;
 
 import static lb.themike10452.hellscorekernelmanagerl.Settings.Constants.SET_CPU_SETTINGS_ON_BOOT;
-import static lb.themike10452.hellscorekernelmanagerl.properties.PropertyUtils.ERR_INT;
-import static lb.themike10452.hellscorekernelmanagerl.properties.PropertyUtils.ERR_STR;
+import static lb.themike10452.hellscorekernelmanagerl.Settings.Constants.SHARED_PREFS_ID;
+import static lb.themike10452.hellscorekernelmanagerl.utils.HKMTools.ScriptUtils.CPU_SETTINGS_SCRIPT_NAME;
 
 /**
  * Created by Mike on 2/22/2015.
@@ -69,7 +67,7 @@ public class CPUControl extends Fragment implements View.OnClickListener {
 
     private MainActivity mActivity;
     private SharedPreferences sharedPreferences;
-    private VoltagesAdapter mVoltagesAdapter;
+    private CPUVoltagesAdapter mVoltagesAdapter;
     private mTransactionManager transactionManager;
 
     private MultiRootPathIntProperty maxCoresProperty;
@@ -260,7 +258,7 @@ public class CPUControl extends Fragment implements View.OnClickListener {
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         mActivity = (MainActivity) activity;
-        sharedPreferences = mActivity.getSharedPreferences(Settings.Constants.SHARED_PREFS_ID, Context.MODE_PRIVATE);
+        sharedPreferences = mActivity.getSharedPreferences(SHARED_PREFS_ID, Context.MODE_PRIVATE);
     }
 
     @Override
@@ -270,7 +268,6 @@ public class CPUControl extends Fragment implements View.OnClickListener {
 
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
-        super.onPrepareOptionsMenu(menu);
         Switch setOnBootSwitch = ((Switch) menu.findItem(R.id.action_setOnBoot).getActionView().findViewById(R.id.sob_switch));
         boolean sobEnabled = sharedPreferences.getBoolean(SET_CPU_SETTINGS_ON_BOOT, false);
         setOnBootSwitch.setChecked(sobEnabled);
@@ -304,7 +301,7 @@ public class CPUControl extends Fragment implements View.OnClickListener {
             transactionManager.setDrawerIndicator(new DrawerAction());
         }
         mView = inflater.inflate(R.layout.fragment_cpu, container, false);
-        mVoltagesAdapter = new VoltagesAdapter(mActivity, findViewById(R.id.vdd_panel));
+        mVoltagesAdapter = new CPUVoltagesAdapter(mActivity, findViewById(R.id.vdd_panel));
         FrameLayout goContainer = (FrameLayout) mView.findViewById(R.id.globalOffsetContainer);
         goContainer.addView(mVoltagesAdapter.getView(-1, null, null));
         displayVoltages = false;
@@ -315,42 +312,42 @@ public class CPUControl extends Fragment implements View.OnClickListener {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        governorProperty = new StringProperty(Library.CPU0_GOV_PATH, findViewById(R.id.govBtn), ERR_STR);
-        maxFreqProperty = new MultiCoreLongProperty(Library.MAX_FREQ_PATH, findViewById(R.id.maxFreqHolder), ERR_INT);
-        minFreqProperty = new MultiCoreLongProperty(Library.MIN_FREQ_PATH, findViewById(R.id.minFreqHolder), ERR_INT);
-        msmHotplugEnabled = new intProperty(Library.MSM_HOTPLUG_ENABLED, findViewById(R.id.enable_msm_hotplug), ERR_INT);
-        msmMPDecisionEnabled = new intProperty(Library.MSM_MPDECISION_ENABLED, findViewById(R.id.enable_msm_mpdec), ERR_INT);
-        maxCoresSuspProperty = new intProperty(Library.MAX_CPUS_SUSP, findViewById(R.id.maxCoresSuspBtn), ERR_INT);
-        boostedCoresProperty = new intProperty(Library.BOOSTED_CPUS_PATH, findViewById(R.id.boostedCoresBtn), ERR_INT);
-        boostDurationProperty = new intProperty(Library.BOOST_LOCK_DURATION_PATH, findViewById(R.id.boostDurationBtn), ERR_INT);
-        screenoffMaxProperty = new longProperty(Library.SCREEN_OFF_MAX_FREQ, findViewById(R.id.screenOffMaxBtn), ERR_INT);
-        screenoffMaxStateProperty = new intProperty(Library.SCREEN_OFF_MAX_STATE, findViewById(R.id.screenOffMaxStateSwitch), ERR_INT);
-        screenoffSglCoreProperty = new intProperty(Library.SCREEN_OFF_SINGLE_CORE_PATH, findViewById(R.id.screenOffSglCoreHolder), ERR_INT);
-        touchBoostProperty = new MultiLineValueProperty(findViewById(R.id.touchBoostBtn), Library.TOUCH_BOOST_FREQS_PATH, ERR_STR);
-        touchBoostStateProperty = new intProperty(Library.TOUCH_BOOST_PATH, findViewById(R.id.touchBoostSwitch), ERR_INT);
-        c0wfiProperty = new MultiCoreIntProperty(Library.CPU_IDLE_C0_PATH, findViewById(R.id.c0_switch), ERR_INT);
-        c1retProperty = new MultiCoreIntProperty(Library.CPU_IDLE_C1_PATH, findViewById(R.id.c1_switch), ERR_INT);
-        c2spcProperty = new MultiCoreIntProperty(Library.CPU_IDLE_C2_PATH, findViewById(R.id.c2_switch), ERR_INT);
-        c3pcProperty = new MultiCoreIntProperty(Library.CPU_IDLE_C3_PATH, findViewById(R.id.c3_switch), ERR_INT);
+        governorProperty = new StringProperty(Library.CPU_GOVERNOR, findViewById(R.id.govBtn));
+        maxFreqProperty = new MultiCoreLongProperty(Library.CPU_MAX_FREQ, findViewById(R.id.maxFreqHolder));
+        minFreqProperty = new MultiCoreLongProperty(Library.CPU_MIN_FREQ, findViewById(R.id.minFreqHolder));
+        msmHotplugEnabled = new intProperty(Library.CPU_MSM_HOTPLUG_ENABLED, findViewById(R.id.enable_msm_hotplug));
+        msmMPDecisionEnabled = new intProperty(Library.CPU_MSM_MPDECISION_ENABLED, findViewById(R.id.enable_msm_mpdec));
+        maxCoresSuspProperty = new intProperty(Library.CPU_MAX_CORES_SUSP, findViewById(R.id.maxCoresSuspBtn));
+        boostedCoresProperty = new intProperty(Library.CPU_BOOSTED_CORES, findViewById(R.id.boostedCoresBtn));
+        boostDurationProperty = new intProperty(Library.CPU_BOOST_LOCK_DURATION, findViewById(R.id.boostDurationBtn));
+        screenoffMaxProperty = new longProperty(Library.CPU_SCREEN_OFF_MAX, findViewById(R.id.screenOffMaxBtn));
+        screenoffMaxStateProperty = new intProperty(Library.CPU_SCREEN_OFF_MAX_STATE, findViewById(R.id.screenOffMaxStateSwitch));
+        screenoffSglCoreProperty = new intProperty(Library.CPU_SCREEN_OFF_SINGLE_CORE, findViewById(R.id.screenOffSglCore));
+        touchBoostProperty = new MultiLineValueProperty(findViewById(R.id.touchBoostBtn), Library.CPU_TOUCH_BOOST_FREQS);
+        touchBoostStateProperty = new intProperty(Library.CPU_TOUCH_BOOST, findViewById(R.id.touchBoostSwitch));
+        c0wfiProperty = new MultiCoreIntProperty(Library.CPU_IDLE_C0, findViewById(R.id.c0_switch));
+        c1retProperty = new MultiCoreIntProperty(Library.CPU_IDLE_C1, findViewById(R.id.c1_switch));
+        c2spcProperty = new MultiCoreIntProperty(Library.CPU_IDLE_C2, findViewById(R.id.c2_switch));
+        c3pcProperty = new MultiCoreIntProperty(Library.CPU_IDLE_C3, findViewById(R.id.c3_switch));
 
-        maxCoresProperty = new MultiRootPathIntProperty(findViewById(R.id.maxCoresOnBtn), ERR_INT, Library.MAX_CPUS_ONLINE_PATH0, Library.MAX_CPUS_ONLINE_PATH1) {
+        maxCoresProperty = new MultiRootPathIntProperty(findViewById(R.id.maxCoresOnBtn), Library.CPU_MAX_CORES_ONLINE_1, Library.CPU_MAX_CORES_ONLINE_2) {
             @Override
-            public void setDisplayedValue(Object _value) {
-                super.setDisplayedValue(_value);
-                if (_value instanceof String) {
-                    int thisValue = Integer.parseInt((String) _value);
-                    int thatValue = Integer.parseInt(minCoresProperty.readDisplayedValue());
+            public void setDisplayedValue(String value) {
+                super.setDisplayedValue(value);
+                Integer thisValue = HKMTools.parseInt(value);
+                Integer thatValue = HKMTools.parseInt(minCoresProperty.readDisplayedValue());
+                if (thisValue != null && thatValue != null) {
                     minCoresProperty.setDisplayedValue(Math.min(thisValue, thatValue));
                 }
             }
         };
-        minCoresProperty = new MultiRootPathIntProperty(findViewById(R.id.minCoresOnBtn), ERR_INT, Library.MIN_CPUS_ONLINE_PATH0, Library.MIN_CPUS_ONLINE_PATH1) {
+        minCoresProperty = new MultiRootPathIntProperty(findViewById(R.id.minCoresOnBtn), Library.CPU_MIN_CORES_ONLINE_1, Library.CPU_MIN_CORES_ONLINE_0) {
             @Override
-            public void setDisplayedValue(Object _value) {
-                super.setDisplayedValue(_value);
-                if (_value instanceof String) {
-                    int thisValue = Integer.parseInt((String) _value);
-                    int thatValue = Integer.parseInt(maxCoresProperty.readDisplayedValue());
+            public void setDisplayedValue(String value) {
+                super.setDisplayedValue(value);
+                Integer thisValue = HKMTools.parseInt(value);
+                Integer thatValue = HKMTools.parseInt(maxCoresProperty.readDisplayedValue());
+                if (thisValue != null && thatValue != null) {
                     maxCoresProperty.setDisplayedValue(Math.max(thisValue, thatValue));
                 }
             }
@@ -470,15 +467,10 @@ public class CPUControl extends Fragment implements View.OnClickListener {
             @Override
             protected Void doInBackground(Void... params) {
                 for (int i = 0; i < properties.length; i++) {
-                    HKMPropertyInterface property = properties[i];
-                    if (property instanceof intProperty) {
-                        values[i] = ((intProperty) property).getValue();
-                    } else if (property instanceof StringProperty) {
-                        values[i] = ((StringProperty) property).getValue();
-                    } else if (property instanceof longProperty) {
-                        values[i] = ((longProperty) property).getValue();
-                    } else if (property instanceof MultiLineValueProperty) {
-                        values[i] = ((MultiLineValueProperty) property).getValue();
+                    if (properties[i] instanceof MultiLineValueProperty) {
+                        values[i] = ((MultiLineValueProperty) properties[i]).getValueAsList();
+                    } else {
+                        values[i] = properties[i].getValue();
                     }
                 }
                 if (available_freqs == null) {
@@ -498,17 +490,16 @@ public class CPUControl extends Fragment implements View.OnClickListener {
                 super.onPostExecute(aVoid);
                 for (int i = 0; i < properties.length; i++) {
                     HKMPropertyInterface property = properties[i];
-                    View parent = findViewById(property.getViewId());
-                    try {
-                        if ((PropertyUtils.FLAG_VIEW_COMBO & property.getFlags()) == PropertyUtils.FLAG_VIEW_COMBO)
-                            parent = (View) parent.getParent();
-                    } catch (Exception ignored) {
+                    View container = property.getTopAncestor();
+                    if (property instanceof MultiLineValueProperty) {
+                        ((MultiLineValueProperty) property).setDisplayedValue((List<String>) values[i]);
+                    } else {
+                        property.setDisplayedValue((String) values[i]);
                     }
-                    property.setDisplayedValue(values[i]);
                     if (property instanceof longProperty) {
-                        long value = (long) values[i];
-                        View disp = parent.findViewById(R.id.seekBar);
-                        if (disp != null && disp instanceof SeekBar) {
+                        Long value = HKMTools.parseLong((String) values[i]);
+                        View disp = container.findViewById(R.id.seekBar);
+                        if (disp != null && value != null && disp instanceof SeekBar) {
                             SeekBar seekBar = (SeekBar) disp;
                             if (available_freqs != null) {
                                 if (property == maxFreqProperty || property == minFreqProperty) {
@@ -519,6 +510,7 @@ public class CPUControl extends Fragment implements View.OnClickListener {
                         }
                     }
                 }
+                HKMTools.removeEmptyCards((LinearLayout) findViewById(R.id.cardContainer));
                 mActivity.sendBroadcast(new Intent(MainActivity.ACTION_HIDE_TOUCH_BARRIER));
             }
         }.execute();
@@ -529,16 +521,7 @@ public class CPUControl extends Fragment implements View.OnClickListener {
         HKMTools tools = HKMTools.getInstance();
         tools.getReady();
         for (HKMPropertyInterface property : properties) {
-            boolean isCombo = (PropertyUtils.FLAG_VIEW_COMBO & property.getFlags()) == PropertyUtils.FLAG_VIEW_COMBO;
-            View holder = property.getView();
-            View parentView = holder;
-            if (isCombo) {
-                while (parentView.getId() != R.id.firstChild) {
-                    parentView = (View) parentView.getParent();
-                }
-                parentView = (View) parentView.getParent();
-            }
-            if (holder.getVisibility() == View.VISIBLE && (!isCombo || parentView.getVisibility() == View.VISIBLE)) {
+            if (property.isVisible()) {
                 String value = property.readDisplayedValue();
                 if (value != null) {
                     if (property == touchBoostProperty) {
@@ -561,7 +544,7 @@ public class CPUControl extends Fragment implements View.OnClickListener {
         createScript(tools.getRecentCommandsList());
         tools.flush();
         if (fromUser) {
-            Toast.makeText(mActivity.getApplicationContext(), R.string.message_applied_successfully, Toast.LENGTH_SHORT).show();
+            Toast.makeText(mActivity.getApplicationContext(), R.string.message_action_successful, Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -572,7 +555,7 @@ public class CPUControl extends Fragment implements View.OnClickListener {
     }
 
     private void fetchFrequencies() {
-        String tmp = HKMTools.getInstance().readLineFromFile(Library.AVAIL_FREQ_PATH);
+        String tmp = HKMTools.getInstance().readLineFromFile(Library.CPU_AVAIL_FREQS);
         if (tmp != null) {
             String[] freqs = tmp.split(" ");
             available_freqs = new long[freqs.length];
@@ -587,7 +570,7 @@ public class CPUControl extends Fragment implements View.OnClickListener {
     }
 
     private void fetchGovernors() {
-        String tmp = HKMTools.getInstance().readLineFromFile(Library.AVAIL_GOV_PATH);
+        String tmp = HKMTools.getInstance().readLineFromFile(Library.CPU_AVAIL_GOVS);
         if (tmp != null) {
             try {
                 available_governors = tmp.split(" ");
@@ -610,17 +593,7 @@ public class CPUControl extends Fragment implements View.OnClickListener {
     }
 
     private void createScript(List<String> commandList) {
-        boolean sobEnabled = sharedPreferences.getBoolean(SET_CPU_SETTINGS_ON_BOOT, false);
-        if (!sobEnabled) {
-            HKMTools.ScriptUtils.clearScript(mActivity.getApplicationContext(), HKMTools.ScriptUtils.CPU_SETTINGS_SCRIPT_NAME);
-        } else {
-            try {
-                HKMTools.ScriptUtils.writeScript(mActivity.getApplicationContext(), HKMTools.ScriptUtils.CPU_SETTINGS_SCRIPT_NAME, commandList, true);
-            } catch (IOException e) {
-                Toast.makeText(mActivity.getApplicationContext(), R.string.message_script_failed, Toast.LENGTH_SHORT).show();
-                Toast.makeText(mActivity.getApplicationContext(), e.toString(), Toast.LENGTH_SHORT).show();
-            }
-        }
+        HKMTools.ScriptUtils.createScript(mActivity.getApplicationContext(), sharedPreferences, SET_CPU_SETTINGS_ON_BOOT, CPU_SETTINGS_SCRIPT_NAME, commandList);
     }
 
     private View findViewById(int id) {

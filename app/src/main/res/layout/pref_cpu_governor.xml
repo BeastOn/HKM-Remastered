@@ -1,58 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/cpuGovHolder"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/topAncestor"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:layout_height="wrap_content">
 
-    <RelativeLayout
-        android:id="@+id/firstChild"
-        android:layout_width="match_parent"
+    <lb.themike10452.hellscorekernelmanagerl.CustomWidgets.PreferenceButton
+        android:id="@+id/govBtn"
+        style="@style/clickableLayout"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:clipChildren="false"
-        android:clipToPadding="false">
+        android:layout_centerVertical="true"
+        android:title="@string/pref_governor" />
 
-        <LinearLayout
-            android:id="@+id/govBtn"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_toStartOf="@+id/govCfgBtn"
-            android:background="?android:attr/selectableItemBackground"
-            android:clickable="true"
-            android:clipChildren="false"
-            android:clipToPadding="false"
-            android:orientation="vertical"
-            android:padding="3dp">
-
-            <TextView
-                style="@style/buttonTitleStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="fill_parent"
-                android:text="@string/pref_governor" />
-
-            <TextView
-                android:id="@+id/value"
-                style="@style/buttonDetailStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:transitionName="govName" />
-        </LinearLayout>
-
-        <ImageButton
-            android:id="@+id/govCfgBtn"
-            android:layout_width="48dp"
-            android:layout_height="wrap_content"
-            android:layout_alignBottom="@+id/govBtn"
-            android:layout_alignParentEnd="true"
-            android:layout_alignTop="@+id/govBtn"
-            android:layout_centerVertical="true"
-            android:background="?android:attr/selectableItemBackgroundBorderless"
-            android:scaleType="center"
-            android:src="@drawable/ic_settings_24px"
-            android:transitionName="govCfgBtn" />
-    </RelativeLayout>
-
-    <include layout="@layout/separator_secondary" />
-
-</LinearLayout>
+    <ImageButton
+        android:id="@+id/govCfgBtn"
+        android:layout_width="48dp"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/govBtn"
+        android:layout_alignParentEnd="true"
+        android:layout_alignTop="@+id/govBtn"
+        android:layout_centerVertical="true"
+        android:background="?android:attr/selectableItemBackgroundBorderless"
+        android:scaleType="centerInside"
+        android:src="@drawable/ic_settings_24px"
+        android:transitionName="govCfgBtn" />
+</RelativeLayout>
