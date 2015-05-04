@@ -381,16 +381,20 @@ public class LCDControl extends Fragment implements ObservableScrollView.CallBac
     }
 
     private void detectActiveProfile() {
-        if (profiles == null) return;
-        activeProfile = getString(R.string.profile_alias_custom);
-        MakoColorProfile active = packProfile(activeProfile);
-        for (MakoColorProfile profile : profiles) {
-            if (profile.compareTo(active) == 0) {
-                activeProfile = profile.getAlias();
-                break;
+        try {
+            if (profiles == null) return;
+            activeProfile = getString(R.string.profile_alias_custom);
+            MakoColorProfile active = packProfile(activeProfile);
+            for (MakoColorProfile profile : profiles) {
+                if (profile.compareTo(active) == 0) {
+                    activeProfile = profile.getAlias();
+                    break;
+                }
             }
+            setActiveProfileAlias(activeProfile);
+        } catch (IllegalStateException e) {
+            e.printStackTrace();
         }
-        setActiveProfileAlias(activeProfile);
     }
 
     private void setActiveProfileAlias(String alias) {
