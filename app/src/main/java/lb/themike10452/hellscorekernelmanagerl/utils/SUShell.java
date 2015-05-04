@@ -2,10 +2,8 @@ package lb.themike10452.hellscorekernelmanagerl.utils;
 
 import android.os.Handler;
 
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStreamWriter;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
