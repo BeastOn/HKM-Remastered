@@ -2,9 +2,11 @@ package lb.themike10452.hellscorekernelmanagerl.utils;
 
 import android.os.Handler;
 
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -19,7 +21,7 @@ public class SUShell {
     protected static boolean running;
     private ArrayList<String> STDIN;
     private Handler mHandler;
-    private OutputStreamWriter outputStreamWriter;
+    private PrintStream outputStream;
     private Process process;
     private StreamReader streamReader;
     private Thread readerThread;
@@ -37,7 +39,7 @@ public class SUShell {
                         .redirectErrorStream(false)
                         .start();
 
-                outputStreamWriter = new OutputStreamWriter(process.getOutputStream());
+                outputStream = new PrintStream(process.getOutputStream());
                 streamReader = new StreamReader(process.getInputStream(), STDIN);
                 readerThread = new Thread(streamReader);
                 readerThread.start();
@@ -68,7 +70,7 @@ public class SUShell {
             public void run() {
                 readerThread.interrupt();
                 try {
-                    outputStreamWriter.close();
+                    outputStream.close();
                     process.destroy();
                 } catch (Exception ignored) {
                 }
@@ -130,8 +132,7 @@ public class SUShell {
 
         public synchronized void addCommand(String command) throws IOException {
             setHasUnfinishedJobs(true);
-            outputStreamWriter.write(command.concat(" && echo ").concat(VALID_EOF).concat(" || echo ").concat(ERR_EOF).concat("\n"));
-            outputStreamWriter.flush();
+            outputStream.println(command + " && echo \"\\n" + VALID_EOF + "\" || echo \"\\n" + ERR_EOF + "\"");
         }
 
         private synchronized void addToStdIn(String line) {
