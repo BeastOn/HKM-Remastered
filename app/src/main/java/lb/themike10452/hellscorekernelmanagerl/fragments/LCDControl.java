@@ -220,16 +220,20 @@ public class LCDControl extends Fragment implements ObservableScrollView.CallBac
         expBrightnessProperty = new intProperty(Library.LCD_BRIGHTNESS_MODE, findViewById(R.id.expBr_switch)) {
             @Override
             public void setDisplayedValue(String value) {
-                if (value.equals("1")) value = "0";
-                else if (value.equals("0")) value = "1";
+                if (value != null) {
+                    if (value.equals("1")) value = "0";
+                    else if (value.equals("0")) value = "1";
+                }
                 super.setDisplayedValue(value);
             }
 
             @Override
             public String readDisplayedValue() {
                 String value = super.readDisplayedValue();
-                if (value.equals("1")) value = "0";
-                else if (value.equals("0")) value = "1";
+                if (value != null) {
+                    if (value.equals("1")) value = "0";
+                    else if (value.equals("0")) value = "1";
+                }
                 return value;
             }
         };
@@ -305,10 +309,8 @@ public class LCDControl extends Fragment implements ObservableScrollView.CallBac
             @Override
             protected void onPostExecute(Void aVoid) {
                 super.onPostExecute(aVoid);
-                for (int i = 0; i < values.length; i++) {
-                    if (values[i] != null) {
-                        properties[i].setDisplayedValue(values[i]);
-                    }
+                for (int i = 0; i < properties.length; i++) {
+                    properties[i].setDisplayedValue(values[i]);
                 }
                 detectActiveProfile();
                 HKMTools.removeEmptyCards((LinearLayout) findViewById(R.id.cardContainer));

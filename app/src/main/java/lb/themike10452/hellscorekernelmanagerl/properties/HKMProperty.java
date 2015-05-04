@@ -86,6 +86,7 @@ public class HKMProperty extends Observable implements HKMPropertyInterface {
     }
 
     public String readDisplayedValue() {
+        if (!isVisible()) return null;
         String value = null;
         if (mContainer instanceof Switch) {
             value = ((Switch) mContainer).isChecked() ? "1" : "0";
