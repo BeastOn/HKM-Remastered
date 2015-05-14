@@ -29,6 +29,7 @@ import lb.themike10452.hellscorekernelmanagerl.R;
 import lb.themike10452.hellscorekernelmanagerl.properties.MultiRootPathLongProperty;
 import lb.themike10452.hellscorekernelmanagerl.properties.MultiRootPathStringProperty;
 import lb.themike10452.hellscorekernelmanagerl.properties.PropertyUtils;
+import lb.themike10452.hellscorekernelmanagerl.properties.intProperty;
 import lb.themike10452.hellscorekernelmanagerl.properties.interfaces.HKMPropertyInterface;
 import lb.themike10452.hellscorekernelmanagerl.properties.longProperty;
 import lb.themike10452.hellscorekernelmanagerl.utils.HKMTools;
@@ -53,6 +54,9 @@ public class GPUControl extends Fragment implements View.OnClickListener {
 
     private static MultiRootPathStringProperty governorProperty;
     private static MultiRootPathLongProperty maxFreqProperty;
+    private static intProperty simpleAlghorithmProperty;
+    private static intProperty simpleLazinessProperty;
+    private static intProperty simpleRampProperty;
     private static MultiRootPathStringProperty policyProperty;
 
     private static HKMPropertyInterface[] properties;
@@ -136,6 +140,14 @@ public class GPUControl extends Fragment implements View.OnClickListener {
         maxFreqProperty = new MultiRootPathLongProperty(findViewById(R.id.maxFreqHolder), Library.GPU_MAX_FREQ_1, Library.GPU_MAX_FREQ_2);
         policyProperty = new MultiRootPathStringProperty(findViewById(R.id.gpuPolicyBtn), Library.GPU_POLICY_1, Library.GPU_POLICY_2);
 
+        simpleAlghorithmProperty = new intProperty(Library.GPU_SIMPLE_ALGORITHM, findViewById(R.id.simpleGpuGovSwitch));
+        simpleLazinessProperty = new intProperty(Library.GPU_SIMPLE_LAZINESS, findViewById(R.id.simpleLazinessBtn));
+        simpleRampProperty = new intProperty(Library.GPU_SIMPLE_RAMP, findViewById(R.id.simpleRampThreshBtn));
+
+        simpleLazinessProperty.setMax(10);
+        simpleRampProperty.setMax(10000);
+        simpleRampProperty.setAdjustStep(1000);
+
         voltagesAdapter = new GPUVoltagesAdapter(mActivity, (LinearLayout) findViewById(R.id.vdd_panel).findViewById(R.id.usefulContent));
 
         governorProperty.FLAGS = PropertyUtils.FLAG_VIEW_COMBO;
@@ -157,7 +169,10 @@ public class GPUControl extends Fragment implements View.OnClickListener {
         properties = new HKMPropertyInterface[]{
                 policyProperty,
                 governorProperty,
-                maxFreqProperty
+                maxFreqProperty,
+                simpleAlghorithmProperty,
+                simpleLazinessProperty,
+                simpleRampProperty
         };
     }
 

@@ -51,6 +51,10 @@ public class MiscControls extends Fragment {
     private static intProperty blxLimitProperty;
     private static intProperty dynFSyncProperty;
     private static intProperty fastChargeProperty;
+    private static intProperty wakelockSensorIndProperty;
+    private static intProperty wakelockSmbProperty;
+    private static intProperty wakelockRxTimeoutProperty;
+    private static intProperty wakelockHsicHostProperty;
 
     private static HKMPropertyInterface[] properties;
     private static String[] ioSchedulers;
@@ -135,6 +139,11 @@ public class MiscControls extends Fragment {
         dynFSyncProperty = new intProperty(Library.MISC_DYN_FSYNC, findViewById(R.id.dynfsyncSwitch));
         fastChargeProperty = new intProperty(Library.MISC_FASTCHARGE, findViewById(R.id.fastchargeSwitch));
 
+        wakelockSensorIndProperty = new intProperty(Library.MISC_SENSOR_IND_WAKELOCK, findViewById(R.id.sensorIndSwitch));
+        wakelockSmbProperty = new intProperty(Library.MISC_SMB135X_WAKELOCK, findViewById(R.id.smbWLSwitch));
+        wakelockRxTimeoutProperty = new intProperty(Library.MISC_REDUCEE_RX_WAKELOCK, findViewById(R.id.rxWLBtn));
+        wakelockHsicHostProperty = new intProperty(Library.MISC_HSIC_HOST_WAKELOCK, findViewById(R.id.hsicWLBtn));
+
         vibratorAmpProperty.setMax(100);
         readAheadProperty.setMin(128);
         readAheadProperty.setAdjustStep(128);
@@ -148,7 +157,11 @@ public class MiscControls extends Fragment {
                 msmThermalProperty,
                 blxLimitProperty,
                 dynFSyncProperty,
-                fastChargeProperty
+                fastChargeProperty,
+                wakelockSensorIndProperty,
+                wakelockSmbProperty,
+                wakelockRxTimeoutProperty,
+                wakelockHsicHostProperty
         };
     }
 

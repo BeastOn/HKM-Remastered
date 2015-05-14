@@ -79,6 +79,10 @@ public class Library {
     public static final String MISC_NET_TCP_CONGST = "/proc/sys/net/ipv4/tcp_congestion_control";
     public static final String MISC_VIBRATOR_AMP = "/sys/class/timed_output/vibrator/amp";
     public static final String MISC_BLX_LIMIT = "/sys/devices/virtual/misc/batterylifeextender/charging_limit";
+    public static final String MISC_SENSOR_IND_WAKELOCK = "/sys/module/wakeup/parameters/enable_si_ws";
+    public static final String MISC_SMB135X_WAKELOCK = "/sys/module/smb135x_charger/parameters/use_wlock";
+    public static final String MISC_REDUCEE_RX_WAKELOCK = "/sys/module/bcmdhd/parameters/wl_divide";
+    public static final String MISC_HSIC_HOST_WAKELOCK = "/sys/module/xhci_hcd/parameters/wl_divide";
 
     /** GPU **/
     public static final String GPU_AVAIL_FREQS_1 = "/sys/devices/platform/kgsl-3d0.0/kgsl/kgsl-3d0/gpu_available_frequencies";
@@ -91,6 +95,9 @@ public class Library {
     public static final String GPU_GOVERNOR_1 = "/sys/devices/platform/kgsl-3d0.0/kgsl/kgsl-3d0/pwrscale/trustzone/governor";
     public static final String GPU_GOVERNOR_2 = "/sys/devices/fdb00000.qcom,kgsl-3d0/kgsl/kgsl-3d0/pwrscale/trustzone/governor";
     public static final String GPU_MV_TABLE = "/sys/devices/system/cpu/cpu0/cpufreq/gpu_mv_table";
+    public static final String GPU_SIMPLE_ALGORITHM = "/sys/module/simple_gpu_algorithm/parameters/simple_gpu_activate";
+    public static final String GPU_SIMPLE_LAZINESS = "/sys/module/simple_gpu_algorithm/parameters/simple_laziness";
+    public static final String GPU_SIMPLE_RAMP = "/sys/module/simple_gpu_algorithm/parameters/simple_ramp_threshold";
 
     /** SOUND **/
     public static final String SOUND_HP_GAIN = "/sys/kernel/sound_control_3/gpl_headphone_gain";

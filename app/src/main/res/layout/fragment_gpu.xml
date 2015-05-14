@@ -19,6 +19,12 @@
             android:layout_height="wrap_content" />
 
         <include
+            layout="@layout/prefs_gpu_simple"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/intercard_margin" />
+
+        <include
             android:id="@+id/vdd_panel"
             layout="@layout/prefs_gpu_vdd"
             android:layout_width="match_parent"

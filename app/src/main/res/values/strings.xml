@@ -46,10 +46,14 @@
 
     <!-- #GPU Control -->
     <string name="pref_category_gpu">GPU</string>
+    <string name="pref_category_simple" translatable="false">Simple</string>
     <string name="pref_policy">Policy</string>
     <string name="pref_vdd_dig_low">VDD DIG LOW</string>
     <string name="pref_vdd_dig_normal">VDD DIG NORMAL</string>
     <string name="pref_vdd_dig_high">VDD DIG HIGH</string>
+    <string name="pref_use_simple_gov">Use simple GPU governor</string>
+    <string name="pref_simple_laziness">Laziness</string>
+    <string name="pref_simple_ramp_thresh">Ramp up threshold</string>
 
     <!-- #Touch Control -->
     <string name="pref_category_config">Config</string>
@@ -106,10 +110,14 @@
     <string name="pref_read_ahead_buffer">Read ahead buffer</string>
     <string name="pref_tcp_congestion">TCP congestion algorithm</string>
     <string name="pref_vibrator_amp">Vibrator amplitude</string>
-    <string name="pref_msm_thermal_limit">MSM thermal limit</string>
+    <string name="pref_msm_thermal_limit">MSM Thermal limit</string>
     <string name="pref_dynamic_fsync">Dynamic FSync</string>
     <string name="pref_fast_charge">Fast charge</string>
     <string name="pref_blx_limit">Battery life extender limit</string>
+    <string name="pref_sensor_ind_wakelock">Sensor ind wakelock</string>
+    <string name="pref_smb135x_wakelock">smb135x wakelock</string>
+    <string name="pref_reduce_rx_wakelock">Reduce RX wakelock timeout divide</string>
+    <string name="pref_msm_hsic_host_wakelock">MSM HSIC host wakelock divide</string>
 
     <!-- #Monitoring -->
     <string name="category_memory">Memory</string>
@@ -152,4 +160,5 @@
 
     <!-- side notes -->
     <string name="note_unsupported_options">Some of the listed options might not work with your kernel.</string>
+    <string name="note_adjust_carefully">Adjust carefully</string>
 </resources>
