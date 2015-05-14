@@ -21,14 +21,14 @@
             android:clipToPadding="false"
             android:orientation="vertical" />
 
-        <TextView
+        <!--TextView
             android:id="@+id/touchBarrier"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="#cc212121"
             android:focusable="true"
             android:gravity="center"
-            android:text="Please wait ..." />
+            android:text="Please wait ..." /-->
     </RelativeLayout>
 
     <ListView

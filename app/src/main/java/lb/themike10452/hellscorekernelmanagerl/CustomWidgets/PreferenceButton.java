@@ -7,6 +7,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import lb.themike10452.hellscorekernelmanagerl.R;
+import lb.themike10452.hellscorekernelmanagerl.utils.HKMTools;
 
 /**
  * Created by Mike on 4/21/2015.
@@ -15,12 +16,12 @@ public class PreferenceButton extends LinearLayout {
     public static final String xmlns = "http://schemas.android.com/apk/res/android";
 
     public PreferenceButton(Context context) {
-        super(context);
+        super(context, null, R.attr.clickableLayoutStyle);
         init(context, null);
     }
 
     public PreferenceButton(Context context, AttributeSet attrs) {
-        super(context, attrs);
+        super(context, attrs, R.attr.clickableLayoutStyle);
         init(context, attrs);
     }
 
@@ -35,10 +36,15 @@ public class PreferenceButton extends LinearLayout {
         summaryTv.setTextAppearance(context, R.style.buttonDetailStyle);
         addView(summaryTv);
 
-        final TextView valueTv = new TextView(context);
-        valueTv.setId(R.id.value);
-        valueTv.setTextAppearance(context, R.style.buttonDetailStyle);
-        addView(valueTv);
+        if (attrs == null || !"none".equals(attrs.getAttributeValue(xmlns, "value"))) {
+            final TextView valueTv = new TextView(context);
+            valueTv.setId(R.id.value);
+            valueTv.setTextAppearance(context, R.style.buttonDetailStyle);
+            addView(valueTv);
+        } else {
+            int dp10 = HKMTools.dpToPx(context, 10);
+            titleTv.setPadding(0, dp10, 0, dp10);
+        }
 
         if (attrs != null) {
             int title = attrs.getAttributeResourceValue(xmlns, "title", -1);

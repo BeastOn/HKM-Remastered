@@ -7,6 +7,7 @@
     card_view:cardCornerRadius="4dp">
 
     <LinearLayout
+        android:id="@+id/hotplugControlsHolder"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:animateLayoutChanges="true"
@@ -40,56 +41,52 @@
 
             <include layout="@layout/pref_cpu_hotplugenabled" />
 
-            <LinearLayout
-                android:id="@+id/msm_custom"
+            <lb.themike10452.hellscorekernelmanagerl.CustomWidgets.PreferenceButton
+                android:id="@+id/maxCoresOnBtn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:animateLayoutChanges="true"
-                android:divider="@drawable/divider"
-                android:orientation="vertical"
-                android:showDividers="middle">
+                android:tag="MSM_HOTPLUG"
+                android:title="@string/pref_max_cores_online" />
 
-                <lb.themike10452.hellscorekernelmanagerl.CustomWidgets.PreferenceButton
-                    android:id="@+id/maxCoresOnBtn"
-                    style="@style/clickableLayout"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:title="@string/pref_max_cores_online" />
+            <lb.themike10452.hellscorekernelmanagerl.CustomWidgets.PreferenceButton
+                android:id="@+id/minCoresOnBtn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:tag="MSM_HOTPLUG"
+                android:title="@string/pref_min_cores_online" />
 
-                <lb.themike10452.hellscorekernelmanagerl.CustomWidgets.PreferenceButton
-                    android:id="@+id/minCoresOnBtn"
-                    style="@style/clickableLayout"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:title="@string/pref_min_cores_online" />
+            <lb.themike10452.hellscorekernelmanagerl.CustomWidgets.PreferenceButton
+                android:id="@+id/maxCoresSuspBtn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:tag="MSM_HOTPLUG"
+                android:title="@string/pref_max_cores_susp" />
 
-                <lb.themike10452.hellscorekernelmanagerl.CustomWidgets.PreferenceButton
-                    android:id="@+id/maxCoresSuspBtn"
-                    style="@style/clickableLayout"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:title="@string/pref_max_cores_susp" />
+            <lb.themike10452.hellscorekernelmanagerl.CustomWidgets.PreferenceButton
+                android:id="@+id/boostedCoresBtn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:tag="MSM_HOTPLUG"
+                android:title="@string/pref_cores_boosted" />
 
-                <lb.themike10452.hellscorekernelmanagerl.CustomWidgets.PreferenceButton
-                    android:id="@+id/boostedCoresBtn"
-                    style="@style/clickableLayout"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:title="@string/pref_cores_boosted" />
+            <lb.themike10452.hellscorekernelmanagerl.CustomWidgets.PreferenceButton
+                android:id="@+id/boostDurationBtn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:tag="MSM_HOTPLUG"
+                android:title="@string/pref_boost_duration" />
 
-                <lb.themike10452.hellscorekernelmanagerl.CustomWidgets.PreferenceButton
-                    android:id="@+id/boostDurationBtn"
-                    style="@style/clickableLayout"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:title="@string/pref_boost_duration" />
+            <include
+                layout="@layout/pref_cpu_screenoff_max"
+                android:tag="MSM_HOTPLUG" />
 
-                <include layout="@layout/pref_cpu_screenoff_max" />
+            <include
+                layout="@layout/pref_cpu_screenoff_singlecore"
+                android:tag="MSM_HOTPLUG" />
 
-                <include layout="@layout/pref_cpu_screenoff_singlecore" />
-
-                <include layout="@layout/pref_cpu_touch_boost" />
-            </LinearLayout>
+            <include
+                layout="@layout/pref_cpu_touch_boost"
+                android:tag="MSM_HOTPLUG" />
         </LinearLayout>
     </LinearLayout>
 </android.support.v7.widget.CardView>

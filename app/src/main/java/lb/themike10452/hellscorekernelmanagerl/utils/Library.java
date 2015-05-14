@@ -6,9 +6,15 @@ package lb.themike10452.hellscorekernelmanagerl.utils;
 public class Library {
     /** Monitoring **/
     public static final String MON_CPU_SYSFS = "/sys/devices/system/cpu";
-    public static final String MON_BATTERY_SYSFS = "/sys/class/power_supply/battery";
+    public static final String MON_BATTERY_HEALTH = "/sys/class/power_supply/battery/health";
+    public static final String MON_BATTERY_CAPACITY = "/sys/class/power_supply/battery/capacity";
+    public static final String MON_BATTERY_STATUS = "/sys/class/power_supply/battery/status";
+    public static final String MON_BATTERY_CHARGE_TYPE = "/sys/class/power_supply/battery/charge_type";
+    public static final String MON_BATTERY_TEMP = "/sys/class/power_supply/battery/temp";
+    public static final String MON_MEM = "/proc/meminfo";
     public static final String MON_CPU_TEMP = "/sys/class/thermal/thermal_zone7/temp";
     public static final String MON_CPU_TIME_IN_STATE = "/sys/devices/system/cpu/cpu0/cpufreq/stats/time_in_state";
+    public static final String MON_CPU_FREQ = "/sys/devices/system/cpu/cpu%s/cpufreq/scaling_cur_freq";
 
     /** CPU **/
     public static final String CPU_GOVERNOR = "/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor";
@@ -68,7 +74,7 @@ public class Library {
     public static final String MISC_FASTCHARGE = "/sys/kernel/fast_charge/force_fast_charge";
     public static final String MISC_MSM_THERMAL_1 = "/sys/module/msm_thermal/parameters/temp_max";
     public static final String MISC_MSM_THERMAL_2 = "/sys/module/msm_thermal/parameters/limit_temp";
-    public static final String MISC_NET_TCP_ALLOWED = "/proc/sys/net/ipv4/tcp_allowed_congestion_control";
+    //public static final String MISC_NET_TCP_ALLOWED = "/proc/sys/net/ipv4/tcp_allowed_congestion_control";
     public static final String MISC_NET_TCP_AVAILABLE = "/proc/sys/net/ipv4/tcp_available_congestion_control";
     public static final String MISC_NET_TCP_CONGST = "/proc/sys/net/ipv4/tcp_congestion_control";
     public static final String MISC_VIBRATOR_AMP = "/sys/class/timed_output/vibrator/amp";
@@ -93,7 +99,11 @@ public class Library {
     public static final String SOUND_MIC_GAIN = "/sys/kernel/sound_control_3/gpl_mic_gain";
     public static final String SOUND_CAMMIC_GAIN = "/sys/kernel/sound_control_3/gpl_cam_mic_gain";
 
-    public static String kernel_thread = "http://forum.xda-developers.com/showthread.php?t=2495373";
-    public static String app_thread = "http://forum.xda-developers.com/showthread.php?t=2669442";
-    public static String googlePlus_community = "https://plus.google.com/communities/115269166678032690242";
+    /** Others **/
+    public static final String DROP_CACHES = "/proc/sys/vm/drop_caches";
+    public static final String KERNEL_MAX = "/sys/devices/system/cpu/kernel_max";
+
+    //public static final String kernel_thread = "http://forum.xda-developers.com/showthread.php?t=2495373";
+    //public static final String app_thread = "http://forum.xda-developers.com/showthread.php?t=2669442";
+    //public static final String googlePlus_community = "https://plus.google.com/communities/115269166678032690242";
 }

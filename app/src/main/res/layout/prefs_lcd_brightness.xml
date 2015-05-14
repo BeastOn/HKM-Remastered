@@ -48,18 +48,17 @@
                 style="@style/mSwitchStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:paddingStart="3dp"
                 android:text="@string/pref_exp_brigthness" />
 
             <lb.themike10452.hellscorekernelmanagerl.CustomWidgets.PreferenceButton
                 android:id="@+id/maxBrightness"
-                style="@style/clickableLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:title="@string/pref_max_brigthness" />
 
             <lb.themike10452.hellscorekernelmanagerl.CustomWidgets.PreferenceButton
                 android:id="@+id/minBrightness"
-                style="@style/clickableLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:title="@string/pref_min_brigthness" />

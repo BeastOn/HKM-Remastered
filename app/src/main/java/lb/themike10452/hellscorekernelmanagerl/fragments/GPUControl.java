@@ -15,15 +15,12 @@ import android.view.ViewGroup;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.NumberPicker;
 import android.widget.PopupWindow;
 import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import lb.themike10452.hellscorekernelmanagerl.CustomAdapters.GPUVoltagesAdapter;
@@ -32,11 +29,11 @@ import lb.themike10452.hellscorekernelmanagerl.R;
 import lb.themike10452.hellscorekernelmanagerl.properties.MultiRootPathLongProperty;
 import lb.themike10452.hellscorekernelmanagerl.properties.MultiRootPathStringProperty;
 import lb.themike10452.hellscorekernelmanagerl.properties.PropertyUtils;
-import lb.themike10452.hellscorekernelmanagerl.properties.StringProperty;
 import lb.themike10452.hellscorekernelmanagerl.properties.interfaces.HKMPropertyInterface;
 import lb.themike10452.hellscorekernelmanagerl.properties.longProperty;
 import lb.themike10452.hellscorekernelmanagerl.utils.HKMTools;
 import lb.themike10452.hellscorekernelmanagerl.utils.Library;
+import lb.themike10452.hellscorekernelmanagerl.utils.UIHelper;
 
 import static lb.themike10452.hellscorekernelmanagerl.Settings.Constants.SET_GPU_SETTINGS_ON_BOOT;
 import static lb.themike10452.hellscorekernelmanagerl.Settings.Constants.SHARED_PREFS_ID;
@@ -49,19 +46,19 @@ public class GPUControl extends Fragment implements View.OnClickListener {
 
     private static GPUControl instance;
 
-    private Activity mActivity;
-    private GPUVoltagesAdapter voltagesAdapter;
-    private SharedPreferences sharedPreferences;
-    private View mView;
+    private static Activity mActivity;
+    private static GPUVoltagesAdapter voltagesAdapter;
+    private static SharedPreferences sharedPreferences;
+    private static View mView;
 
-    private MultiRootPathStringProperty governorProperty;
-    private MultiRootPathLongProperty maxFreqProperty;
-    private MultiRootPathStringProperty policyProperty;
+    private static MultiRootPathStringProperty governorProperty;
+    private static MultiRootPathLongProperty maxFreqProperty;
+    private static MultiRootPathStringProperty policyProperty;
 
-    private HKMPropertyInterface[] properties;
-    private String[] available_governors;
-    private String[] available_policies;
-    private long[] available_freqs;
+    private static HKMPropertyInterface[] properties;
+    private static String[] available_governors;
+    private static String[] available_policies;
+    private static long[] available_freqs;
 
     public static GPUControl getInstance() {
         if (instance == null)
@@ -79,38 +76,8 @@ public class GPUControl extends Fragment implements View.OnClickListener {
             textView.setText(getText(R.string.note_unsupported_options));
             textView.measure(View.MeasureSpec.EXACTLY, View.MeasureSpec.EXACTLY);
             popupWindow.setContentView(textView);
-            popupWindow.setAnimationStyle(R.style.popUpAnimation);
+            popupWindow.setAnimationStyle(R.style.flyInAnimation);
             popupWindow.showAsDropDown(v, -textView.getMeasuredWidth(), 0);
-        } else {
-            final HKMPropertyInterface property = PropertyUtils.findProperty(properties, v);
-            if (property != null) {
-                if (property instanceof StringProperty) {
-                    final ArrayList<String> choices = new ArrayList<>();
-                    if (property == governorProperty) {
-                        choices.addAll(Arrays.asList(available_governors));
-                    } else if (property == policyProperty) {
-                        choices.addAll(Arrays.asList(available_policies));
-                    }
-                    if (choices.size() > 0) {
-                        PopupWindow popupWindow = getPopupWindow();
-                        View layout = LayoutInflater.from(mActivity).inflate(R.layout.simple_picker_layout, null, false);
-                        layout.measure(View.MeasureSpec.EXACTLY, View.MeasureSpec.EXACTLY);
-                        popupWindow.setContentView(layout);
-                        popupWindow.showAsDropDown(v, v.getMeasuredWidth() / 2 - layout.getMeasuredWidth() / 2, 0);
-                        final NumberPicker picker = (NumberPicker) layout.findViewById(R.id.numberPicker);
-                        picker.setDisplayedValues(choices.toArray(new String[choices.size()]));
-                        picker.setMinValue(0);
-                        picker.setMaxValue(choices.size() - 1);
-                        picker.setValue(choices.indexOf(property.readDisplayedValue()));
-                        popupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
-                            @Override
-                            public void onDismiss() {
-                                property.setDisplayedValue(choices.get(picker.getValue()));
-                            }
-                        });
-                    }
-                }
-            }
         }
     }
 
@@ -180,9 +147,7 @@ public class GPUControl extends Fragment implements View.OnClickListener {
             }
         });
 
-        findViewById(R.id.govBtn).setOnClickListener(this);
         findViewById(R.id.govCfgBtn).setOnClickListener(this);
-        findViewById(R.id.gpuPolicyBtn).setOnClickListener(this);
 
         initProperties();
         refresh(false);
@@ -218,9 +183,12 @@ public class GPUControl extends Fragment implements View.OnClickListener {
                 if (available_governors == null) {
                     fetchGovernors();
                 }
+                governorProperty.setDisplayedValues(available_governors);
+
                 if (available_policies == null) {
                     fetchPolicies();
                 }
+                policyProperty.setDisplayedValues(available_policies);
 
                 voltagesAdapter.recycle();
 
@@ -251,7 +219,7 @@ public class GPUControl extends Fragment implements View.OnClickListener {
                     }
                 }
 
-                HKMTools.removeEmptyCards((LinearLayout) findViewById(R.id.cardContainer));
+                UIHelper.removeEmptyCards((LinearLayout) findViewById(R.id.cardHolder));
             }
         }.execute();
     }

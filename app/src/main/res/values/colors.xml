@@ -9,4 +9,6 @@
     <color name="colorAccent">#ff4081</color>
     <color name="separatorColor">#c3c3c3</color>
     <color name="separatorColor2">#282828</color>
+
+    <color name="blue_light">#42A5F5</color>
 </resources>

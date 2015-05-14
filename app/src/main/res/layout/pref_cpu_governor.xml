@@ -6,7 +6,6 @@
 
     <lb.themike10452.hellscorekernelmanagerl.CustomWidgets.PreferenceButton
         android:id="@+id/govBtn"
-        style="@style/clickableLayout"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"

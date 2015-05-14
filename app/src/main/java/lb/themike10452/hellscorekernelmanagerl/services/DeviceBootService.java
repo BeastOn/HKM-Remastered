@@ -52,7 +52,7 @@ public class DeviceBootService extends Service {
             super.handleMessage(msg);
             if (msg.arg1 == HKMTools.FLAG_ROOT_STATE && msg.arg2 == 0) {
                 HKMTools.getInstance().run("busybox run-parts -a --force " + scriptsDir);
-                showNotification(mContext, R.string.message_action_successful);
+                showNotification(mContext, R.string.notification_message_settings_applied);
             } else if (msg.arg2 == 1) {
                 showNotification(mContext, R.string.dialog_message_failRoot);
             }

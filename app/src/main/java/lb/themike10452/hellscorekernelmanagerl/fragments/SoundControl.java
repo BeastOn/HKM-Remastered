@@ -26,6 +26,7 @@ import lb.themike10452.hellscorekernelmanagerl.Settings;
 import lb.themike10452.hellscorekernelmanagerl.properties.FauxSoundProperty;
 import lb.themike10452.hellscorekernelmanagerl.utils.HKMTools;
 import lb.themike10452.hellscorekernelmanagerl.utils.Library;
+import lb.themike10452.hellscorekernelmanagerl.utils.UIHelper;
 
 import static lb.themike10452.hellscorekernelmanagerl.Settings.Constants.SET_SND_SETTINGS_ON_BOOT;
 import static lb.themike10452.hellscorekernelmanagerl.Settings.Constants.SHARED_PREFS_ID;
@@ -39,18 +40,18 @@ public class SoundControl extends Fragment implements Observer {
 
     public static SoundControl instance;
 
-    private FauxSoundProperty leftHeadphoneGainProperty;
-    private FauxSoundProperty rightHeadphoneGainProperty;
-    private FauxSoundProperty leftPowerAmpGainProperty;
-    private FauxSoundProperty rightPowerAmpGainProperty;
-    private FauxSoundProperty speakerGainProperty;
-    private FauxSoundProperty micGainProperty;
-    private FauxSoundProperty camcorderGain;
-    private Activity mActivity;
-    private LinearLayout mContainer;
-    private SharedPreferences sharedPreferences;
-    private View mView;
-    private FauxSoundProperty[] properties;
+    private static FauxSoundProperty leftHeadphoneGainProperty;
+    private static FauxSoundProperty rightHeadphoneGainProperty;
+    private static FauxSoundProperty leftPowerAmpGainProperty;
+    private static FauxSoundProperty rightPowerAmpGainProperty;
+    private static FauxSoundProperty speakerGainProperty;
+    private static FauxSoundProperty micGainProperty;
+    private static FauxSoundProperty camcorderGain;
+    private static Activity mActivity;
+    private static LinearLayout mContainer;
+    private static SharedPreferences sharedPreferences;
+    private static View mView;
+    private static FauxSoundProperty[] properties;
 
     public SoundControl() {
         instance = this;
@@ -102,7 +103,7 @@ public class SoundControl extends Fragment implements Observer {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         mView = inflater.inflate(R.layout.fragment_sound, container, false);
-        mContainer = (LinearLayout) findViewById(R.id.container);
+        mContainer = (LinearLayout) findViewById(R.id.usefulContent);
         final RadioButton linkToggle = (RadioButton) findViewById(R.id.linkToggle);
         linkToggle.setChecked(sharedPreferences.getBoolean(SND_CTL_LINK_LEFT_RIGHT, false));
         linkToggle.setOnClickListener(new View.OnClickListener() {
@@ -181,6 +182,7 @@ public class SoundControl extends Fragment implements Observer {
                 property.setDisplayedValue(property.getValue());
             }
         }
+        UIHelper.removeEmptyCards((LinearLayout) findViewById(R.id.cardHolder));
     }
 
     public void saveAll(boolean fromUser) {

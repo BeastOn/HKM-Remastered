@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    card_view:cardBackgroundColor="@color/card_background"
+    card_view:cardCornerRadius="4dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        android:orientation="vertical"
+        android:padding="3dp">
+
+        <TextView
+            style="@style/categoryTitleStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/pref_category_specific" />
+
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="1dp"
+            android:layout_marginBottom="5dp"
+            android:layout_marginTop="5dp"
+            android:background="@color/separatorColor" />
+
+        <LinearLayout
+            android:id="@+id/usefulContent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:divider="@drawable/divider"
+            android:orientation="vertical"
+            android:padding="3dp"
+            android:showDividers="middle">
+
+            <lb.themike10452.hellscorekernelmanagerl.CustomWidgets.PreferenceButton
+                android:id="@+id/thermallimitBtn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:title="@string/pref_msm_thermal_limit" />
+
+            <lb.themike10452.hellscorekernelmanagerl.CustomWidgets.PreferenceButton
+                android:id="@+id/blxlimitBtn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:title="@string/pref_blx_limit" />
+
+            <Switch
+                android:id="@+id/dynfsyncSwitch"
+                style="@style/mSwitchStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="3dp"
+                android:text="@string/pref_dynamic_fsync" />
+
+            <Switch
+                android:id="@+id/fastchargeSwitch"
+                style="@style/mSwitchStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="3dp"
+                android:text="@string/pref_fast_charge" />
+        </LinearLayout>
+    </LinearLayout>
+
+</android.support.v7.widget.CardView>

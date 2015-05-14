@@ -41,12 +41,12 @@ public class CPUGovernorCfg extends Fragment {
 
     private static CPUGovernorCfg instance;
 
-    private Activity mActivity;
-    private LinearLayout list;
-    private SharedPreferences sharedPreferences;
-    private String title;
-    private View mView;
-    private mAdapter adapter;
+    private static Activity mActivity;
+    private static LinearLayout list;
+    private static SharedPreferences sharedPreferences;
+    private static String title;
+    private static View mView;
+    private static mAdapter adapter;
 
     public static CPUGovernorCfg getNewInstance(@NonNull String title) {
         if (instance == null) {

@@ -10,8 +10,6 @@
         style="@style/mSwitchStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingBottom="10dp"
         android:paddingStart="3dp"
-        android:paddingTop="10dp"
         android:text="@string/pref_msm_hotplug" />
 </LinearLayout>

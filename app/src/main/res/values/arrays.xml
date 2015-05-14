@@ -6,7 +6,8 @@
         <item>@string/lcdCtl</item>
         <item>@string/touchCtl</item>
         <item>@string/soundCtl</item>
-        <!--item>@string/miscCtl</item-->
+        <item>@string/miscCtl</item>
+        <item>@string/monitoring</item>
     </string-array>
 
     <string-array name="gpu_governors">
@@ -15,5 +16,4 @@
         <item>ondemand</item>
         <item>performance</item>
     </string-array>
-
 </resources>

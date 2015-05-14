@@ -7,17 +7,21 @@
     android:scrollbars="none">
 
     <LinearLayout
-        android:id="@+id/cardContainer"
+        android:id="@+id/cardHolder"
+        style="@style/cardHolderStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:clipChildren="false"
-        android:clipToPadding="false"
-        android:orientation="vertical"
-        android:paddingBottom="8dp"
-        android:paddingEnd="16dp"
-        android:paddingStart="16dp"
-        android:paddingTop="8dp">
+        android:orientation="vertical">
 
-        <include layout="@layout/prefs_misc_general" />
+        <include
+            layout="@layout/prefs_misc_general"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <include
+            layout="@layout/prefs_misc_specific"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/intercard_margin" />
     </LinearLayout>
 </ScrollView>

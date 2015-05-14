@@ -4,7 +4,10 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Message;
+import android.util.DisplayMetrics;
+import android.util.TypedValue;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
@@ -72,6 +75,11 @@ public class HKMTools {
         return -1;
     }
 
+    public static int dpToPx(Context context, int dp) {
+        DisplayMetrics metrics = context.getResources().getDisplayMetrics();
+        return (int) (TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, metrics));
+    }
+
     public static void reverseArray(Object[] array) {
         for (int i = 0; i < array.length / 2; i++) {
             Object tmp = array[i];
@@ -85,33 +93,6 @@ public class HKMTools {
             long tmp = array[i];
             array[i] = array[array.length - 1 - i];
             array[array.length - 1 - i] = tmp;
-        }
-    }
-
-    public static void removeEmptyCards(LinearLayout container) {
-        int count = container.getChildCount();
-        for (int i = 0; i < count; i++) {
-            if (container.getChildAt(i).getVisibility() == View.VISIBLE) {
-                LinearLayout cardLayout = (LinearLayout) container.getChildAt(i).findViewById(R.id.usefulContent);
-                if (cardLayout != null) {
-                    int prefCount;
-                    int visibleViews = prefCount = cardLayout.getChildCount();
-                    for (int j = 0; j < prefCount; j++) {
-                        if (cardLayout.getChildAt(j).getVisibility() != View.VISIBLE) {
-                            visibleViews--;
-                        }
-                    }
-                    if (visibleViews < 1) {
-                        final View v = container.getChildAt(i);
-                        v.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                v.setVisibility(View.GONE);
-                            }
-                        });
-                    }
-                }
-            }
         }
     }
 
@@ -144,8 +125,17 @@ public class HKMTools {
         cmds.clear();
     }
 
-    public void run(String command) {
-        mShell.run(command);
+    public void run(final String command) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                mShell.run(command);
+            }
+        }).start();
+    }
+
+    public List<String> getCommandOutput(String command) {
+        return mShell.run(command);
     }
 
     public List<String> getRecentCommandsList() {
@@ -209,7 +199,7 @@ public class HKMTools {
                 }
             }
         } else {
-            return mShell.run("cat " + file.getAbsolutePath());
+            return mShell.run("cat " + file);
         }
     }
 
@@ -217,10 +207,11 @@ public class HKMTools {
 
         public static final String CPU_SETTINGS_SCRIPT_NAME = "98cpu_settings";
         public static final String GOV_SETTINGS_SCRIPT_NAME = "99cpu_gov_settings";
-        public static final String GPU_SETTINGS_SCRIPT_NAME = "90gpu_settings";
+        public static final String GPU_SETTINGS_SCRIPT_NAME = "97gpu_settings";
         public static final String LCD_SETTINGS_SCRIPT_NAME = "90lcd_settings";
         public static final String SND_SETTINGS_SCRIPT_NAME = "90sound_settings";
         public static final String TTC_SETTINGS_SCRIPT_NAME = "90touch_settings";
+        public static final String MSC_SETTINGS_SCRIPT_NAME = "90misc_settings";
         public static final String SYS_SCRIPT_PATH = "/system/su.d/90kernelSettings";
 
         private static String scriptsDir;

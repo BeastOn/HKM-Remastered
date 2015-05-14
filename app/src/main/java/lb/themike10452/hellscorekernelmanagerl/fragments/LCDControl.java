@@ -9,7 +9,6 @@ import android.content.SharedPreferences;
 import android.graphics.Rect;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -20,7 +19,6 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.PopupWindow;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -38,7 +36,6 @@ import java.util.List;
 
 import lb.themike10452.hellscorekernelmanagerl.CustomAdapters.KCalAdapter;
 import lb.themike10452.hellscorekernelmanagerl.CustomClasses.MakoColorProfile;
-import lb.themike10452.hellscorekernelmanagerl.CustomWidgets.NumberModifier;
 import lb.themike10452.hellscorekernelmanagerl.CustomWidgets.ObservableHorizontalScrollView;
 import lb.themike10452.hellscorekernelmanagerl.CustomWidgets.ObservableScrollView;
 import lb.themike10452.hellscorekernelmanagerl.CustomWidgets.ObservableScrollViewInterface;
@@ -51,6 +48,7 @@ import lb.themike10452.hellscorekernelmanagerl.properties.intProperty;
 import lb.themike10452.hellscorekernelmanagerl.properties.interfaces.HKMPropertyInterface;
 import lb.themike10452.hellscorekernelmanagerl.utils.HKMTools;
 import lb.themike10452.hellscorekernelmanagerl.utils.Library;
+import lb.themike10452.hellscorekernelmanagerl.utils.UIHelper;
 
 import static lb.themike10452.hellscorekernelmanagerl.Settings.Constants.SET_LCD_SETTINGS_ON_BOOT;
 import static lb.themike10452.hellscorekernelmanagerl.utils.HKMTools.ScriptUtils.LCD_SETTINGS_SCRIPT_NAME;
@@ -63,25 +61,25 @@ public class LCDControl extends Fragment implements ObservableScrollView.CallBac
     private static final String PROFILES_CONTAINER_FILE = "mako_color_profiles";
     private static LCDControl instance;
 
-    private Activity mActivity;
-    private ArrayList<MakoColorProfile> profiles;
-    private KCalAdapter kCalAdapter;
-    private ObservableScrollView osv;
-    private ObservableHorizontalScrollView ohsv;
-    private SharedPreferences sharedPreferences;
-    private String activeProfile;
-    private View mView;
+    private static Activity mActivity;
+    private static ArrayList<MakoColorProfile> profiles;
+    private static KCalAdapter kCalAdapter;
+    private static ObservableScrollView osv;
+    private static ObservableHorizontalScrollView ohsv;
+    private static SharedPreferences sharedPreferences;
+    private static String activeProfile;
+    private static View mView;
 
-    private StringProperty kgammaRedProperty;
-    private StringProperty kgammaGreenProperty;
-    private StringProperty kgammaBlueProperty;
-    private intProperty expBrightnessProperty;
-    private intProperty maxBrightnessProperty;
-    private intProperty minBrightnessProperty;
+    private static StringProperty kgammaRedProperty;
+    private static StringProperty kgammaGreenProperty;
+    private static StringProperty kgammaBlueProperty;
+    private static intProperty expBrightnessProperty;
+    private static intProperty maxBrightnessProperty;
+    private static intProperty minBrightnessProperty;
 
-    private HKMPropertyInterface[] properties;
+    private static HKMPropertyInterface[] properties;
 
-    private int lockYPosition;
+    private static int lockYPosition;
 
     public LCDControl() {
         instance = this;
@@ -169,8 +167,6 @@ public class LCDControl extends Fragment implements ObservableScrollView.CallBac
         findViewById(R.id.addProfileClickable).setOnClickListener(this);
         findViewById(R.id.saveProfileBtn).setOnClickListener(this);
         findViewById(R.id.delProfileBtn).setOnClickListener(this);
-        findViewById(R.id.maxBrightness).setOnClickListener(this);
-        findViewById(R.id.minBrightness).setOnClickListener(this);
 
         osv.setCallBack(this);
         ohsv.setCallBack(this);
@@ -241,6 +237,9 @@ public class LCDControl extends Fragment implements ObservableScrollView.CallBac
         kgammaRedProperty.FLAGS = PropertyUtils.FLAG_VIEW_COMBO;
         kgammaGreenProperty.FLAGS = PropertyUtils.FLAG_VIEW_COMBO;
         kgammaBlueProperty.FLAGS = PropertyUtils.FLAG_VIEW_COMBO;
+
+        maxBrightnessProperty.setMax(114);
+        minBrightnessProperty.setMax(114);
 
         properties = new HKMPropertyInterface[]{
                 kgammaRedProperty,
@@ -313,7 +312,7 @@ public class LCDControl extends Fragment implements ObservableScrollView.CallBac
                     properties[i].setDisplayedValue(values[i]);
                 }
                 detectActiveProfile();
-                HKMTools.removeEmptyCards((LinearLayout) findViewById(R.id.cardContainer));
+                UIHelper.removeEmptyCards((LinearLayout) findViewById(R.id.cardHolder));
             }
         }.execute();
     }
@@ -340,6 +339,13 @@ public class LCDControl extends Fragment implements ObservableScrollView.CallBac
                 tools.flush();
                 tools.run("echo 1 > " + Library.LCD_KGAMMA_APPLY);
                 return null;
+            }
+
+            @Override
+            protected void onPostExecute(Void aVoid) {
+                if (fromUser) {
+                    Toast.makeText(mActivity.getApplicationContext(), R.string.message_action_successful, Toast.LENGTH_SHORT).show();
+                }
             }
         }.execute();
     }
@@ -501,37 +507,6 @@ public class LCDControl extends Fragment implements ObservableScrollView.CallBac
                     Toast.makeText(mActivity, R.string.message_custom_empty, Toast.LENGTH_SHORT).show();
                 }
             }
-            case R.id.minBrightness:
-            case R.id.maxBrightness: {
-                final NumberModifier modifier = new NumberModifier(mActivity);
-                modifier.setPadding(20, 20, 20, 20);
-                modifier.setValue(id == R.id.maxBrightness ? maxBrightnessProperty.readDisplayedValue() : minBrightnessProperty.readDisplayedValue());
-                modifier.setInputType(InputType.TYPE_CLASS_NUMBER);
-                modifier.setMin(1);
-                modifier.setMax(114);
-                modifier.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
-                PopupWindow window = getPopupWindow();
-                window.setContentView(modifier);
-                window.showAsDropDown(v, v.getMeasuredWidth() - modifier.getMeasuredWidth(), 0);
-                window.setOnDismissListener(new PopupWindow.OnDismissListener() {
-                    @Override
-                    public void onDismiss() {
-                        (id == R.id.maxBrightness ? maxBrightnessProperty : minBrightnessProperty).setDisplayedValue(modifier.getValue());
-                    }
-                });
-            }
         }
-    }
-
-    private PopupWindow getPopupWindow() {
-        PopupWindow popupWindow = new PopupWindow(mActivity);
-        popupWindow.setWindowLayoutMode(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        popupWindow.setHeight(1);
-        popupWindow.setWidth(1000);
-        popupWindow.setFocusable(true);
-        popupWindow.setBackgroundDrawable(getResources().getDrawable(R.drawable.popup_window_background));
-        popupWindow.setClippingEnabled(true);
-        popupWindow.setElevation(10f);
-        return popupWindow;
     }
 }

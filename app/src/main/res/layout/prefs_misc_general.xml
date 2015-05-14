@@ -38,24 +38,27 @@
 
             <lb.themike10452.hellscorekernelmanagerl.CustomWidgets.PreferenceButton
                 android:id="@+id/ioschedulerBtn"
-                style="@style/clickableLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:title="@string/pref_io_scheduler" />
 
             <lb.themike10452.hellscorekernelmanagerl.CustomWidgets.PreferenceButton
                 android:id="@+id/readaheadBtn"
-                style="@style/clickableLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:title="@string/pref_read_ahead_buffer" />
 
             <lb.themike10452.hellscorekernelmanagerl.CustomWidgets.PreferenceButton
-                style="@style/clickableLayout"
                 android:id="@+id/tcpcongestionBtn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:title="@string/pref_tcp_congestion" />
+
+            <lb.themike10452.hellscorekernelmanagerl.CustomWidgets.PreferenceButton
+                android:id="@+id/vibratorampBtn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:title="@string/pref_vibrator_amp" />
         </LinearLayout>
     </LinearLayout>
 

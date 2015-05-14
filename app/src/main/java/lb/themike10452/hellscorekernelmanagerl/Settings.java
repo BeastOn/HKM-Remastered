@@ -17,5 +17,6 @@ public class Settings {
         public static final String SND_CTL_LINK_LEFT_RIGHT = "snd_ctl_link_left_right";
         public static final String REFERENCE_TOKEN = "bootup_token";
         public static final String SHUTDOWN_TOKEN = "shutdown_token";
+        public static final String CORE_MAX = "core_max";
     }
 }

@@ -29,6 +29,7 @@ import lb.themike10452.hellscorekernelmanagerl.properties.PropertyUtils;
 import lb.themike10452.hellscorekernelmanagerl.properties.interfaces.HKMPropertyInterface;
 import lb.themike10452.hellscorekernelmanagerl.utils.HKMTools;
 import lb.themike10452.hellscorekernelmanagerl.utils.Library;
+import lb.themike10452.hellscorekernelmanagerl.utils.UIHelper;
 
 import static lb.themike10452.hellscorekernelmanagerl.Settings.Constants.SET_TCC_SETTINGS_ON_BOOT;
 import static lb.themike10452.hellscorekernelmanagerl.Settings.Constants.SHARED_PREFS_ID;
@@ -43,17 +44,18 @@ public class TouchControl extends Fragment implements View.OnClickListener {
     private static final String[] dt2wZones = new String[]{"Disabled", "Center", "Full", "Bottom", "Top"};
 
     private static TouchControl instance;
-    private Activity mActivity;
-    private SharedPreferences sharedPreferences;
-    private View mView;
-    private MultiRootPathIntProperty dt2wProperty;
-    private MultiRootPathIntProperty s2wProperty;
-    private MultiRootPathIntProperty s2dProperty;
-    private MultiRootPathIntProperty twProperty;
-    private MultiRootPathIntProperty dt2wFeatherProperty;
-    private MultiRootPathIntProperty dt2wZoneProperty;
-    private MultiRootPathIntProperty twTimeoutProperty;
-    private HKMPropertyInterface[] properties;
+    private static Activity mActivity;
+    private static SharedPreferences sharedPreferences;
+    private static View mView;
+
+    private static MultiRootPathIntProperty dt2wProperty;
+    private static MultiRootPathIntProperty s2wProperty;
+    private static MultiRootPathIntProperty s2dProperty;
+    private static MultiRootPathIntProperty twProperty;
+    private static MultiRootPathIntProperty dt2wFeatherProperty;
+    private static MultiRootPathIntProperty dt2wZoneProperty;
+    private static MultiRootPathIntProperty twTimeoutProperty;
+    private static HKMPropertyInterface[] properties;
 
     public TouchControl() {
         instance = this;
@@ -123,7 +125,16 @@ public class TouchControl extends Fragment implements View.OnClickListener {
         dt2wZoneProperty = new MultiRootPathIntProperty(findViewById(R.id.dt2wZoneBtn), Library.WAKE_DT2W_1, Library.WAKE_DT2W_2) {
             @Override
             public void setDisplayedValue(String value) {
-                super.setDisplayedValue(dt2wZones[Integer.parseInt(value)]);
+                if (value != null) {
+                    setDisplayedValue(Integer.parseInt(value));
+                } else {
+                    super.setDisplayedValue(null);
+                }
+            }
+
+            @Override
+            public void setDisplayedValue(int value) {
+                super.setDisplayedValue(dt2wZones[value]);
             }
 
             @Override
@@ -138,31 +149,32 @@ public class TouchControl extends Fragment implements View.OnClickListener {
         s2wProperty = new MultiRootPathIntProperty(findViewById(R.id.s2wHolder), Library.WAKE_S2W_PATH) {
             @Override
             public void setDisplayedValue(String value) {
-                super.setDisplayedValue(value);
-                try {
-                    ((TextView) mContainer.findViewById(R.id.value)).setText(s2wModes[Integer.parseInt(readDisplayedValue())]);
-                } catch (Exception ignored) {
+                if (value != null) {
+                    setDisplayedValue(Integer.parseInt(value));
+                } else {
+                    super.setDisplayedValue(null);
                 }
             }
 
             @Override
+            public void setDisplayedValue(int value) {
+                super.setDisplayedValue(s2wModes[value]);
+            }
+
+            @Override
             public String readDisplayedValue() {
-                super.readDisplayedValue();
-                String s = ((TextView) mContainer.findViewById(R.id.value)).getText().toString();
-                try {
-                    return Integer.toString(Integer.parseInt(s));
-                } catch (NumberFormatException e) {
-                    return Integer.toString(HKMTools.indexOf(s, s2wModes));
-                }
+                return Integer.toString(HKMTools.indexOf(super.readDisplayedValue(), s2wModes));
             }
         };
 
         dt2wZoneProperty.FLAGS = PropertyUtils.FLAG_VIEW_COMBO;
 
-        s2wProperty.getView().setOnClickListener(this);
-        dt2wFeatherProperty.getView().setOnClickListener(this);
-        dt2wZoneProperty.getView().setOnClickListener(this);
-        twTimeoutProperty.getView().setOnClickListener(this);
+        s2wProperty.setDisplayedValues(s2wModes);
+        s2wProperty.setMin(0);
+        s2wProperty.setMax(2);
+        dt2wZoneProperty.setDisplayedValues(dt2wZones);
+        dt2wZoneProperty.setMin(0);
+        dt2wZoneProperty.setMax(dt2wZones.length - 1);
 
         dt2wZoneProperty.getTopAncestor().findViewById(R.id.noteBtn).setOnClickListener(this);
 
@@ -190,7 +202,7 @@ public class TouchControl extends Fragment implements View.OnClickListener {
 
             @Override
             protected void onPostExecute(Void aVoid) {
-                HKMTools.removeEmptyCards((LinearLayout) findViewById(R.id.cardContainer));
+                UIHelper.removeEmptyCards((LinearLayout) findViewById(R.id.cardHolder));
             }
         }.execute();
     }
@@ -244,7 +256,7 @@ public class TouchControl extends Fragment implements View.OnClickListener {
             textView.setText(getText(R.string.note_unsupported_options));
             textView.measure(View.MeasureSpec.EXACTLY, View.MeasureSpec.EXACTLY);
             popupWindow.setContentView(textView);
-            popupWindow.setAnimationStyle(R.style.popUpAnimation);
+            popupWindow.setAnimationStyle(R.style.flyInAnimation);
             popupWindow.showAsDropDown(v, -textView.getMeasuredWidth(), 0);
             return;
         } else if (v == s2wProperty.getView()) {
@@ -256,23 +268,7 @@ public class TouchControl extends Fragment implements View.OnClickListener {
             window.setOnDismissListener(new PopupWindow.OnDismissListener() {
                 @Override
                 public void onDismiss() {
-                    s2wProperty.setDisplayedValue(modifier.getSelectionIndex());
-                }
-            });
-        } else if (v == twTimeoutProperty.getView()) {
-            modifier.setValue(twTimeoutProperty.readDisplayedValue());
-            window.setOnDismissListener(new PopupWindow.OnDismissListener() {
-                @Override
-                public void onDismiss() {
-                    twTimeoutProperty.setDisplayedValue(modifier.getValue());
-                }
-            });
-        } else if (v == dt2wFeatherProperty.getView()) {
-            modifier.setValue(dt2wFeatherProperty.readDisplayedValue());
-            window.setOnDismissListener(new PopupWindow.OnDismissListener() {
-                @Override
-                public void onDismiss() {
-                    dt2wFeatherProperty.setDisplayedValue(modifier.getValue());
+                    s2wProperty.setDisplayedValue(modifier.getSelectedPosition());
                 }
             });
         } else if (v == dt2wZoneProperty.getView()) {
@@ -285,7 +281,7 @@ public class TouchControl extends Fragment implements View.OnClickListener {
             window.setOnDismissListener(new PopupWindow.OnDismissListener() {
                 @Override
                 public void onDismiss() {
-                    dt2wZoneProperty.setDisplayedValue(Integer.toString(modifier.getSelectionIndex()));
+                    dt2wZoneProperty.setDisplayedValue(Integer.toString(modifier.getSelectedPosition()));
                 }
             });
         } else {

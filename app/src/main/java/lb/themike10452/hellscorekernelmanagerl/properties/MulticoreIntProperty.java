@@ -9,9 +9,9 @@ import android.view.View;
 public class MultiCoreIntProperty extends intProperty {
     private String[] filePaths;
 
-    public MultiCoreIntProperty(String pathLook, View container) {
+    public MultiCoreIntProperty(String pathLook, int coreMax, View container) {
         super(String.format(pathLook, 0), container);
-        filePaths = new String[4];
+        filePaths = new String[coreMax + 1];
         for (int i = 0; i < filePaths.length; i++) {
             filePaths[i] = String.format(pathLook, i);
         }
@@ -23,7 +23,7 @@ public class MultiCoreIntProperty extends intProperty {
             for (String path : filePaths)
                 super.setValue(value, path);
         } catch (Exception e) {
-            Log.e("TAG", e.toString());
+            e.printStackTrace();
         }
     }
 }

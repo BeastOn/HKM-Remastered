@@ -42,41 +42,35 @@
         </lb.themike10452.hellscorekernelmanagerl.CustomWidgets.ObservableHorizontalScrollView>
 
         <LinearLayout
-            android:id="@+id/cardContainer"
+            android:id="@+id/cardHolder"
+            style="@style/cardHolderStyle"
             android:layout_width="match_parent"
             android:layout_height="fill_parent"
-            android:clipChildren="false"
-            android:clipToPadding="false"
             android:elevation="4dp"
-            android:orientation="vertical"
-            android:paddingBottom="8dp"
-            android:paddingEnd="16dp"
-            android:paddingStart="16dp"
-            android:paddingTop="8dp">
+            android:orientation="vertical">
 
             <include
                 layout="@layout/prefs_lcd_profiles"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="5dp" />
+                android:layout_height="wrap_content" />
 
             <include
                 layout="@layout/prefs_lcd_kcal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="5dp" />
+                android:layout_marginTop="@dimen/intercard_margin" />
 
             <include
                 layout="@layout/prefs_lcd_kgamma"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="5dp" />
+                android:layout_marginTop="@dimen/intercard_margin" />
 
             <include
                 layout="@layout/prefs_lcd_brightness"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="5dp" />
+                android:layout_marginTop="@dimen/intercard_margin" />
         </LinearLayout>
     </LinearLayout>
 

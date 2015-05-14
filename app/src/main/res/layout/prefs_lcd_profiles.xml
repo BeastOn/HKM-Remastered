@@ -42,24 +42,17 @@
 
             <lb.themike10452.hellscorekernelmanagerl.CustomWidgets.PreferenceButton
                 android:id="@+id/activeProfileClickable"
-                style="@style/clickableLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:title="@string/pref_active_profile" />
 
-            <LinearLayout
+            <lb.themike10452.hellscorekernelmanagerl.CustomWidgets.PreferenceButton
                 android:id="@+id/addProfileClickable"
-                style="@style/clickableLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:animateLayoutChanges="true"
-                android:orientation="vertical">
-
-                <TextView
-                    style="@style/buttonTitleStyle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/pref_save_profile" />
+                android:title="@string/pref_save_profile"
+                android:value="none">
 
                 <LinearLayout
                     android:id="@+id/extraContent"
@@ -85,16 +78,14 @@
                         android:layout_height="wrap_content"
                         android:text="@string/button_save" />
                 </LinearLayout>
-            </LinearLayout>
+            </lb.themike10452.hellscorekernelmanagerl.CustomWidgets.PreferenceButton>
 
-            <Button
+            <lb.themike10452.hellscorekernelmanagerl.CustomWidgets.PreferenceButton
                 android:id="@+id/delProfileBtn"
-                style="@style/clickableLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="?android:attr/selectableItemBackground"
-                android:text="@string/pref_delete_profile"
-                android:textAppearance="@style/buttonTitleStyle" />
+                android:title="@string/pref_delete_profile"
+                android:value="none" />
         </LinearLayout>
     </LinearLayout>
 

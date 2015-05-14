@@ -10,6 +10,7 @@
         <item name="android:windowBackground">@color/background</item>
         <item name="android:textColor">@color/primaryText</item>
         <item name="categoryTitleColor">@color/primaryText</item>
+        <item name="clickableLayoutStyle">@style/clickableLayout</item>
     </style>
 
     <style name="categoryTitleStyle" parent="@android:style/Widget.Material.TextView">
@@ -23,10 +24,13 @@
         <item name="android:textSize">16sp</item>
     </style>
 
-    <style name="buttonDetailStyle" parent="@android:style/Widget.Material.TextView">
+    <style name="buttonDetailStyle" parent="smallTextStyle">
+        <item name="android:layout_marginTop">3dp</item>
+    </style>
+
+    <style name="smallTextStyle" parent="@android:style/Widget.Material.TextView">
         <item name="android:textSize">12sp</item>
         <item name="android:textColor">@color/secondryText</item>
-        <item name="android:layout_marginTop">3dp</item>
     </style>
 
     <style name="clickableLayout">
@@ -42,8 +46,8 @@
     </style>
 
     <style name="mSwitchStyle">
-        <item name="android:layout_marginTop">10dp</item>
-        <item name="android:layout_marginBottom">10dp</item>
+        <item name="android:layout_marginTop">15dp</item>
+        <item name="android:layout_marginBottom">15dp</item>
         <item name="android:textColor">@color/primaryText</item>
         <item name="android:textSize">16sp</item>
     </style>
@@ -55,8 +59,27 @@
         <item name="android:textSize">16sp</item>
     </style>
 
-    <style name="popUpAnimation" parent="android:Animation">
+    <style name="smallButtonStyle">
+        <item name="android:textSize">12sp</item>
+    </style>
+
+    <style name="cardHolderStyle">
+        <item name="android:clipToPadding">false</item>
+        <item name="android:clipChildren">false</item>
+        <item name="android:animateLayoutChanges">true</item>
+        <item name="android:paddingStart">@dimen/fragment_horizontal_padding</item>
+        <item name="android:paddingEnd">@dimen/fragment_horizontal_padding</item>
+        <item name="android:paddingTop">@dimen/fragment_vertical_padding</item>
+        <item name="android:paddingBottom">@dimen/fragment_vertical_padding</item>
+    </style>
+
+    <style name="flyInAnimation" parent="android:Animation">
         <item name="android:windowEnterAnimation">@android:anim/slide_in_left</item>
         <item name="android:windowExitAnimation">@android:anim/slide_out_right</item>
+    </style>
+
+    <style name="popUpWindowAnimation" parent="android:Animation">
+        <item name="android:windowEnterAnimation">@anim/pop_in</item>
+        <item name="android:windowExitAnimation">@anim/pop_out</item>
     </style>
 </resources>

@@ -49,14 +49,12 @@
 
             <lb.themike10452.hellscorekernelmanagerl.CustomWidgets.PreferenceButton
                 android:id="@+id/dt2wFeatherBtn"
-                style="@style/clickableLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:title="@string/pref_dt2w_feather" />
 
             <lb.themike10452.hellscorekernelmanagerl.CustomWidgets.PreferenceButton
                 android:id="@+id/twTimeoutBtn"
-                style="@style/clickableLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:title="@string/pref_tw_timeout" />

@@ -6,11 +6,7 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.app.ProgressDialog;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -28,7 +24,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateInterpolator;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -45,27 +40,26 @@ import lb.themike10452.hellscorekernelmanagerl.fragments.CPUControl;
 import lb.themike10452.hellscorekernelmanagerl.fragments.GPUControl;
 import lb.themike10452.hellscorekernelmanagerl.fragments.LCDControl;
 import lb.themike10452.hellscorekernelmanagerl.fragments.MiscControls;
+import lb.themike10452.hellscorekernelmanagerl.fragments.Monitoring;
 import lb.themike10452.hellscorekernelmanagerl.fragments.SoundControl;
 import lb.themike10452.hellscorekernelmanagerl.fragments.TouchControl;
+import lb.themike10452.hellscorekernelmanagerl.properties.PropertyUtils;
 import lb.themike10452.hellscorekernelmanagerl.utils.HKMTools;
+import lb.themike10452.hellscorekernelmanagerl.utils.Library;
 
 import static lb.themike10452.hellscorekernelmanagerl.Settings.Constants.REFERENCE_TOKEN;
 import static lb.themike10452.hellscorekernelmanagerl.Settings.Constants.SHARED_PREFS_ID;
+import static lb.themike10452.hellscorekernelmanagerl.Settings.Constants.SHUTDOWN_TOKEN;
 
 /**
  * Created by Mike on 2/21/2015.
  */
 public class MainActivity extends Activity {
 
-    public static final String ACTION_SHOW_TOUCH_BARRIER = "show_touch_barrier";
-    public static final String ACTION_HIDE_TOUCH_BARRIER = "hide_touch_barrier";
-    public static final String ACTION_SHOW_SYSTEM_SCRIPT_DIALOG = "show_sys_script_dialog";
-
     private static final int ACTION_DRAWER_ITEM_PRESSED = 1 << 1;
     private static final int ACTION_INIT_SYSTEM_SCRIPT = 1 << 2;
 
     private ActionView mActionView;
-    private BroadcastReceiver broadcastReceiver;
     private DrawerLayout drawerLayout;
     private Fragment activeFragment;
     private ListView listView;
@@ -91,6 +85,7 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         sharedPreferences = getSharedPreferences(SHARED_PREFS_ID, MODE_PRIVATE);
+        PropertyUtils.init(this);
 
         assert getActionBar() != null;
 
@@ -108,7 +103,16 @@ public class MainActivity extends Activity {
 
         drawerLayout = (DrawerLayout) findViewById(R.id.drawerLayout);
         listView = (ListView) findViewById(R.id.left_drawer);
-        listView.setAdapter(new ArrayAdapter<>(this, R.layout.drawer_item, R.id.text, getResources().getStringArray(R.array.drawer_items)));
+        int[] icons = new int[]{
+                R.drawable.ic_cpu_control,
+                R.drawable.ic_gpu_control,
+                R.drawable.ic_lcd_control,
+                R.drawable.ic_touch_control,
+                R.drawable.ic_sound_control,
+                R.drawable.ic_misc_control,
+                R.drawable.ic_monitoring
+        };
+        listView.setAdapter(new DrawerAdapter(this, getResources().getStringArray(R.array.drawer_items), icons));
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -138,7 +142,7 @@ public class MainActivity extends Activity {
             }
         });
 
-        drawerLayout.setDrawerListener(new DrawerAdapter() {
+        drawerLayout.setDrawerListener(new DrawerAdapter(null, null, null) {
             @Override
             public void onDrawerSlide(View drawerView, float slideOffset) {
                 mActionView.setAnimationProgress(1 - slideOffset);
@@ -159,32 +163,6 @@ public class MainActivity extends Activity {
             }
         });
 
-        broadcastReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                if (intent.getAction() != null) {
-                    switch (intent.getAction()) {
-                        case ACTION_SHOW_TOUCH_BARRIER:
-                            findViewById(R.id.touchBarrier).setVisibility(View.VISIBLE);
-                            findViewById(R.id.fragContainer).setEnabled(false);
-                            break;
-                        case ACTION_HIDE_TOUCH_BARRIER:
-                            findViewById(R.id.touchBarrier).setVisibility(View.GONE);
-                            findViewById(R.id.fragContainer).setEnabled(true);
-                            break;
-                        case ACTION_SHOW_SYSTEM_SCRIPT_DIALOG:
-                            mHandler.sendEmptyMessage(ACTION_INIT_SYSTEM_SCRIPT);
-                            break;
-                    }
-                }
-            }
-        };
-
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(ACTION_HIDE_TOUCH_BARRIER);
-        filter.addAction(ACTION_SHOW_TOUCH_BARRIER);
-        registerReceiver(broadcastReceiver, filter);
-
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -196,20 +174,35 @@ public class MainActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
+        long st = sharedPreferences.getLong(SHUTDOWN_TOKEN, -1);
+        long rt = sharedPreferences.getLong(REFERENCE_TOKEN, -1);
+        long time = Calendar.getInstance().getTimeInMillis();
         sharedPreferences
                 .edit()
-                .putLong(REFERENCE_TOKEN, Calendar.getInstance().getTimeInMillis())
+                .putLong(REFERENCE_TOKEN, time)
                 .apply();
-    }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        unregisterReceiver(broadcastReceiver);
-        HKMTools.getInstance().stopShell();
+        //avoid false dirty reboot detection
+        //if app was launched before set on boot triggers
+        if (st > rt) {
+            sharedPreferences
+                    .edit()
+                    .putLong(SHUTDOWN_TOKEN, time)
+                    .apply();
+        }
     }
 
     private void launch() {
+        if (sharedPreferences.getInt(Settings.Constants.CORE_MAX, -1) == -1) {
+            int coreMax;
+            try {
+                coreMax = Integer.parseInt(HKMTools.getInstance().readLineFromFile(Library.KERNEL_MAX));
+            } catch (Exception e) {
+                e.printStackTrace();
+                coreMax = 3;
+            }
+            sharedPreferences.edit().putInt(Settings.Constants.CORE_MAX, coreMax).apply();
+        }
         transactionManager = new mTransactionManager(this, R.id.fragContainer);
         Fragment fragment = CPUControl.getInstance(transactionManager);
         transactionManager.performTransaction(fragment, false, true, null);
@@ -256,9 +249,12 @@ public class MainActivity extends Activity {
                     case 4:
                         transactionManager.performTransaction(SoundControl.getInstance(), false, true, getString(R.string.soundCtl));
                         return;
-                    //case 5:
-                    //    transactionManager.performTransaction(MiscControls.getInstance(), false, true, getString(R.string.miscCtl));
-                    //    return;
+                    case 5:
+                        transactionManager.performTransaction(MiscControls.getInstance(), false, true, getString(R.string.miscCtl));
+                        return;
+                    case 6:
+                        transactionManager.performTransaction(Monitoring.getInstance(), false, true, getString(R.string.monitoring));
+                        return;
                 }
         }
         if (msg.what == ACTION_INIT_SYSTEM_SCRIPT) {
@@ -274,7 +270,7 @@ public class MainActivity extends Activity {
                                 protected void onPreExecute() {
                                     super.onPreExecute();
                                     dialog = new ProgressDialog(MainActivity.this);
-                                    dialog.setMessage("Installing ...");
+                                    dialog.setMessage(getString(R.string.dialog_message_installing));
                                     dialog.setIndeterminate(true);
                                     dialog.setCancelable(false);
                                     dialog.show();
@@ -343,7 +339,7 @@ public class MainActivity extends Activity {
                     }
                 }
                 transaction.replace(containerId, fragment);
-                transaction.commitAllowingStateLoss();
+                transaction.commit();
                 activeFragment = fragment;
             }
             invalidateOptionsMenu();
