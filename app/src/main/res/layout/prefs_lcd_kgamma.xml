@@ -15,15 +15,11 @@
         android:title="@string/pref_category_kgamma">
 
         <LinearLayout
-            android:id="@+id/usefulContent"
+            android:id="@+id/prefsHolder"
+            style="@style/prefsHolderStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:clipChildren="false"
-            android:clipToPadding="false"
-            android:divider="@drawable/divider"
-            android:orientation="vertical"
-            android:padding="3dp"
-            android:showDividers="middle">
+            android:orientation="vertical">
 
             <include layout="@layout/pref_lcd_kgamma" />
 

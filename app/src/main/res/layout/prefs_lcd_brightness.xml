@@ -15,17 +15,11 @@
         android:title="@string/pref_category_brightness">
 
         <LinearLayout
-            android:id="@+id/usefulContent"
+            android:id="@+id/prefsHolder"
+            style="@style/prefsHolderStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:clipChildren="false"
-            android:clipToPadding="false"
-            android:divider="@drawable/divider"
-            android:orientation="vertical"
-            android:paddingBottom="3dp"
-            android:paddingEnd="3dp"
-            android:paddingStart="3dp"
-            android:showDividers="middle">
+            android:orientation="vertical">
 
             <Switch
                 android:id="@+id/expBr_switch"

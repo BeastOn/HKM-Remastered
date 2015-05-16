@@ -73,6 +73,16 @@
         <item name="android:paddingBottom">@dimen/fragment_vertical_padding</item>
     </style>
 
+    <style name="prefsHolderStyle">
+        <item name="android:clipChildren">false</item>
+        <item name="android:clipToPadding">false</item>
+        <item name="android:divider">@drawable/divider</item>
+        <item name="android:paddingStart">6dp</item>
+        <item name="android:paddingEnd">6dp</item>
+        <item name="android:paddingBottom">6dp</item>
+        <item name="android:showDividers">middle</item>
+    </style>
+
     <style name="flyInAnimation" parent="android:Animation">
         <item name="android:windowEnterAnimation">@android:anim/slide_in_left</item>
         <item name="android:windowExitAnimation">@android:anim/slide_out_right</item>

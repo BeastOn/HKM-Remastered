@@ -15,16 +15,12 @@
         android:title="@string/pref_category_gpu">
 
         <LinearLayout
-            android:id="@+id/usefulContent"
+            android:id="@+id/prefsHolder"
+            style="@style/prefsHolderStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:animateLayoutChanges="true"
-            android:clipChildren="false"
-            android:clipToPadding="false"
-            android:divider="@drawable/divider"
-            android:orientation="vertical"
-            android:padding="3dp"
-            android:showDividers="middle">
+            android:orientation="vertical">
 
             <lb.themike10452.hellscorekernelmanagerl.CustomWidgets.PreferenceButton
                 android:id="@+id/gpuPolicyBtn"

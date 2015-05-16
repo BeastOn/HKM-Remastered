@@ -43,13 +43,11 @@
             android:background="@color/separatorColor" />
 
         <LinearLayout
-            android:showDividers="middle"
-            android:divider="@drawable/divider"
             android:id="@+id/vdd_panel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="3dp">
+            style="@style/prefsHolderStyle"
+            android:orientation="vertical">
 
             <ImageButton
                 android:background="?android:attr/selectableItemBackground"

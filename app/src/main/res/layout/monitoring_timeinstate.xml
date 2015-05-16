@@ -30,7 +30,7 @@
             android:background="@color/separatorColor" />
 
         <LinearLayout
-            android:id="@+id/usefulContent"
+            android:id="@+id/prefsHolder"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:clipChildren="false"

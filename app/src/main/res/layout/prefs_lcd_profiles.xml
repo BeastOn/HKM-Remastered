@@ -14,15 +14,11 @@
         android:title="@string/pref_category_profiles">
 
         <LinearLayout
-            android:id="@+id/usefulContent"
+            android:id="@+id/prefsHolder"
+            style="@style/prefsHolderStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:divider="@drawable/divider"
-            android:orientation="vertical"
-            android:paddingBottom="3dp"
-            android:paddingEnd="3dp"
-            android:paddingStart="3dp"
-            android:showDividers="middle">
+            android:orientation="vertical">
 
             <lb.themike10452.hellscorekernelmanagerl.CustomWidgets.PreferenceButton
                 android:id="@+id/activeProfileClickable"
