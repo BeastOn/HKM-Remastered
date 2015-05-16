@@ -9,26 +9,10 @@
     card_view:cardBackgroundColor="@color/card_background"
     card_view:cardCornerRadius="4dp">
 
-    <LinearLayout
+    <lb.themike10452.hellscorekernelmanagerl.CustomWidgets.CardHeader
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:clipChildren="false"
-        android:clipToPadding="false"
-        android:orientation="vertical"
-        android:padding="3dp">
-
-        <TextView
-            style="@style/categoryTitleStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/pref_category_brightness" />
-
-        <View
-            android:layout_width="fill_parent"
-            android:layout_height="1dp"
-            android:layout_marginBottom="5dp"
-            android:layout_marginTop="5dp"
-            android:background="@color/separatorColor" />
+        android:title="@string/pref_category_brightness">
 
         <LinearLayout
             android:id="@+id/usefulContent"
@@ -63,5 +47,5 @@
                 android:layout_height="wrap_content"
                 android:title="@string/pref_min_brigthness" />
         </LinearLayout>
-    </LinearLayout>
+    </lb.themike10452.hellscorekernelmanagerl.CustomWidgets.CardHeader>
 </android.support.v7.widget.CardView>
