@@ -53,8 +53,12 @@ public class MiscControls extends Fragment {
     private static intProperty fastChargeProperty;
     private static intProperty wakelockSensorIndProperty;
     private static intProperty wakelockSmbProperty;
-    private static intProperty wakelockRxTimeoutProperty;
-    private static intProperty wakelockHsicHostProperty;
+    private static intProperty wakelockRxProperty;
+    private static intProperty wakelockWlanProperty;
+    private static intProperty wakelockHsicProperty;
+    private static intProperty wakelockCtrlProperty;
+    private static intProperty wakelockRxDividerProperty;
+    private static intProperty wakelockHsicDividerProperty;
 
     private static HKMPropertyInterface[] properties;
     private static String[] ioSchedulers;
@@ -141,8 +145,12 @@ public class MiscControls extends Fragment {
 
         wakelockSensorIndProperty = new intProperty(Library.MISC_SENSOR_IND_WAKELOCK, findViewById(R.id.sensorIndSwitch));
         wakelockSmbProperty = new intProperty(Library.MISC_SMB135X_WAKELOCK, findViewById(R.id.smbWLSwitch));
-        wakelockRxTimeoutProperty = new intProperty(Library.MISC_REDUCEE_RX_WAKELOCK, findViewById(R.id.rxWLBtn));
-        wakelockHsicHostProperty = new intProperty(Library.MISC_HSIC_HOST_WAKELOCK, findViewById(R.id.hsicWLBtn));
+        wakelockRxProperty = new intProperty(Library.MISC_WLAN_RX_WAKELOCK, findViewById(R.id.rxWLSwitch));
+        wakelockHsicProperty = new intProperty(Library.MISC_HSIC_HOST_WAKELOCK, findViewById(R.id.hsicWLSwitch));
+        wakelockCtrlProperty = new intProperty(Library.MISC_WLAN_CTRL_WAKELOCK, findViewById(R.id.ctrlWLSwitch));
+        wakelockWlanProperty = new intProperty(Library.MISC_WLAN_WAKELOCK, findViewById(R.id.wlanWLSwitch));
+        wakelockRxDividerProperty = new intProperty(Library.MISC_WLAN_RX_WAKELOCK_DIVIDE, findViewById(R.id.rxWLDividerBtn));
+        wakelockHsicDividerProperty = new intProperty(Library.MISC_HSIC_HOST_WAKELOCK_DIVIDE, findViewById(R.id.hsicWLDividerBtn));
 
         vibratorAmpProperty.setMax(100);
         readAheadProperty.setMin(128);
@@ -160,8 +168,12 @@ public class MiscControls extends Fragment {
                 fastChargeProperty,
                 wakelockSensorIndProperty,
                 wakelockSmbProperty,
-                wakelockRxTimeoutProperty,
-                wakelockHsicHostProperty
+                wakelockRxProperty,
+                wakelockHsicProperty,
+                wakelockCtrlProperty,
+                wakelockWlanProperty,
+                wakelockRxDividerProperty,
+                wakelockHsicDividerProperty
         };
     }
 

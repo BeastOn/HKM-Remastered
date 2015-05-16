@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    card_view:cardBackgroundColor="@color/card_background"
+    card_view:cardCornerRadius="4dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        android:orientation="vertical"
+        android:padding="3dp">
+
+        <TextView
+            style="@style/categoryTitleStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/pref_category_wakelocks" />
+
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="1dp"
+            android:layout_marginBottom="5dp"
+            android:layout_marginTop="5dp"
+            android:background="@color/separatorColor" />
+
+        <LinearLayout
+            android:id="@+id/usefulContent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:divider="@drawable/divider"
+            android:orientation="vertical"
+            android:padding="3dp"
+            android:showDividers="middle">
+
+            <Switch
+                android:id="@+id/sensorIndSwitch"
+                style="@style/mSwitchStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:checked="false"
+                android:paddingStart="3dp"
+                android:text="@string/pref_sensor_ind_wakelock" />
+
+            <Switch
+                android:id="@+id/smbWLSwitch"
+                style="@style/mSwitchStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="3dp"
+                android:text="@string/pref_smb135x_wakelock" />
+
+            <Switch
+                android:id="@+id/wlanWLSwitch"
+                style="@style/mSwitchStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="3dp"
+                android:text="@string/pref_wlan_wakelock" />
+
+            <Switch
+                android:id="@+id/rxWLSwitch"
+                style="@style/mSwitchStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="3dp"
+                android:text="@string/pref_rx_wakelock" />
+
+            <Switch
+                android:id="@+id/ctrlWLSwitch"
+                style="@style/mSwitchStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="3dp"
+                android:text="@string/pref_ctrl_wakelock" />
+
+            <Switch
+                android:id="@+id/hsicWLSwitch"
+                style="@style/mSwitchStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="3dp"
+                android:text="@string/pref_msm_hsic_host_wakelock" />
+
+            <lb.themike10452.hellscorekernelmanagerl.CustomWidgets.PreferenceButton
+                android:id="@+id/rxWLDividerBtn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:summary="@string/note_adjust_carefully"
+                android:title="@string/pref_rx_wakelock_divider" />
+
+            <lb.themike10452.hellscorekernelmanagerl.CustomWidgets.PreferenceButton
+                android:id="@+id/hsicWLDividerBtn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:summary="@string/note_adjust_carefully"
+                android:title="@string/pref_msm_hsic_host_wakelock_divider" />
+        </LinearLayout>
+    </LinearLayout>
+
+</android.support.v7.widget.CardView>

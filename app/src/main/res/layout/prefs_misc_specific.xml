@@ -63,37 +63,6 @@
                 android:layout_height="wrap_content"
                 android:paddingStart="3dp"
                 android:text="@string/pref_fast_charge" />
-
-            <Switch
-                android:id="@+id/sensorIndSwitch"
-                style="@style/mSwitchStyle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:checked="false"
-                android:paddingStart="3dp"
-                android:text="@string/pref_sensor_ind_wakelock" />
-
-            <Switch
-                android:id="@+id/smbWLSwitch"
-                style="@style/mSwitchStyle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingStart="3dp"
-                android:text="@string/pref_smb135x_wakelock" />
-
-            <lb.themike10452.hellscorekernelmanagerl.CustomWidgets.PreferenceButton
-                android:id="@+id/rxWLBtn"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:summary="@string/note_adjust_carefully"
-                android:title="@string/pref_reduce_rx_wakelock" />
-
-            <lb.themike10452.hellscorekernelmanagerl.CustomWidgets.PreferenceButton
-                android:id="@+id/hsicWLBtn"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:summary="@string/note_adjust_carefully"
-                android:title="@string/pref_msm_hsic_host_wakelock" />
         </LinearLayout>
     </LinearLayout>
 

@@ -23,10 +23,6 @@ public class HKMProperty extends Observable implements HKMPropertyInterface {
     protected View topAncestor;
     protected int viewId;
 
-    public HKMProperty() {
-        //required empty constructor
-    }
-
     public View getTopAncestor() {
         if (topAncestor != null) return topAncestor;
 
@@ -116,21 +112,21 @@ public class HKMProperty extends Observable implements HKMPropertyInterface {
             return;
         }
         if (mContainer instanceof Switch) {
-            ((Switch) mContainer).setChecked(!value.equals("0"));
+            ((Switch) mContainer).setChecked(value.equals("Y") || !value.equals("0"));
         } else if (mContainer instanceof TextView) {
             ((TextView) mContainer).setText(value);
         } else {
             View disp = mContainer.findViewById(R.id.value);
             if (disp != null) {
                 if (disp instanceof Switch) {
-                    ((Switch) disp).setChecked(!value.equals("0"));
+                    ((Switch) disp).setChecked(value.equals("Y") || !value.equals("0"));
                 } else if (disp instanceof TextView) {
                     ((TextView) disp).setText(value);
                 }
             } else {
                 disp = mContainer.findViewById(R.id.mswitch);
                 if (disp != null && disp instanceof Switch) {
-                    ((Switch) disp).setChecked(!value.equals("0"));
+                    ((Switch) disp).setChecked(value.equals("Y") || !value.equals("0"));
                 }
             }
         }

@@ -81,8 +81,12 @@ public class Library {
     public static final String MISC_BLX_LIMIT = "/sys/devices/virtual/misc/batterylifeextender/charging_limit";
     public static final String MISC_SENSOR_IND_WAKELOCK = "/sys/module/wakeup/parameters/enable_si_ws";
     public static final String MISC_SMB135X_WAKELOCK = "/sys/module/smb135x_charger/parameters/use_wlock";
-    public static final String MISC_REDUCEE_RX_WAKELOCK = "/sys/module/bcmdhd/parameters/wl_divide";
-    public static final String MISC_HSIC_HOST_WAKELOCK = "/sys/module/xhci_hcd/parameters/wl_divide";
+    public static final String MISC_WLAN_WAKELOCK = "/sys/module/wakeup/parameters/wlan_wake";
+    public static final String MISC_WLAN_RX_WAKELOCK = "/sys/module/wakeup/parameters/wlan_rx_wake";
+    public static final String MISC_WLAN_RX_WAKELOCK_DIVIDE = "/sys/module/bcmdhd/parameters/wl_divide";
+    public static final String MISC_WLAN_CTRL_WAKELOCK = "/sys/module/wakeup/parameters/wlan_ctrl_wake";
+    public static final String MISC_HSIC_HOST_WAKELOCK = "/sys/module/wakeup/parameters/enable_msm_hsic_ws";
+    public static final String MISC_HSIC_HOST_WAKELOCK_DIVIDE = "/sys/module/xhci_hcd/parameters/wl_divide";
 
     /** GPU **/
     public static final String GPU_AVAIL_FREQS_1 = "/sys/devices/platform/kgsl-3d0.0/kgsl/kgsl-3d0/gpu_available_frequencies";

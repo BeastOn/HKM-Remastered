@@ -106,6 +106,7 @@
     <!-- #MISC Controls -->
     <string name="pref_category_general">General</string>
     <string name="pref_category_specific">Kernel specific</string>
+    <string name="pref_category_wakelocks">Wakelocks</string>
     <string name="pref_io_scheduler">I/O scheduler</string>
     <string name="pref_read_ahead_buffer">Read ahead buffer</string>
     <string name="pref_tcp_congestion">TCP congestion algorithm</string>
@@ -115,9 +116,13 @@
     <string name="pref_fast_charge">Fast charge</string>
     <string name="pref_blx_limit">Battery life extender limit</string>
     <string name="pref_sensor_ind_wakelock">Sensor ind wakelock</string>
-    <string name="pref_smb135x_wakelock">smb135x wakelock</string>
-    <string name="pref_reduce_rx_wakelock">Reduce RX wakelock timeout divide</string>
-    <string name="pref_msm_hsic_host_wakelock">MSM HSIC host wakelock divide</string>
+    <string name="pref_smb135x_wakelock">SMB135X wakelock</string>
+    <string name="pref_wlan_wakelock">WLAN wakelock</string>
+    <string name="pref_rx_wakelock">WLAN RX wakelock</string>
+    <string name="pref_rx_wakelock_divider">WLAN RX wakelock divider</string>
+    <string name="pref_ctrl_wakelock">WLAN CTRL wakelock</string>
+    <string name="pref_msm_hsic_host_wakelock">MSM HSIC host wakelock</string>
+    <string name="pref_msm_hsic_host_wakelock_divider">MSM HSIC host wakelock divider</string>
 
     <!-- #Monitoring -->
     <string name="category_memory">Memory</string>

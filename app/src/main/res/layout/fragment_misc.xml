@@ -23,5 +23,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/intercard_margin" />
+
+        <include
+            layout="@layout/prefs_misc_wakelocks"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/intercard_margin" />
     </LinearLayout>
 </ScrollView>
