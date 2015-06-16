@@ -376,7 +376,12 @@ public class MainActivity extends Activity {
                             }.execute();
                         }
                     })
-                    .setNegativeButton(R.string.button_later, null)
+                    .setNegativeButton(R.string.button_later, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            launch(0);
+                        }
+                    })
                     .setCancelable(false)
                     .show();
         }
