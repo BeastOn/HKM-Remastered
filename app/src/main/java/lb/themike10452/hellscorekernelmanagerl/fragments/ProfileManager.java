@@ -415,8 +415,11 @@ public class ProfileManager extends Fragment implements HKMFragment, View.OnClic
         for (Switch swt : switches) {
             if (swt.isChecked()) {
                 final File src = new File(targetDir, swt.getContentDescription().toString());
+                final File target = new File(scriptsDir, src.getName());
                 tools.addCommand(String.format("cp %s %s", src, scriptsDir));
-                tools.addCommand(String.format("chmod 700 %s", new File(scriptsDir, src.getName())));
+                tools.addCommand(String.format("chown %s %s", android.os.Process.myUid(), target));
+                tools.addCommand(String.format("chgrp %s %s", android.os.Process.myUid(), target));
+                tools.addCommand(String.format("chmod 700 %s", target));
             }
         }
         tools.addCommand("busybox run-parts -a --force " + scriptsDir);
