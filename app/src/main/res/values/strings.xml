@@ -9,6 +9,7 @@
     <string name="soundCtl">Sound Control</string>
     <string name="miscCtl">Misc Controls</string>
     <string name="monitoring">Monitoring</string>
+    <string name="profMan">Profile Manager</string>
 
     <!-- Actionbar items -->
     <string name="action_setOnBoot">Set on boot</string>
@@ -98,10 +99,9 @@
     <string name="green">Green</string>
     <string name="blue">Blue</string>
     <string name="button_save">Save</string>
-    <string name="hint_alias">Alias</string>
-    <string name="profile_alias_custom">Custom</string>
-    <string name="message_alias_empty">Profile alias is empty</string>
-    <string name="message_custom_empty">No custom profiles found</string>
+    <string name="profile_name_custom">Custom</string>
+    <string name="message_name_empty">Profile name is empty</string>
+    <string name="message_profiles_empty">No custom profiles found</string>
 
     <!-- #MISC Controls -->
     <string name="pref_category_general">General</string>
@@ -125,6 +125,7 @@
     <string name="pref_msm_hsic_host_wakelock_divider">MSM HSIC host wakelock divider</string>
 
     <!-- #Monitoring -->
+    <string name="category_info">Info</string>
     <string name="category_memory">Memory</string>
     <string name="category_battery">Battery</string>
     <string name="category_cpu">CPU</string>
@@ -140,7 +141,41 @@
     <string name="legend_temp">Temperature</string>
     <string name="cpu_offline">Offline</string>
     <string name="idle">Idle</string>
-    <string name="totalTime">Total time: %1$s</string>
+    <string name="uptime">Up time: %1$s</string>
+    <string name="info_kernel_version">Kernel version</string>
+    <string name="info_cpu_architecture">CPU architecture</string>
+    <string name="info_device">Device info</string>
+
+    <!-- Profile Manager -->
+    <string name="export_prof">Export profile</string>
+    <string name="import_prof">Import profile</string>
+    <string name="manipulate_prof">Manipulate profiles</string>
+    <string name="save_profile">Save profile</string>
+    <string name="load_profile">Load profile</string>
+    <string name="export_to_sdcard">Export to SDCard</string>
+    <string name="import_from_sdcard">Import from SDCard</string>
+    <string name="delete_profile">Delete profile</string>
+    <string name="clear_scripts">Clear app scripts</string>
+    <string name="export_summary">Export and share with other users</string>
+    <string name="save_summary">Backup current profile internally for later use. Works only on tabs you visited at least once.</string>
+    <string name="import_summary">Import a profile created by another user</string>
+    <string name="load_summary">Activate a profile you imported or saved earlier</string>
+    <string name="delete_summary">Erase a profile you imported or saved earlier</string>
+    <string name="clear_summary">Erase all scripts created by the app to set parameters on boot</string>
+    <string name="settings_to_inc">Settings to include</string>
+    <string name="profile_details">Profile details</string>
+    <string name="device_name">Device -> %1$s</string>
+    <string name="device">Device</string>
+    <string name="kernel_version">Kernel -> %1$s</string>
+    <string name="kernel">Kernel</string>
+    <string name="date">Date</string>
+    <string name="output_dir">Output directory</string>
+    <string name="profile_name">Profile name</string>
+    <string name="profile_author">Author</string>
+    <string name="description">Description</string>
+    <string name="required">(Required)</string>
+    <string name="optional">(Optional)</string>
+    <string name="you">You</string>
 
     <!-- Toast messages -->
     <string name="message_action_successful">Action successful</string>
@@ -148,12 +183,24 @@
     <string name="message_set_on_boot_enabled">Set on boot enabled</string>
     <string name="message_set_on_boot_disabled">Set on boot disabled</string>
     <string name="message_script_failed">Failed to write script</string>
+    <string name="message_action_impossible1">Action impossible, use the app to tweak some parameters first then try again. Make sure to use the `Apply` button.</string>
+    <string name="message_action_impossible2">You must select at least one to continue.</string>
+    <string name="message_action_impossible3">Please fill all the required fields to continue</string>
 
     <!-- Dialog messages -->
     <string name="dialog_message_reqRoot">Requesting root access …</string>
     <string name="dialog_message_failRoot">Failed to get root access</string>
     <string name="dialog_message_bootScript">The boot script on /system/su.d needs to be installed or updated. Install it now?</string>
     <string name="dialog_message_installing">Installing …</string>
+    <string name="dialog_message_fileExists">%1$s already exists, would you like to overwrite it?</string>
+    <string name="dialog_title_fileExists">Overwrite file</string>
+    <string name="dialog_pleaseWait">Please wait …</string>
+    <string name="dialog_confirmation">Are you sure?</string>
+    <string name="yes">YES</string>
+    <string name="no">NO</string>
+    <string name="cancel">Cancel</string>
+    <string name="replace">Replace</string>
+    <string name="update">Update</string>
 
     <!-- Notifications -->
     <string name="notification_message_settings_applied">Settings applied successfully.</string>
@@ -166,4 +213,8 @@
     <!-- side notes -->
     <string name="note_unsupported_options">Some of the listed options might not work with your kernel.</string>
     <string name="note_adjust_carefully">Adjust carefully</string>
+    <string name="note_missing_options">If an option you want is missing from this menu visit the related tab and hit apply at least once.</string>
+
+    <!-- other -->
+    <string name="govTweaks">CPU Governor Tweaks</string>
 </resources>

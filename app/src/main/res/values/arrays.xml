@@ -8,6 +8,7 @@
         <item>@string/soundCtl</item>
         <item>@string/miscCtl</item>
         <item>@string/monitoring</item>
+        <item>@string/profMan</item>
     </string-array>
 
     <string-array name="gpu_governors">

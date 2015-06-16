@@ -2,6 +2,8 @@
     package="lb.themike10452.hellscorekernelmanagerl">
 
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="true"
@@ -17,9 +19,16 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name="lb.themike10452.filebrowser.FileBrowser"
+            android:label=""
+            android:theme="@style/FileBrowserTheme" />
+
         <service
             android:name=".services.DeviceBootService"
             android:enabled="true" />
+
         <receiver
             android:name=".DeviceBroadcastReceiver"
             android:exported="true">

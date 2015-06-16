@@ -12,7 +12,13 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <include layout="@layout/monitoring_mem" />
+        <include layout="@layout/monitoring_info" />
+
+        <include
+            layout="@layout/monitoring_mem"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/intercard_margin" />
 
         <include
             layout="@layout/monitoring_battery"

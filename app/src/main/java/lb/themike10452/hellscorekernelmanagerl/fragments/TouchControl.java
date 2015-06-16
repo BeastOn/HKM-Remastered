@@ -20,6 +20,7 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.File;
 import java.util.List;
 
 import lb.themike10452.hellscorekernelmanagerl.CustomWidgets.NumberModifier;
@@ -28,17 +29,18 @@ import lb.themike10452.hellscorekernelmanagerl.properties.MultiRootPathIntProper
 import lb.themike10452.hellscorekernelmanagerl.properties.PropertyUtils;
 import lb.themike10452.hellscorekernelmanagerl.properties.interfaces.HKMPropertyInterface;
 import lb.themike10452.hellscorekernelmanagerl.utils.HKMTools;
-import lb.themike10452.hellscorekernelmanagerl.utils.Library;
+import lb.themike10452.hellscorekernelmanagerl.utils.SysfsLib;
 import lb.themike10452.hellscorekernelmanagerl.utils.UIHelper;
 
 import static lb.themike10452.hellscorekernelmanagerl.Settings.Constants.SET_TCC_SETTINGS_ON_BOOT;
 import static lb.themike10452.hellscorekernelmanagerl.Settings.Constants.SHARED_PREFS_ID;
 import static lb.themike10452.hellscorekernelmanagerl.utils.HKMTools.ScriptUtils.TTC_SETTINGS_SCRIPT_NAME;
+import static lb.themike10452.hellscorekernelmanagerl.utils.HKMTools.ScriptUtils.getScriptsDir;
 
 /**
  * Created by Mike on 3/18/2015.
  */
-public class TouchControl extends Fragment implements View.OnClickListener {
+public class TouchControl extends Fragment implements HKMFragment, View.OnClickListener {
 
     private static final String[] s2wModes = new String[]{"off", "s2w+s2s", "s2s"};
     private static final String[] dt2wZones = new String[]{"Disabled", "Center", "Full", "Bottom", "Top"};
@@ -82,14 +84,15 @@ public class TouchControl extends Fragment implements View.OnClickListener {
     public void onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
         Switch setOnBootSwitch = ((Switch) menu.findItem(R.id.action_setOnBoot).getActionView().findViewById(R.id.sob_switch));
-        boolean sobEnabled = sharedPreferences.getBoolean(SET_TCC_SETTINGS_ON_BOOT, false);
+        boolean sobEnabled = new File(getScriptsDir(mActivity), TTC_SETTINGS_SCRIPT_NAME).canExecute();
         setOnBootSwitch.setChecked(sobEnabled);
         setOnBootSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                changeSetOnBootState(isChecked);
+                changeSetOnBootState(isChecked, true);
             }
         });
+        changeSetOnBootState(sobEnabled, false);
     }
 
     @Override
@@ -120,9 +123,9 @@ public class TouchControl extends Fragment implements View.OnClickListener {
     }
 
     private void initProperties() {
-        twTimeoutProperty = new MultiRootPathIntProperty(findViewById(R.id.twTimeoutBtn), Library.WAKE_TOUCHWAKE_DELAY);
-        dt2wFeatherProperty = new MultiRootPathIntProperty(findViewById(R.id.dt2wFeatherBtn), Library.WAKE_DT2W_FEATHER);
-        dt2wZoneProperty = new MultiRootPathIntProperty(findViewById(R.id.dt2wZoneBtn), Library.WAKE_DT2W_1, Library.WAKE_DT2W_2) {
+        twTimeoutProperty = new MultiRootPathIntProperty(findViewById(R.id.twTimeoutBtn), SysfsLib.WAKE_TOUCHWAKE_DELAY);
+        dt2wFeatherProperty = new MultiRootPathIntProperty(findViewById(R.id.dt2wFeatherBtn), SysfsLib.WAKE_DT2W_FEATHER);
+        dt2wZoneProperty = new MultiRootPathIntProperty(findViewById(R.id.dt2wZoneBtn), SysfsLib.WAKE_DT2W_1, SysfsLib.WAKE_DT2W_2) {
             @Override
             public void setDisplayedValue(String value) {
                 if (value != null) {
@@ -143,10 +146,10 @@ public class TouchControl extends Fragment implements View.OnClickListener {
             }
         };
 
-        dt2wProperty = new MultiRootPathIntProperty(findViewById(R.id.dt2wHolder), Library.WAKE_DT2W_1, Library.WAKE_DT2W_2);
-        s2dProperty = new MultiRootPathIntProperty(findViewById(R.id.s2dHolder), Library.WAKE_S2D_PATH);
-        twProperty = new MultiRootPathIntProperty(findViewById(R.id.twHolder), Library.WAKE_TOUCHWAKE);
-        s2wProperty = new MultiRootPathIntProperty(findViewById(R.id.s2wHolder), Library.WAKE_S2W_PATH) {
+        dt2wProperty = new MultiRootPathIntProperty(findViewById(R.id.dt2wHolder), SysfsLib.WAKE_DT2W_1, SysfsLib.WAKE_DT2W_2);
+        s2dProperty = new MultiRootPathIntProperty(findViewById(R.id.s2dHolder), SysfsLib.WAKE_S2D_PATH);
+        twProperty = new MultiRootPathIntProperty(findViewById(R.id.twHolder), SysfsLib.WAKE_TOUCHWAKE);
+        s2wProperty = new MultiRootPathIntProperty(findViewById(R.id.s2wHolder), SysfsLib.WAKE_S2W_PATH) {
             @Override
             public void setDisplayedValue(String value) {
                 if (value != null) {
@@ -203,13 +206,21 @@ public class TouchControl extends Fragment implements View.OnClickListener {
             @Override
             protected void onPostExecute(Void aVoid) {
                 UIHelper.removeEmptyCards((LinearLayout) findViewById(R.id.cardHolder));
+                if (!new File(getScriptsDir(mActivity), HKMTools.ScriptUtils.TTC_SETTINGS_SCRIPT_NAME).exists()) {
+                    mView.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            saveAll(false);
+                        }
+                    }, 1000);
+                }
             }
         }.execute();
     }
 
     public void saveAll(boolean fromUser) {
         HKMTools tools = HKMTools.getInstance();
-        tools.getReady();
+        tools.clear();
         for (HKMPropertyInterface property : properties) {
             if (property.isVisible()) {
                 String value;
@@ -298,10 +309,13 @@ public class TouchControl extends Fragment implements View.OnClickListener {
         HKMTools.ScriptUtils.createScript(mActivity.getApplicationContext(), sharedPreferences, SET_TCC_SETTINGS_ON_BOOT, TTC_SETTINGS_SCRIPT_NAME, commandList);
     }
 
-    public void changeSetOnBootState(boolean enabled) {
-        sharedPreferences.edit().putBoolean(SET_TCC_SETTINGS_ON_BOOT, enabled).apply();
-        saveAll(false);
-        Toast.makeText(mActivity, enabled ? R.string.message_set_on_boot_enabled : R.string.message_set_on_boot_disabled, Toast.LENGTH_SHORT).show();
+    public void changeSetOnBootState(boolean state, boolean updateScript) {
+        final boolean oldState = sharedPreferences.getBoolean(SET_TCC_SETTINGS_ON_BOOT, false);
+        sharedPreferences.edit().putBoolean(SET_TCC_SETTINGS_ON_BOOT, state).apply();
+        if (updateScript) saveAll(false);
+        if (oldState != state) {
+            Toast.makeText(mActivity, state ? R.string.message_set_on_boot_enabled : R.string.message_set_on_boot_disabled, Toast.LENGTH_SHORT).show();
+        }
     }
 
     private PopupWindow getPopupWindow() {
@@ -318,5 +332,10 @@ public class TouchControl extends Fragment implements View.OnClickListener {
 
     private View findViewById(int id) {
         return mView.findViewById(id);
+    }
+
+    @Override
+    public int getTitleId() {
+        return R.string.touchCtl;
     }
 }

@@ -12,7 +12,7 @@ import java.util.TreeMap;
 
 import lb.themike10452.hellscorekernelmanagerl.R;
 import lb.themike10452.hellscorekernelmanagerl.utils.HKMTools;
-import lb.themike10452.hellscorekernelmanagerl.utils.Library;
+import lb.themike10452.hellscorekernelmanagerl.utils.SysfsLib;
 
 /**
  * Created by Mike on 5/8/2015.
@@ -45,11 +45,11 @@ public class BatteryInfoAdapter {
             @Override
             protected Void doInBackground(Void... params) {
                 HKMTools tools = HKMTools.getInstance();
-                batteryInfo.put(KEY_HEALTH, tools.readLineFromFile(Library.MON_BATTERY_HEALTH));
-                batteryInfo.put(KEY_CAPACITY, tools.readLineFromFile(Library.MON_BATTERY_CAPACITY));
-                batteryInfo.put(KEY_STATUS, tools.readLineFromFile(Library.MON_BATTERY_STATUS));
-                batteryInfo.put(KEY_CHARGE_TYPE, tools.readLineFromFile(Library.MON_BATTERY_CHARGE_TYPE));
-                batteryInfo.put(KEY_TEMP, tools.readLineFromFile(Library.MON_BATTERY_TEMP));
+                batteryInfo.put(KEY_HEALTH, tools.readLineFromFile(SysfsLib.MON_BATTERY_HEALTH));
+                batteryInfo.put(KEY_CAPACITY, tools.readLineFromFile(SysfsLib.MON_BATTERY_CAPACITY));
+                batteryInfo.put(KEY_STATUS, tools.readLineFromFile(SysfsLib.MON_BATTERY_STATUS));
+                batteryInfo.put(KEY_CHARGE_TYPE, tools.readLineFromFile(SysfsLib.MON_BATTERY_CHARGE_TYPE));
+                batteryInfo.put(KEY_TEMP, tools.readLineFromFile(SysfsLib.MON_BATTERY_TEMP));
                 return null;
             }
 

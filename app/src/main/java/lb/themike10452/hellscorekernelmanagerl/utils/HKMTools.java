@@ -6,9 +6,6 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import java.io.BufferedReader;
@@ -19,6 +16,8 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import lb.themike10452.hellscorekernelmanagerl.R;
 
@@ -96,6 +95,62 @@ public class HKMTools {
         }
     }
 
+    public static void clearDirectory(File dir) {
+        final File[] filesInDir = dir.listFiles();
+        if (filesInDir != null) {
+            for (File file : filesInDir) {
+                if (file.isDirectory()) {
+                    clearDirectory(file);
+                }
+                file.delete();
+            }
+        }
+    }
+
+    public static String getFormattedKernelVersion() {
+        return getFormattedKernelVersion(0);
+    }
+
+    public static String getFormattedKernelVersion(int group) {
+        String procVersionStr;
+
+        try {
+            procVersionStr = new BufferedReader(new FileReader(new File("/proc/version"))).readLine();
+
+            final String PROC_VERSION_REGEX =
+                    "Linux version (\\S+) " +
+                            "\\((\\S+?)\\) " +
+                            "(?:\\(gcc.+? \\)) " +
+                            "(#\\d+) " +
+                            "(?:.*?)?" +
+                            "((Sun|Mon|Tue|Wed|Thu|Fri|Sat).+)";
+
+            Pattern p = Pattern.compile(PROC_VERSION_REGEX);
+            Matcher m = p.matcher(procVersionStr);
+
+            if (!m.matches()) {
+                return "Unavailable";
+            } else if (m.groupCount() < 4) {
+                return "Unavailable";
+            } else {
+                return group == 0 ? (new StringBuilder(m.group(1)).append("\n").append(
+                        m.group(2)).append(" ").append(m.group(3)).append("\n")
+                        .append(m.group(4))).toString() : m.group(group);
+            }
+        } catch (IOException e) {
+            return "Unavailable";
+        }
+    }
+
+    public static String getCpuArchitecture() {
+        try {
+            return HKMTools.getInstance().getCommandOutput("cat /proc/cpuinfo | grep ARM").get(0).split(":")[1].trim();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "n/a";
+        }
+    }
+
     public void initRootShell(final Handler handler) {
         mShell = new SUShell(handler);
         Message message = new Message();
@@ -110,7 +165,7 @@ public class HKMTools {
         }
     }
 
-    public void getReady() {
+    public void clear() {
         cmds.clear();
     }
 
@@ -214,23 +269,30 @@ public class HKMTools {
         public static final String MSC_SETTINGS_SCRIPT_NAME = "90misc_settings";
         public static final String SYS_SCRIPT_PATH = "/system/su.d/90kernelSettings";
 
+        public static final Object[][] SCRIPTS = new Object[][]{
+                {CPU_SETTINGS_SCRIPT_NAME, R.string.cpuCtl},
+                {GOV_SETTINGS_SCRIPT_NAME, R.string.govTweaks},
+                {GPU_SETTINGS_SCRIPT_NAME, R.string.gpuCtl},
+                {LCD_SETTINGS_SCRIPT_NAME, R.string.lcdCtl},
+                {SND_SETTINGS_SCRIPT_NAME, R.string.soundCtl},
+                {TTC_SETTINGS_SCRIPT_NAME, R.string.touchCtl},
+                {MSC_SETTINGS_SCRIPT_NAME, R.string.miscCtl}
+        };
+
         private static String scriptsDir;
 
         public static void createScript(Context context, SharedPreferences preferences, String prefKey, String scriptName, List<String> commandList) {
             boolean sobEnabled = preferences.getBoolean(prefKey, false);
-            if (!sobEnabled) {
-                clearScript(context, scriptName);
-            } else {
-                try {
-                    writeScript(context, scriptName, commandList, isDelicate(scriptName));
-                } catch (IOException e) {
-                    Toast.makeText(context, R.string.message_script_failed, Toast.LENGTH_SHORT).show();
-                    Toast.makeText(context, e.toString(), Toast.LENGTH_SHORT).show();
-                }
+
+            try {
+                writeScript(context, scriptName, commandList, isDelicate(scriptName), sobEnabled);
+            } catch (IOException e) {
+                Toast.makeText(context, R.string.message_script_failed, Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, e.toString(), Toast.LENGTH_SHORT).show();
             }
         }
 
-        public static void writeScript(Context appContext, String scriptName, List<String> commandList, boolean isDelicate) throws IOException {
+        public static void writeScript(Context appContext, String scriptName, List<String> commandList, boolean isDelicate, boolean executable) throws IOException {
             initScriptsDir(appContext);
 
             File f = new File(scriptsDir.concat(scriptName));
@@ -250,7 +312,7 @@ public class HKMTools {
             }
             writer.close();
             HKMTools tools = HKMTools.getInstance();
-            tools.addCommand("chmod 700 " + f.getAbsolutePath());
+            tools.addCommand((executable ? "chmod 700 " : "chmod 600 ") + f.getAbsolutePath());
             tools.flush();
         }
 
@@ -263,18 +325,24 @@ public class HKMTools {
         public static void createSystemScript(Context appContext) throws IOException {
             initScriptsDir(appContext);
 
-            String tmpScript = scriptsDir.concat("tmp");
+            File tmpFile = new File(scriptsDir);
 
-            PrintWriter writer = new PrintWriter(tmpScript);
+            if (!tmpFile.exists() || !tmpFile.isDirectory()) {
+                tmpFile.mkdir();
+            }
+
+            tmpFile = new File(scriptsDir.concat("tmp"));
+
+            PrintWriter writer = new PrintWriter(tmpFile);
             writer.println(getSysScriptDefaultContent());
             writer.close();
 
             HKMTools tools = HKMTools.getInstance();
-            tools.getReady();
+            tools.clear();
             tools.addCommand(
                     "busybox mount -o remount,rw /system",
                     "mkdir /system/su.d",
-                    String.format("mv %s %s", tmpScript, SYS_SCRIPT_PATH),
+                    String.format("mv %s %s", tmpFile, SYS_SCRIPT_PATH),
                     "chmod 700 /system/su.d",
                     "chmod 700 " + SYS_SCRIPT_PATH,
                     "busybox mount -o remount,ro /system"

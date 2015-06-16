@@ -31,6 +31,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:animateLayoutChanges="true"
+                android:summary="none"
                 android:title="@string/pref_save_profile"
                 android:value="none">
 
@@ -43,11 +44,11 @@
                     android:visibility="gone">
 
                     <EditText
-                        android:id="@+id/newProfileAlias"
+                        android:id="@+id/newProfileName"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:ems="6"
-                        android:hint="@string/hint_alias"
+                        android:hint="@string/profile_name"
                         android:scrollHorizontally="true"
                         android:singleLine="true" />
 
@@ -64,6 +65,7 @@
                 android:id="@+id/delProfileBtn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:summary="none"
                 android:title="@string/pref_delete_profile"
                 android:value="none" />
         </LinearLayout>

@@ -13,6 +13,13 @@
         <item name="clickableLayoutStyle">@style/clickableLayout</item>
     </style>
 
+    <style name="FileBrowserTheme" parent="android:Theme.Material">
+        <item name="android:colorAccent">@color/colorAccent</item>
+        <item name="android:colorPrimary">@color/colorSecondary</item>
+        <item name="android:statusBarColor">@color/colorSecondary</item>
+        <item name="android:navigationBarColor">@color/colorSecondary</item>
+    </style>
+
     <style name="categoryTitleStyle" parent="@android:style/Widget.Material.TextView">
         <item name="android:textColor">?attr/categoryTitleColor</item>
         <item name="android:textStyle">bold</item>
@@ -50,6 +57,13 @@
         <item name="android:layout_marginBottom">15dp</item>
         <item name="android:textColor">@color/primaryText</item>
         <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="mSmallSwitchStyle">
+        <item name="android:paddingTop">10dp</item>
+        <item name="android:paddingBottom">10dp</item>
+        <item name="android:textColor">@color/primaryText</item>
+        <item name="android:textSize">14sp</item>
     </style>
 
     <style name="hintedSwitchStyle">

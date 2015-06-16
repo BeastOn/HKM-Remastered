@@ -5,7 +5,7 @@ import android.view.View;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-import lb.themike10452.hellscorekernelmanagerl.CustomAdapters.SeekBarProgressAdapter;
+import lb.themike10452.hellscorekernelmanagerl.CustomClasses.SeekBarProgressAdapter;
 import lb.themike10452.hellscorekernelmanagerl.R;
 import lb.themike10452.hellscorekernelmanagerl.fragments.SoundControl;
 import lb.themike10452.hellscorekernelmanagerl.utils.HKMTools;
@@ -61,8 +61,7 @@ public class FauxSoundProperty extends intProperty {
     public void setDisplayedValue(String value) {
         super.setDisplayedValue(value);
         if (value != null) {
-            int i = Integer.parseInt(value);
-            seekBar.setProgress(i - min);
+            seekBar.setProgress(Integer.parseInt(value) - min);
         }
     }
 
@@ -72,33 +71,75 @@ public class FauxSoundProperty extends intProperty {
         seekBar.setProgress(value - min);
     }
 
+    public void setDisplayedValue(int value, boolean convert) {
+        if (!convert) {
+            setDisplayedValue(value);
+        } else {
+            setDisplayedValue(decode(Integer.toString(value)));
+        }
+    }
+
     @Override
     public String getValue() {
-        switch (opMode) {
-            case MODE_SINGLE: {
-                return decode(HKMTools.getInstance().readLineFromFile(filePath));
-            }
-            case MODE_LEFT:
-            case MODE_LEFT_AMP:
-            case MODE_DUAL: {
-                String str = HKMTools.getInstance().readLineFromFile(filePath);
-                if (str != null) {
-                    return decode(str.split(" ")[0]);
-                } else {
-                    return null;
+        return getValue(false);
+    }
+
+    public String getValue(boolean convert) {
+        if (convert) {
+            switch (opMode) {
+                case MODE_SINGLE: {
+                    return decode(HKMTools.getInstance().readLineFromFile(filePath));
                 }
-            }
-            case MODE_RIGHT:
-            case MODE_RIGHT_AMP: {
-                String str = HKMTools.getInstance().readLineFromFile(filePath);
-                if (str != null) {
-                    return decode(str.split(" ")[1]);
-                } else {
-                    return null;
+                case MODE_LEFT:
+                case MODE_LEFT_AMP:
+                case MODE_DUAL: {
+                    String str = HKMTools.getInstance().readLineFromFile(filePath);
+                    if (str != null) {
+                        return decode(str.split(" ")[0]);
+                    } else {
+                        return null;
+                    }
                 }
+                case MODE_RIGHT:
+                case MODE_RIGHT_AMP: {
+                    String str = HKMTools.getInstance().readLineFromFile(filePath);
+                    if (str != null) {
+                        return decode(str.split(" ")[1]);
+                    } else {
+                        return null;
+                    }
+                }
+                default:
+                    return null;
+            }
+        } else {
+            switch (opMode) {
+                case MODE_SINGLE: {
+                    return HKMTools.getInstance().readLineFromFile(filePath);
+                }
+                case MODE_LEFT:
+                case MODE_LEFT_AMP:
+                case MODE_DUAL: {
+                    String str = HKMTools.getInstance().readLineFromFile(filePath);
+                    if (str != null) {
+                        return str.split(" ")[0];
+                    } else {
+                        return null;
+                    }
+                }
+                case MODE_RIGHT:
+                case MODE_RIGHT_AMP: {
+                    String str = HKMTools.getInstance().readLineFromFile(filePath);
+                    if (str != null) {
+                        return str.split(" ")[1];
+                    } else {
+                        return null;
+                    }
+                }
+                default:
+                    return null;
             }
         }
-        return null;
     }
 
     @Override
@@ -149,15 +190,16 @@ public class FauxSoundProperty extends intProperty {
 
     private String encode(int value1, int value2) {
         if (opMode == MODE_LEFT_AMP || opMode == MODE_RIGHT_AMP) {
-            value1 = 15 & (6 - value1);
-            value2 = 15 & (6 - value2);
+            value1 = 0xF & 6 - value1;
+            value2 = 0xF & 6 - value2;
         }
+
         if (value1 < 0)
             value1 += 256;
         if (value2 < 0)
             value2 += 256;
 
-        int key = ((255 & (2147483647 ^ (value1 & 255) + (value2 & 255))));
+        int key = 0xFF & (0xFFFFFFFF ^ (value1 & 0xFF) + (value2 & 0xFF));
         if (opMode == MODE_SINGLE) {
             return value1 + " " + key;
         } else {
@@ -171,10 +213,10 @@ public class FauxSoundProperty extends intProperty {
         switch (opMode) {
             case MODE_LEFT_AMP:
             case MODE_RIGHT_AMP:
-                return Integer.toString(22 - a);
+                return Integer.toString(6 - (0xF & a));
             default:
-                if (a > 10) {
-                    a -= 256;
+                if (a > 127) {
+                    a = -1 * (256 - a);
                 }
                 return Integer.toString(a);
         }

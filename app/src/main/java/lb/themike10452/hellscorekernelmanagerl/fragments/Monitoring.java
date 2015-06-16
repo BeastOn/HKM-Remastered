@@ -5,6 +5,7 @@ import android.app.Fragment;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.LayoutInflater;
@@ -21,20 +22,21 @@ import lb.themike10452.hellscorekernelmanagerl.CustomAdapters.TimeInStateAdapter
 import lb.themike10452.hellscorekernelmanagerl.CustomWidgets.ChartView;
 import lb.themike10452.hellscorekernelmanagerl.CustomWidgets.CpuFreqLiveView;
 import lb.themike10452.hellscorekernelmanagerl.CustomWidgets.GridLayout;
+import lb.themike10452.hellscorekernelmanagerl.CustomWidgets.PreferenceButton;
 import lb.themike10452.hellscorekernelmanagerl.R;
 import lb.themike10452.hellscorekernelmanagerl.utils.HKMTools;
-import lb.themike10452.hellscorekernelmanagerl.utils.Library;
+import lb.themike10452.hellscorekernelmanagerl.utils.SysfsLib;
 
 import static lb.themike10452.hellscorekernelmanagerl.Settings.Constants.CORE_MAX;
 import static lb.themike10452.hellscorekernelmanagerl.Settings.Constants.SHARED_PREFS_ID;
-import static lb.themike10452.hellscorekernelmanagerl.utils.Library.DROP_CACHES;
-import static lb.themike10452.hellscorekernelmanagerl.utils.Library.MON_CPU_FREQ;
-import static lb.themike10452.hellscorekernelmanagerl.utils.Library.MON_CPU_TEMP;
+import static lb.themike10452.hellscorekernelmanagerl.utils.SysfsLib.DROP_CACHES;
+import static lb.themike10452.hellscorekernelmanagerl.utils.SysfsLib.MON_CPU_FREQ;
+import static lb.themike10452.hellscorekernelmanagerl.utils.SysfsLib.MON_CPU_TEMP;
 
 /**
  * Created by Mike on 5/7/2015.
  */
-public class Monitoring extends Fragment implements View.OnClickListener {
+public class Monitoring extends Fragment implements HKMFragment, View.OnClickListener {
     private static Monitoring instance;
 
     private static Activity mActivity;
@@ -124,7 +126,14 @@ public class Monitoring extends Fragment implements View.OnClickListener {
     @Override
     public void onResume() {
         super.onResume();
-        loop(LOOP_KEY);
+        if (mHandler != null) {
+            mHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    loop(LOOP_KEY);
+                }
+            }, 1000);
+        }
     }
 
     @Override
@@ -142,6 +151,10 @@ public class Monitoring extends Fragment implements View.OnClickListener {
         updateCpuView();
         mBatteryAdapter.update();
         stateAdapter.update();
+
+        if (loopKey == -1) {
+            onFirstRefresh();
+        }
 
         if (loopKey == LOOP_KEY) {
             loop(loopKey);
@@ -161,8 +174,22 @@ public class Monitoring extends Fragment implements View.OnClickListener {
         }
     }
 
+    private void onFirstRefresh() {
+        ((PreferenceButton) findViewById(R.id.kernelVersion)).setValue(HKMTools.getFormattedKernelVersion());
+        ((PreferenceButton) findViewById(R.id.cpuArch)).setValue(HKMTools.getCpuArchitecture() + (Build.SUPPORTED_64_BIT_ABIS.length > 0 ? "\n[x64]" : "\n[x86]"));
+        ((PreferenceButton) findViewById(R.id.deviceInfo)).setValue(
+                Build.MANUFACTURER
+                        .concat("/")
+                        .concat(Build.MODEL)
+                        .concat("/")
+                        .concat(Build.DEVICE)
+                        .concat("/")
+                        .concat(Build.BOOTLOADER)
+        );
+    }
+
     private void updateChartView() {
-        final List<String> free = HKMTools.getInstance().readFromFile(Library.MON_MEM);
+        final List<String> free = HKMTools.getInstance().readFromFile(SysfsLib.MON_MEM);
         if (free != null) {
             List<Integer> values = new ArrayList<>();
             for (String row : free) {
@@ -219,7 +246,7 @@ public class Monitoring extends Fragment implements View.OnClickListener {
     }
 
     private void fetchFrequencies() {
-        String tmp = HKMTools.getInstance().readLineFromFile(Library.CPU_AVAIL_FREQS);
+        String tmp = HKMTools.getInstance().readLineFromFile(SysfsLib.CPU_AVAIL_FREQS);
         if (tmp != null) {
             String[] freqs = tmp.split(" ");
             available_freqs = new int[freqs.length];
@@ -244,5 +271,10 @@ public class Monitoring extends Fragment implements View.OnClickListener {
                 HKMTools.getInstance().run("echo 3 > " + DROP_CACHES);
                 break;
         }
+    }
+
+    @Override
+    public int getTitleId() {
+        return R.string.monitoring;
     }
 }

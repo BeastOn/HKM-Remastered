@@ -1,4 +1,4 @@
-package lb.themike10452.hellscorekernelmanagerl.CustomAdapters;
+package lb.themike10452.hellscorekernelmanagerl.CustomClasses;
 
 import android.widget.SeekBar;
 

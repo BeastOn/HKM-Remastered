@@ -3,7 +3,7 @@ package lb.themike10452.hellscorekernelmanagerl.utils;
 /**
  * Created by Mike on 2/22/2015.
  */
-public class Library {
+public class SysfsLib {
     /** Monitoring **/
     public static final String MON_CPU_SYSFS = "/sys/devices/system/cpu";
     public static final String MON_BATTERY_HEALTH = "/sys/class/power_supply/battery/health";
@@ -77,7 +77,8 @@ public class Library {
     //public static final String MISC_NET_TCP_ALLOWED = "/proc/sys/net/ipv4/tcp_allowed_congestion_control";
     public static final String MISC_NET_TCP_AVAILABLE = "/proc/sys/net/ipv4/tcp_available_congestion_control";
     public static final String MISC_NET_TCP_CONGST = "/proc/sys/net/ipv4/tcp_congestion_control";
-    public static final String MISC_VIBRATOR_AMP = "/sys/class/timed_output/vibrator/amp";
+    public static final String MISC_VIBRATOR_AMP_1 = "/sys/class/timed_output/vibrator/amp";
+    public static final String MISC_VIBRATOR_AMP_2 = "/sys/vibrator/pwmvalue";
     public static final String MISC_BLX_LIMIT = "/sys/devices/virtual/misc/batterylifeextender/charging_limit";
     public static final String MISC_SENSOR_IND_WAKELOCK = "/sys/module/wakeup/parameters/enable_si_ws";
     public static final String MISC_SMB135X_WAKELOCK = "/sys/module/smb135x_charger/parameters/use_wlock";

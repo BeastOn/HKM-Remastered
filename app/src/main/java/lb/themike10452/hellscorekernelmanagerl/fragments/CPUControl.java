@@ -29,6 +29,7 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -36,10 +37,10 @@ import java.util.List;
 import at.markushi.ui.action.CloseAction;
 import at.markushi.ui.action.DrawerAction;
 import lb.themike10452.hellscorekernelmanagerl.CustomAdapters.CPUVoltagesAdapter;
-import lb.themike10452.hellscorekernelmanagerl.CustomAdapters.SeekBarProgressAdapter;
+import lb.themike10452.hellscorekernelmanagerl.CustomClasses.SeekBarProgressAdapter;
 import lb.themike10452.hellscorekernelmanagerl.CustomWidgets.NumberModifier;
 import lb.themike10452.hellscorekernelmanagerl.MainActivity;
-import lb.themike10452.hellscorekernelmanagerl.MainActivity.mTransactionManager;
+import lb.themike10452.hellscorekernelmanagerl.MainActivity.TransactionManager;
 import lb.themike10452.hellscorekernelmanagerl.R;
 import lb.themike10452.hellscorekernelmanagerl.properties.MultiCoreIntProperty;
 import lb.themike10452.hellscorekernelmanagerl.properties.MultiCoreLongProperty;
@@ -51,25 +52,26 @@ import lb.themike10452.hellscorekernelmanagerl.properties.intProperty;
 import lb.themike10452.hellscorekernelmanagerl.properties.interfaces.HKMPropertyInterface;
 import lb.themike10452.hellscorekernelmanagerl.properties.longProperty;
 import lb.themike10452.hellscorekernelmanagerl.utils.HKMTools;
-import lb.themike10452.hellscorekernelmanagerl.utils.Library;
+import lb.themike10452.hellscorekernelmanagerl.utils.SysfsLib;
 import lb.themike10452.hellscorekernelmanagerl.utils.UIHelper;
 
 import static lb.themike10452.hellscorekernelmanagerl.Settings.Constants.CORE_MAX;
 import static lb.themike10452.hellscorekernelmanagerl.Settings.Constants.SET_CPU_SETTINGS_ON_BOOT;
 import static lb.themike10452.hellscorekernelmanagerl.Settings.Constants.SHARED_PREFS_ID;
 import static lb.themike10452.hellscorekernelmanagerl.utils.HKMTools.ScriptUtils.CPU_SETTINGS_SCRIPT_NAME;
+import static lb.themike10452.hellscorekernelmanagerl.utils.HKMTools.ScriptUtils.getScriptsDir;
 
 /**
  * Created by Mike on 2/22/2015.
  */
-public class CPUControl extends Fragment implements View.OnClickListener {
+public class CPUControl extends Fragment implements HKMFragment, View.OnClickListener {
 
     private static CPUControl instance;
 
     private static MainActivity mActivity;
     private static SharedPreferences sharedPreferences;
     private static CPUVoltagesAdapter mVoltagesAdapter;
-    private static mTransactionManager transactionManager;
+    private static TransactionManager transactionManager;
 
     private static MultiRootPathIntProperty maxCoresProperty;
     private static MultiRootPathIntProperty minCoresProperty;
@@ -100,29 +102,24 @@ public class CPUControl extends Fragment implements View.OnClickListener {
 
     public CPUControl() {
         instance = this;
+        transactionManager = MainActivity.transactionManager;
     }
 
-    public static CPUControl getInstance(mTransactionManager manager) {
-        if (instance == null) {
-            instance = new CPUControl();
-        }
-        if (manager != null) {
-            transactionManager = manager;
-        }
-        return instance;
+    public static CPUControl getInstance() {
+        return instance != null ? instance : new CPUControl();
     }
 
     @Override
     public void onClick(final View v) {
         if (v == findViewById(R.id.govCfgBtn)) {
-            Fragment fragment = CPUGovernorCfg.getNewInstance(governorProperty.readDisplayedValue());
+            HKMFragment fragment = CPUGovernorCfg.getNewInstance(governorProperty.readDisplayedValue());
             int fast = getResources().getInteger(R.integer.duration_transition_fast);
             setExitTransition(new Explode().setDuration(fast + 300).setStartDelay(0).setInterpolator(new AccelerateInterpolator()));
             setSharedElementReturnTransition(TransitionInflater.from(mActivity).inflateTransition(R.transition.move));
-            fragment.setReturnTransition(new Fade().setDuration(fast));
-            fragment.setSharedElementEnterTransition(TransitionInflater.from(mActivity).inflateTransition(R.transition.move));
-            fragment.setEnterTransition(new Fade().setStartDelay(fast));
-            fragment.setEnterSharedElementCallback(new SharedElementCallback() {
+            ((Fragment) fragment).setReturnTransition(new Fade().setDuration(fast));
+            ((Fragment) fragment).setSharedElementEnterTransition(TransitionInflater.from(mActivity).inflateTransition(R.transition.move));
+            ((Fragment) fragment).setEnterTransition(new Fade().setStartDelay(fast));
+            ((Fragment) fragment).setEnterSharedElementCallback(new SharedElementCallback() {
                 @Override
                 public void onSharedElementStart(List<String> sharedElementNames, List<View> sharedElements, List<View> sharedElementSnapshots) {
                     super.onSharedElementStart(sharedElementNames, sharedElements, sharedElementSnapshots);
@@ -133,7 +130,14 @@ public class CPUControl extends Fragment implements View.OnClickListener {
             Pair<View, String> pair2 = new Pair<>(findViewById(R.id.govCfgBtn), "govCfgBtn");
             transactionManager.setDrawerEnabled(false);
             transactionManager.setDrawerIndicator(new CloseAction());
-            transactionManager.performTransaction(fragment, true, false, null, pair1, pair2);
+            transactionManager.performTransaction(fragment, true, false, pair1, pair2);
+            MainActivity.setCloseActionCallback(new MainActivity.CloseActionCallback() {
+                @Override
+                public void onClose() {
+                    transactionManager.popBackStack();
+                    MainActivity.setCloseActionCallback(null);
+                }
+            });
             return;
         }
 
@@ -221,15 +225,16 @@ public class CPUControl extends Fragment implements View.OnClickListener {
 
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
-        Switch setOnBootSwitch = ((Switch) menu.findItem(R.id.action_setOnBoot).getActionView().findViewById(R.id.sob_switch));
-        boolean sobEnabled = sharedPreferences.getBoolean(SET_CPU_SETTINGS_ON_BOOT, false);
+        final Switch setOnBootSwitch = ((Switch) menu.findItem(R.id.action_setOnBoot).getActionView().findViewById(R.id.sob_switch));
+        final boolean sobEnabled = new File(getScriptsDir(mActivity), CPU_SETTINGS_SCRIPT_NAME).canExecute();
         setOnBootSwitch.setChecked(sobEnabled);
         setOnBootSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                changeSetOnBootState(isChecked);
+                changeSetOnBootState(isChecked, true);
             }
         });
+        changeSetOnBootState(sobEnabled, false);
     }
 
     @Override
@@ -278,25 +283,25 @@ public class CPUControl extends Fragment implements View.OnClickListener {
 
     private void initProperties() {
         int coreMax = sharedPreferences.getInt(CORE_MAX, 3);
-        governorProperty = new StringProperty(Library.CPU_GOVERNOR, findViewById(R.id.govBtn));
-        maxFreqProperty = new MultiCoreLongProperty(Library.CPU_MAX_FREQ, coreMax, findViewById(R.id.maxFreqHolder));
-        minFreqProperty = new MultiCoreLongProperty(Library.CPU_MIN_FREQ, coreMax, findViewById(R.id.minFreqHolder));
-        msmHotplugEnabled = new intProperty(Library.CPU_MSM_HOTPLUG_ENABLED, findViewById(R.id.enable_msm_hotplug));
-        msmMPDecisionEnabled = new intProperty(Library.CPU_MSM_MPDECISION_ENABLED, findViewById(R.id.enable_msm_mpdec));
-        maxCoresSuspProperty = new intProperty(Library.CPU_MAX_CORES_SUSP, findViewById(R.id.maxCoresSuspBtn));
-        boostedCoresProperty = new intProperty(Library.CPU_BOOSTED_CORES, findViewById(R.id.boostedCoresBtn));
-        boostDurationProperty = new intProperty(Library.CPU_BOOST_LOCK_DURATION, findViewById(R.id.boostDurationBtn));
-        screenoffMaxProperty = new longProperty(Library.CPU_SCREEN_OFF_MAX, findViewById(R.id.screenOffMaxBtn));
-        screenoffMaxStateProperty = new intProperty(Library.CPU_SCREEN_OFF_MAX_STATE, findViewById(R.id.screenOffMaxStateSwitch));
-        screenoffSglCoreProperty = new intProperty(Library.CPU_SCREEN_OFF_SINGLE_CORE, findViewById(R.id.screenOffSglCore));
-        touchBoostProperty = new MultiLineValueProperty(findViewById(R.id.touchBoostBtn), Library.CPU_TOUCH_BOOST_FREQS);
-        touchBoostStateProperty = new intProperty(Library.CPU_TOUCH_BOOST, findViewById(R.id.touchBoostSwitch));
-        c0wfiProperty = new MultiCoreIntProperty(Library.CPU_IDLE_C0, coreMax, findViewById(R.id.c0_switch));
-        c1retProperty = new MultiCoreIntProperty(Library.CPU_IDLE_C1, coreMax, findViewById(R.id.c1_switch));
-        c2spcProperty = new MultiCoreIntProperty(Library.CPU_IDLE_C2, coreMax, findViewById(R.id.c2_switch));
-        c3pcProperty = new MultiCoreIntProperty(Library.CPU_IDLE_C3, coreMax, findViewById(R.id.c3_switch));
+        governorProperty = new StringProperty(SysfsLib.CPU_GOVERNOR, findViewById(R.id.govBtn));
+        maxFreqProperty = new MultiCoreLongProperty(SysfsLib.CPU_MAX_FREQ, coreMax, findViewById(R.id.maxFreqHolder));
+        minFreqProperty = new MultiCoreLongProperty(SysfsLib.CPU_MIN_FREQ, coreMax, findViewById(R.id.minFreqHolder));
+        msmHotplugEnabled = new intProperty(SysfsLib.CPU_MSM_HOTPLUG_ENABLED, findViewById(R.id.enable_msm_hotplug));
+        msmMPDecisionEnabled = new intProperty(SysfsLib.CPU_MSM_MPDECISION_ENABLED, findViewById(R.id.enable_msm_mpdec));
+        maxCoresSuspProperty = new intProperty(SysfsLib.CPU_MAX_CORES_SUSP, findViewById(R.id.maxCoresSuspBtn));
+        boostedCoresProperty = new intProperty(SysfsLib.CPU_BOOSTED_CORES, findViewById(R.id.boostedCoresBtn));
+        boostDurationProperty = new intProperty(SysfsLib.CPU_BOOST_LOCK_DURATION, findViewById(R.id.boostDurationBtn));
+        screenoffMaxProperty = new longProperty(SysfsLib.CPU_SCREEN_OFF_MAX, findViewById(R.id.screenOffMaxBtn));
+        screenoffMaxStateProperty = new intProperty(SysfsLib.CPU_SCREEN_OFF_MAX_STATE, findViewById(R.id.screenOffMaxStateSwitch));
+        screenoffSglCoreProperty = new intProperty(SysfsLib.CPU_SCREEN_OFF_SINGLE_CORE, findViewById(R.id.screenOffSglCore));
+        touchBoostProperty = new MultiLineValueProperty(findViewById(R.id.touchBoostBtn), SysfsLib.CPU_TOUCH_BOOST_FREQS);
+        touchBoostStateProperty = new intProperty(SysfsLib.CPU_TOUCH_BOOST, findViewById(R.id.touchBoostSwitch));
+        c0wfiProperty = new MultiCoreIntProperty(SysfsLib.CPU_IDLE_C0, coreMax, findViewById(R.id.c0_switch));
+        c1retProperty = new MultiCoreIntProperty(SysfsLib.CPU_IDLE_C1, coreMax, findViewById(R.id.c1_switch));
+        c2spcProperty = new MultiCoreIntProperty(SysfsLib.CPU_IDLE_C2, coreMax, findViewById(R.id.c2_switch));
+        c3pcProperty = new MultiCoreIntProperty(SysfsLib.CPU_IDLE_C3, coreMax, findViewById(R.id.c3_switch));
 
-        maxCoresProperty = new MultiRootPathIntProperty(findViewById(R.id.maxCoresOnBtn), Library.CPU_MAX_CORES_ONLINE_1, Library.CPU_MAX_CORES_ONLINE_2) {
+        maxCoresProperty = new MultiRootPathIntProperty(findViewById(R.id.maxCoresOnBtn), SysfsLib.CPU_MAX_CORES_ONLINE_1, SysfsLib.CPU_MAX_CORES_ONLINE_2) {
             @Override
             public void setDisplayedValue(String value) {
                 super.setDisplayedValue(value);
@@ -307,7 +312,7 @@ public class CPUControl extends Fragment implements View.OnClickListener {
                 }
             }
         };
-        minCoresProperty = new MultiRootPathIntProperty(findViewById(R.id.minCoresOnBtn), Library.CPU_MIN_CORES_ONLINE_1, Library.CPU_MIN_CORES_ONLINE_0) {
+        minCoresProperty = new MultiRootPathIntProperty(findViewById(R.id.minCoresOnBtn), SysfsLib.CPU_MIN_CORES_ONLINE_1, SysfsLib.CPU_MIN_CORES_ONLINE_0) {
             @Override
             public void setDisplayedValue(String value) {
                 super.setDisplayedValue(value);
@@ -466,6 +471,14 @@ public class CPUControl extends Fragment implements View.OnClickListener {
                     }
                 }
                 UIHelper.removeEmptyCards((LinearLayout) findViewById(R.id.cardHolder));
+                if (!new File(getScriptsDir(mActivity), HKMTools.ScriptUtils.CPU_SETTINGS_SCRIPT_NAME).exists()) {
+                    mView.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            saveAll(false);
+                        }
+                    }, 1000);
+                }
             }
         }.execute();
 
@@ -476,7 +489,7 @@ public class CPUControl extends Fragment implements View.OnClickListener {
             @Override
             protected Void doInBackground(Void... params) {
                 HKMTools tools = HKMTools.getInstance();
-                tools.getReady();
+                tools.clear();
                 for (HKMPropertyInterface property : properties) {
                     if (property.isVisible()) {
                         String value = property.readDisplayedValue();
@@ -512,14 +525,17 @@ public class CPUControl extends Fragment implements View.OnClickListener {
         }.execute();
     }
 
-    public void changeSetOnBootState(boolean enabled) {
-        sharedPreferences.edit().putBoolean(SET_CPU_SETTINGS_ON_BOOT, enabled).apply();
-        saveAll(false);
-        Toast.makeText(mActivity, enabled ? R.string.message_set_on_boot_enabled : R.string.message_set_on_boot_disabled, Toast.LENGTH_SHORT).show();
+    public void changeSetOnBootState(boolean state, boolean updateScript) {
+        final boolean oldState = sharedPreferences.getBoolean(SET_CPU_SETTINGS_ON_BOOT, false);
+        sharedPreferences.edit().putBoolean(SET_CPU_SETTINGS_ON_BOOT, state).apply();
+        if (updateScript) saveAll(false);
+        if (oldState != state) {
+            Toast.makeText(mActivity, state ? R.string.message_set_on_boot_enabled : R.string.message_set_on_boot_disabled, Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void fetchFrequencies() {
-        String tmp = HKMTools.getInstance().readLineFromFile(Library.CPU_AVAIL_FREQS);
+        String tmp = HKMTools.getInstance().readLineFromFile(SysfsLib.CPU_AVAIL_FREQS);
         if (tmp != null) {
             String[] freqs = tmp.split(" ");
             available_freqs = new long[freqs.length];
@@ -534,7 +550,7 @@ public class CPUControl extends Fragment implements View.OnClickListener {
     }
 
     private void fetchGovernors() {
-        String tmp = HKMTools.getInstance().readLineFromFile(Library.CPU_AVAIL_GOVS);
+        String tmp = HKMTools.getInstance().readLineFromFile(SysfsLib.CPU_AVAIL_GOVS);
         if (tmp != null) {
             try {
                 available_governors = tmp.split(" ");
@@ -562,5 +578,10 @@ public class CPUControl extends Fragment implements View.OnClickListener {
 
     private View findViewById(int id) {
         return mView.findViewById(id);
+    }
+
+    @Override
+    public int getTitleId() {
+        return R.string.cpuCtl;
     }
 }

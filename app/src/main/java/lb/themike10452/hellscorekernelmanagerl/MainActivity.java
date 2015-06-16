@@ -1,5 +1,6 @@
 package lb.themike10452.hellscorekernelmanagerl;
 
+import android.animation.Animator;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;
@@ -21,6 +22,7 @@ import android.util.Pair;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.View;
+import android.view.ViewAnimationUtils;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateInterpolator;
 import android.widget.AdapterView;
@@ -36,16 +38,19 @@ import at.markushi.ui.action.Action;
 import at.markushi.ui.action.CloseAction;
 import at.markushi.ui.action.DrawerAction;
 import lb.themike10452.hellscorekernelmanagerl.CustomAdapters.DrawerAdapter;
+import lb.themike10452.hellscorekernelmanagerl.CustomClasses.AnimatorListener;
 import lb.themike10452.hellscorekernelmanagerl.fragments.CPUControl;
 import lb.themike10452.hellscorekernelmanagerl.fragments.GPUControl;
+import lb.themike10452.hellscorekernelmanagerl.fragments.HKMFragment;
 import lb.themike10452.hellscorekernelmanagerl.fragments.LCDControl;
 import lb.themike10452.hellscorekernelmanagerl.fragments.MiscControls;
 import lb.themike10452.hellscorekernelmanagerl.fragments.Monitoring;
+import lb.themike10452.hellscorekernelmanagerl.fragments.ProfileManager;
 import lb.themike10452.hellscorekernelmanagerl.fragments.SoundControl;
 import lb.themike10452.hellscorekernelmanagerl.fragments.TouchControl;
 import lb.themike10452.hellscorekernelmanagerl.properties.PropertyUtils;
 import lb.themike10452.hellscorekernelmanagerl.utils.HKMTools;
-import lb.themike10452.hellscorekernelmanagerl.utils.Library;
+import lb.themike10452.hellscorekernelmanagerl.utils.SysfsLib;
 
 import static lb.themike10452.hellscorekernelmanagerl.Settings.Constants.REFERENCE_TOKEN;
 import static lb.themike10452.hellscorekernelmanagerl.Settings.Constants.SHARED_PREFS_ID;
@@ -56,8 +61,13 @@ import static lb.themike10452.hellscorekernelmanagerl.Settings.Constants.SHUTDOW
  */
 public class MainActivity extends Activity {
 
+    private static final String KEY_ACTIVE_FRAGMENT = "active_fragment";
     private static final int ACTION_DRAWER_ITEM_PRESSED = 1 << 1;
     private static final int ACTION_INIT_SYSTEM_SCRIPT = 1 << 2;
+
+    public static TransactionManager transactionManager;
+    public static CloseActionCallback closeActionCallback;
+    public static OnBackPressedCallBack onBackPressedCallBack;
 
     private ActionView mActionView;
     private DrawerLayout drawerLayout;
@@ -65,7 +75,6 @@ public class MainActivity extends Activity {
     private ListView listView;
     private ProgressDialog progressDialog;
     private SharedPreferences sharedPreferences;
-    private mTransactionManager transactionManager;
 
     private Handler mHandler = new Handler() {
         @Override
@@ -74,6 +83,16 @@ public class MainActivity extends Activity {
             handle(msg);
         }
     };
+
+    private int active_fragment_position;
+
+    public static void setCloseActionCallback(CloseActionCallback callback) {
+        closeActionCallback = callback;
+    }
+
+    public static void setOnBackPressedCallBack(OnBackPressedCallBack callback) {
+        onBackPressedCallBack = callback;
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -84,22 +103,18 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        transactionManager = new TransactionManager(this, R.id.fragContainer);
         sharedPreferences = getSharedPreferences(SHARED_PREFS_ID, MODE_PRIVATE);
         PropertyUtils.init(this);
 
         assert getActionBar() != null;
-
-        progressDialog = new ProgressDialog(this);
-        progressDialog.setTitle(R.string.dialog_message_reqRoot);
-        progressDialog.setIndeterminate(true);
-        progressDialog.setCancelable(false);
-        progressDialog.show();
 
         getActionBar().setDisplayHomeAsUpEnabled(false);
         getActionBar().setHomeButtonEnabled(false);
         getActionBar().setCustomView(R.layout.actionbar_layout);
         getActionBar().setDisplayShowCustomEnabled(true);
         getActionBar().setDisplayShowTitleEnabled(false);
+        getActionBar().setElevation(0);
 
         drawerLayout = (DrawerLayout) findViewById(R.id.drawerLayout);
         listView = (ListView) findViewById(R.id.left_drawer);
@@ -110,7 +125,8 @@ public class MainActivity extends Activity {
                 R.drawable.ic_touch_control,
                 R.drawable.ic_sound_control,
                 R.drawable.ic_misc_control,
-                R.drawable.ic_monitoring
+                R.drawable.ic_monitoring,
+                R.drawable.ic_profile_mgr,
         };
         listView.setAdapter(new DrawerAdapter(this, getResources().getStringArray(R.array.drawer_items), icons));
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -133,7 +149,10 @@ public class MainActivity extends Activity {
             public void onClick(View v) {
                 if (mActionView.getAction() instanceof CloseAction) {
                     mActionView.setAction(new DrawerAction(), true);
-                    transactionManager.popBackStack();
+                    transactionManager.setDrawerEnabled(true);
+                    if (closeActionCallback != null) {
+                        closeActionCallback.onClose();
+                    }
                 } else if (drawerLayout.isDrawerOpen(Gravity.START)) {
                     drawerLayout.closeDrawer(Gravity.START);
                 } else {
@@ -149,19 +168,30 @@ public class MainActivity extends Activity {
             }
         });
 
-        progressDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
-            @Override
-            public void onDismiss(DialogInterface dialog) {
-                try {
-                    launch();
-                    if (!HKMTools.ScriptUtils.checkSystemScript(getApplicationContext())) {
-                        mHandler.sendEmptyMessage(ACTION_INIT_SYSTEM_SCRIPT);
+        if (savedInstanceState == null) {
+            progressDialog = new ProgressDialog(this);
+            progressDialog.setTitle(R.string.dialog_message_reqRoot);
+            progressDialog.setIndeterminate(true);
+            progressDialog.setCancelable(false);
+            progressDialog.show();
+
+            progressDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                @Override
+                public void onDismiss(DialogInterface dialog) {
+                    try {
+                        if (!HKMTools.ScriptUtils.checkSystemScript(getApplicationContext())) {
+                            mHandler.sendEmptyMessage(ACTION_INIT_SYSTEM_SCRIPT);
+                        } else {
+                            launch(0);
+                        }
+                    } catch (IllegalStateException e) {
+                        e.printStackTrace();
                     }
-                } catch (IllegalStateException e) {
-                    e.printStackTrace();
                 }
-            }
-        });
+            });
+        } else {
+            findViewById(R.id.barrier).setVisibility(View.GONE);
+        }
 
         new Thread(new Runnable() {
             @Override
@@ -192,21 +222,48 @@ public class MainActivity extends Activity {
         }
     }
 
-    private void launch() {
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putInt(KEY_ACTIVE_FRAGMENT, active_fragment_position);
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        launch(savedInstanceState.getInt(KEY_ACTIVE_FRAGMENT, 0));
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (onBackPressedCallBack != null) {
+            onBackPressedCallBack.onBackPressed();
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    private void launch(int fragmentPos) {
         if (sharedPreferences.getInt(Settings.Constants.CORE_MAX, -1) == -1) {
             int coreMax;
             try {
-                coreMax = Integer.parseInt(HKMTools.getInstance().readLineFromFile(Library.KERNEL_MAX));
+                coreMax = Integer.parseInt(HKMTools.getInstance().readLineFromFile(SysfsLib.KERNEL_MAX));
             } catch (Exception e) {
                 e.printStackTrace();
                 coreMax = 3;
             }
             sharedPreferences.edit().putInt(Settings.Constants.CORE_MAX, coreMax).apply();
         }
-        transactionManager = new mTransactionManager(this, R.id.fragContainer);
-        Fragment fragment = CPUControl.getInstance(transactionManager);
+
+        if (findViewById(R.id.barrier).getVisibility() == View.VISIBLE) reveal();
+
+        HKMFragment fragment = getFragmentByPosition(fragmentPos);
+
+        if (fragment == null) fragment = getFragmentByPosition(0);
+
         transactionManager.performTransaction(fragment, false, true, null);
-        transactionManager.setActionBarTitle(getString(R.string.cpuCtl));
+        transactionManager.setActionBarTitle(getString(fragment.getTitleId()));
+
         if (!Build.DEVICE.equalsIgnoreCase("mako")) {
             String sample = getString(R.string.lcdCtl);
             for (int i = 0; i < listView.getChildCount(); i++) {
@@ -216,6 +273,45 @@ public class MainActivity extends Activity {
                     listView.getChildAt(i).setLayoutParams(params);
                 }
             }
+        }
+    }
+
+    private void reveal() {
+        final View barrier = findViewById(R.id.barrier);
+        Animator animator = ViewAnimationUtils.createCircularReveal(barrier, barrier.getWidth() / 2, barrier.getHeight() / 2, Math.max(barrier.getHeight(), barrier.getWidth()), 0f);
+        animator.setDuration(600);
+        animator.setStartDelay(200);
+        animator.setInterpolator(new AccelerateInterpolator());
+        animator.start();
+        animator.addListener(new AnimatorListener() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                barrier.setVisibility(View.GONE);
+            }
+        });
+    }
+
+    private HKMFragment getFragmentByPosition(int pos) {
+        active_fragment_position = pos;
+        switch (pos) {
+            case 0:
+                return CPUControl.getInstance();
+            case 1:
+                return GPUControl.getInstance();
+            case 2:
+                return LCDControl.getInstance();
+            case 3:
+                return TouchControl.getInstance();
+            case 4:
+                return SoundControl.getInstance();
+            case 5:
+                return MiscControls.getInstance();
+            case 6:
+                return Monitoring.getInstance();
+            case 7:
+                return ProfileManager.getInstance();
+            default:
+                return null;
         }
     }
 
@@ -233,29 +329,8 @@ public class MainActivity extends Activity {
                 }
                 return;
             case ACTION_DRAWER_ITEM_PRESSED:
-                switch (msg.arg2) {
-                    case 0:
-                        transactionManager.performTransaction(CPUControl.getInstance(transactionManager), false, true, getString(R.string.cpuCtl));
-                        return;
-                    case 1:
-                        transactionManager.performTransaction(GPUControl.getInstance(), false, true, getString(R.string.gpuCtl));
-                        return;
-                    case 2:
-                        transactionManager.performTransaction(LCDControl.getInstance(), false, true, getString(R.string.lcdCtl));
-                        return;
-                    case 3:
-                        transactionManager.performTransaction(TouchControl.getInstance(), false, true, getString(R.string.touchCtl));
-                        return;
-                    case 4:
-                        transactionManager.performTransaction(SoundControl.getInstance(), false, true, getString(R.string.soundCtl));
-                        return;
-                    case 5:
-                        transactionManager.performTransaction(MiscControls.getInstance(), false, true, getString(R.string.miscCtl));
-                        return;
-                    case 6:
-                        transactionManager.performTransaction(Monitoring.getInstance(), false, true, getString(R.string.monitoring));
-                        return;
-                }
+                transactionManager.performTransaction(getFragmentByPosition(msg.arg2), false, true);
+                return;
         }
         if (msg.what == ACTION_INIT_SYSTEM_SCRIPT) {
             new AlertDialog.Builder(this)
@@ -293,6 +368,7 @@ public class MainActivity extends Activity {
                                     if (dialog.isShowing()) {
                                         dialog.dismiss();
                                     }
+                                    launch(0);
                                     Toast.makeText(getApplicationContext(),
                                             b ? R.string.message_action_successful : R.string.message_script_failed,
                                             Toast.LENGTH_SHORT).show();
@@ -306,24 +382,24 @@ public class MainActivity extends Activity {
         }
     }
 
-    public class mTransactionManager {
+    public class TransactionManager {
         private Activity mActivity;
         private int containerId;
 
-        public mTransactionManager(Activity activity, int redId) {
+        private TransactionManager(Activity activity, int redId) {
             mActivity = activity;
             containerId = redId;
         }
 
         @SafeVarargs
-        public final void performTransaction(Fragment fragment, boolean addToBackTrace, boolean animate, @Nullable String actionBarTitle, @Nullable Pair<View, String>... sharedViews) {
+        public final void performTransaction(HKMFragment fragment, boolean addToBackTrace, boolean animate, @Nullable Pair<View, String>... sharedViews) {
             if (fragment != activeFragment) {
                 FragmentManager manager = mActivity.getFragmentManager();
                 FragmentTransaction transaction = manager.beginTransaction();
                 if (animate) {
                     if (activeFragment != null)
                         activeFragment.setExitTransition(new Explode().setInterpolator(new AccelerateInterpolator()));
-                    fragment.setEnterTransition(new Slide().setDuration(500));
+                    ((Fragment) fragment).setEnterTransition(new Slide().setDuration(500));
                 }
                 if (sharedViews != null) {
                     for (Pair<View, String> p : sharedViews) {
@@ -338,14 +414,12 @@ public class MainActivity extends Activity {
                     } catch (IllegalStateException ignored) {
                     }
                 }
-                transaction.replace(containerId, fragment);
+                transaction.replace(containerId, (Fragment) fragment);
                 transaction.commit();
-                activeFragment = fragment;
+                activeFragment = (Fragment) fragment;
             }
             invalidateOptionsMenu();
-            if (actionBarTitle != null) {
-                setActionBarTitle(actionBarTitle);
-            }
+            setActionBarTitle(getString(fragment.getTitleId()));
         }
 
         public void popBackStack() {
@@ -371,4 +445,11 @@ public class MainActivity extends Activity {
         }
     }
 
+    public interface CloseActionCallback {
+        void onClose();
+    }
+
+    public interface OnBackPressedCallBack {
+        void onBackPressed();
+    }
 }

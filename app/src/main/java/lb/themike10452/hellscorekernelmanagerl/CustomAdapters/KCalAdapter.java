@@ -4,6 +4,7 @@ import android.view.View;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import lb.themike10452.hellscorekernelmanagerl.CustomClasses.SeekBarProgressAdapter;
 import lb.themike10452.hellscorekernelmanagerl.R;
 import lb.themike10452.hellscorekernelmanagerl.utils.HKMTools;
 

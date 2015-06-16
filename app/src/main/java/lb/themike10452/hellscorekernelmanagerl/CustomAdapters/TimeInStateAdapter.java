@@ -13,7 +13,7 @@ import java.util.ArrayList;
 
 import lb.themike10452.hellscorekernelmanagerl.R;
 import lb.themike10452.hellscorekernelmanagerl.utils.HKMTools;
-import lb.themike10452.hellscorekernelmanagerl.utils.Library;
+import lb.themike10452.hellscorekernelmanagerl.utils.SysfsLib;
 
 /**
  * Created by Mike on 5/14/2015.
@@ -36,7 +36,7 @@ public class TimeInStateAdapter extends BaseAdapter {
         boolean firstUpdate = mStates.size() == 0;
         mStates.clear();
         mStates.add(mContext.getString(R.string.idle).concat(" ") + (SystemClock.elapsedRealtime() - SystemClock.uptimeMillis()) / 10);
-        mStates.addAll(HKMTools.getInstance().readFromFile(Library.MON_CPU_TIME_IN_STATE));
+        mStates.addAll(HKMTools.getInstance().readFromFile(SysfsLib.MON_CPU_TIME_IN_STATE));
         sum = 0;
 
         for (String str : mStates) {
@@ -44,7 +44,7 @@ public class TimeInStateAdapter extends BaseAdapter {
             sum += StateFormat.time;
         }
 
-        ((TextView) mContainer.findViewById(R.id.totalTime)).setText(mContext.getString(R.string.totalTime, format(sum / 100)));
+        ((TextView) mContainer.findViewById(R.id.totalTime)).setText(mContext.getString(R.string.uptime, format(sum / 100)));
 
         if (firstUpdate) {
             int count = getCount();

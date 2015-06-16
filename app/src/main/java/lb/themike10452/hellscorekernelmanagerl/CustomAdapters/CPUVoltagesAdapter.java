@@ -18,7 +18,7 @@ import lb.themike10452.hellscorekernelmanagerl.CustomWidgets.NumberModifier;
 import lb.themike10452.hellscorekernelmanagerl.R;
 import lb.themike10452.hellscorekernelmanagerl.properties.VoltageProperty;
 import lb.themike10452.hellscorekernelmanagerl.utils.HKMTools;
-import lb.themike10452.hellscorekernelmanagerl.utils.Library;
+import lb.themike10452.hellscorekernelmanagerl.utils.SysfsLib;
 
 /**
  * Created by Mike on 2/27/2015.
@@ -45,9 +45,9 @@ public class CPUVoltagesAdapter extends BaseAdapter {
         List<Pair<String, String>> pairList = new ArrayList<>();
         mode = -1;
         File voltage_table;
-        if ((voltage_table = new File(Library.CPU_VDD_LEVELS)).exists()) {
+        if ((voltage_table = new File(SysfsLib.CPU_VDD_LEVELS)).exists()) {
             mode = 1;
-        } else if ((voltage_table = new File(Library.CPU_UV_MV_TABLE)).exists()) {
+        } else if ((voltage_table = new File(SysfsLib.CPU_UV_MV_TABLE)).exists()) {
             mode = 2;
         } else {
             voltage_table = null;
@@ -111,7 +111,7 @@ public class CPUVoltagesAdapter extends BaseAdapter {
         if (mode > 0 && list != null && list.size() > 0) {
             switch (mode) {
                 case 1:
-                    File vdd_table = new File(Library.CPU_VDD_LEVELS);
+                    File vdd_table = new File(SysfsLib.CPU_VDD_LEVELS);
                     for (VoltageProperty property : list) {
                         HKMTools.getInstance().addCommand(
                                 String.format("echo %s %s > %s",
@@ -122,7 +122,7 @@ public class CPUVoltagesAdapter extends BaseAdapter {
                     }
                     break;
                 case 2:
-                    File uv_mv_table = new File(Library.CPU_UV_MV_TABLE);
+                    File uv_mv_table = new File(SysfsLib.CPU_UV_MV_TABLE);
                     String params = "";
                     for (VoltageProperty property : list) {
                         params = params.concat(property.getVoltage()).concat(" ");

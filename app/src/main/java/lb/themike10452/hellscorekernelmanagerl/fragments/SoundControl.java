@@ -17,26 +17,37 @@ import android.widget.RadioButton;
 import android.widget.Switch;
 import android.widget.Toast;
 
+import java.io.File;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
+import lb.themike10452.hellscorekernelmanagerl.CustomWidgets.WheelPicker;
 import lb.themike10452.hellscorekernelmanagerl.R;
 import lb.themike10452.hellscorekernelmanagerl.Settings;
 import lb.themike10452.hellscorekernelmanagerl.properties.FauxSoundProperty;
 import lb.themike10452.hellscorekernelmanagerl.utils.HKMTools;
-import lb.themike10452.hellscorekernelmanagerl.utils.Library;
+import lb.themike10452.hellscorekernelmanagerl.utils.SysfsLib;
 import lb.themike10452.hellscorekernelmanagerl.utils.UIHelper;
 
 import static lb.themike10452.hellscorekernelmanagerl.Settings.Constants.SET_SND_SETTINGS_ON_BOOT;
 import static lb.themike10452.hellscorekernelmanagerl.Settings.Constants.SHARED_PREFS_ID;
 import static lb.themike10452.hellscorekernelmanagerl.Settings.Constants.SND_CTL_LINK_LEFT_RIGHT;
 import static lb.themike10452.hellscorekernelmanagerl.utils.HKMTools.ScriptUtils.SND_SETTINGS_SCRIPT_NAME;
+import static lb.themike10452.hellscorekernelmanagerl.utils.HKMTools.ScriptUtils.getScriptsDir;
 
 /**
  * Created by Mike on 3/6/2015.
  */
-public class SoundControl extends Fragment implements Observer {
+public class SoundControl extends Fragment implements HKMFragment, Observer {
+
+    private static final int[][] SoundProfiles = new int[][]{
+            {0, 0, 0, 0, 0, 0, 0},//stock
+            {-2, -2, -5, -5, -2, 0, 0},//quality
+            {9, 9, -3, -3, 5, 0, 0},//loudness
+            {-5, -5, 2, 2, -3, 0, 0}//quiet
+    };
 
     public static SoundControl instance;
 
@@ -46,15 +57,17 @@ public class SoundControl extends Fragment implements Observer {
     private static FauxSoundProperty rightPowerAmpGainProperty;
     private static FauxSoundProperty speakerGainProperty;
     private static FauxSoundProperty micGainProperty;
-    private static FauxSoundProperty camcorderGain;
+    private static FauxSoundProperty camcorderGainProperty;
     private static Activity mActivity;
     private static LinearLayout mContainer;
     private static SharedPreferences sharedPreferences;
     private static View mView;
     private static FauxSoundProperty[] properties;
+    private static int[] arrayOfInt1;
 
     public SoundControl() {
         instance = this;
+        arrayOfInt1 = new int[7];
     }
 
     public static SoundControl getInstance() {
@@ -75,15 +88,16 @@ public class SoundControl extends Fragment implements Observer {
 
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
-        Switch setOnBootSwitch = (Switch) menu.findItem(R.id.action_setOnBoot).getActionView().findViewById(R.id.sob_switch);
-        boolean sobEnabled = sharedPreferences.getBoolean(SET_SND_SETTINGS_ON_BOOT, false);
+        final Switch setOnBootSwitch = (Switch) menu.findItem(R.id.action_setOnBoot).getActionView().findViewById(R.id.sob_switch);
+        final boolean sobEnabled = new File(getScriptsDir(mActivity), SND_SETTINGS_SCRIPT_NAME).canExecute();
         setOnBootSwitch.setChecked(sobEnabled);
         setOnBootSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                changeSetOnBootState(isChecked);
+                changeSetOnBootState(isChecked, true);
             }
         });
+        changeSetOnBootState(sobEnabled, false);
     }
 
     @Override
@@ -103,7 +117,7 @@ public class SoundControl extends Fragment implements Observer {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         mView = inflater.inflate(R.layout.fragment_sound, container, false);
-        mContainer = (LinearLayout) findViewById(R.id.usefulContent);
+        mContainer = (LinearLayout) findViewById(R.id.prefsHolder);
         final RadioButton linkToggle = (RadioButton) findViewById(R.id.linkToggle);
         linkToggle.setChecked(sharedPreferences.getBoolean(SND_CTL_LINK_LEFT_RIGHT, false));
         linkToggle.setOnClickListener(new View.OnClickListener() {
@@ -128,6 +142,24 @@ public class SoundControl extends Fragment implements Observer {
             }
         }
 
+        final String[] profiles = new String[]{"Custom", "Stock", "Quiet", "Loudness", "Quality"};
+        ((WheelPicker) findViewById(R.id.wheel)).setDisplayedValues(profiles);
+        ((WheelPicker) findViewById(R.id.wheel)).setOnSelectionChangedListener(new WheelPicker.OnSelectionChangedListener() {
+            @Override
+            public void selectionChanged(int i) {
+                if (i >= 1) {
+                    i -= 1;
+                    leftHeadphoneGainProperty.setDisplayedValue(SoundProfiles[i][0]);
+                    rightHeadphoneGainProperty.setDisplayedValue(SoundProfiles[i][1]);
+                    leftPowerAmpGainProperty.setDisplayedValue(SoundProfiles[i][2]);
+                    rightPowerAmpGainProperty.setDisplayedValue(SoundProfiles[i][3]);
+                    speakerGainProperty.setDisplayedValue(SoundProfiles[i][4]);
+                    micGainProperty.setDisplayedValue(SoundProfiles[i][5]);
+                    camcorderGainProperty.setDisplayedValue(SoundProfiles[i][6]);
+                }
+            }
+        });
+
         mContainer.postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -147,13 +179,13 @@ public class SoundControl extends Fragment implements Observer {
     }
 
     private void initProperties() {
-        leftHeadphoneGainProperty = new FauxSoundProperty(Library.SOUND_HP_GAIN, getContainerView(), R.string.pref_hp_gain, -10, 10, FauxSoundProperty.MODE_LEFT);
-        rightHeadphoneGainProperty = new FauxSoundProperty(Library.SOUND_HP_GAIN, getContainerView(), -1, -10, 10, FauxSoundProperty.MODE_RIGHT);
-        leftPowerAmpGainProperty = new FauxSoundProperty(Library.SOUND_HP_PA_GAIN, getContainerView(), R.string.pref_pa_gain, -6, 6, FauxSoundProperty.MODE_LEFT_AMP);
-        rightPowerAmpGainProperty = new FauxSoundProperty(Library.SOUND_HP_PA_GAIN, getContainerView(), -1, -6, 6, FauxSoundProperty.MODE_RIGHT_AMP);
-        speakerGainProperty = new FauxSoundProperty(Library.SOUND_SPEAKER_GAIN, getContainerView(), R.string.pref_spk_gain, -10, 10, FauxSoundProperty.MODE_DUAL);
-        micGainProperty = new FauxSoundProperty(Library.SOUND_MIC_GAIN, getContainerView(), R.string.pref_mic_gain, -10, 10, FauxSoundProperty.MODE_SINGLE);
-        camcorderGain = new FauxSoundProperty(Library.SOUND_CAMMIC_GAIN, getContainerView(), R.string.pref_camc_gain, -10, 10, FauxSoundProperty.MODE_SINGLE);
+        leftHeadphoneGainProperty = new FauxSoundProperty(SysfsLib.SOUND_HP_GAIN, getContainerView(), R.string.pref_hp_gain, -10, 10, FauxSoundProperty.MODE_LEFT);
+        rightHeadphoneGainProperty = new FauxSoundProperty(SysfsLib.SOUND_HP_GAIN, getContainerView(), -1, -10, 10, FauxSoundProperty.MODE_RIGHT);
+        leftPowerAmpGainProperty = new FauxSoundProperty(SysfsLib.SOUND_HP_PA_GAIN, getContainerView(), R.string.pref_pa_gain, -6, 6, FauxSoundProperty.MODE_LEFT_AMP);
+        rightPowerAmpGainProperty = new FauxSoundProperty(SysfsLib.SOUND_HP_PA_GAIN, getContainerView(), -1, -6, 6, FauxSoundProperty.MODE_RIGHT_AMP);
+        speakerGainProperty = new FauxSoundProperty(SysfsLib.SOUND_SPEAKER_GAIN, getContainerView(), R.string.pref_spk_gain, -10, 10, FauxSoundProperty.MODE_DUAL);
+        micGainProperty = new FauxSoundProperty(SysfsLib.SOUND_MIC_GAIN, getContainerView(), R.string.pref_mic_gain, -10, 10, FauxSoundProperty.MODE_SINGLE);
+        camcorderGainProperty = new FauxSoundProperty(SysfsLib.SOUND_CAMMIC_GAIN, getContainerView(), R.string.pref_camc_gain, -10, 10, FauxSoundProperty.MODE_SINGLE);
 
         leftHeadphoneGainProperty.setComplement(rightHeadphoneGainProperty);
         rightHeadphoneGainProperty.setComplement(leftHeadphoneGainProperty);
@@ -172,22 +204,53 @@ public class SoundControl extends Fragment implements Observer {
                 rightPowerAmpGainProperty,
                 speakerGainProperty,
                 micGainProperty,
-                camcorderGain
+                camcorderGainProperty
         };
+    }
+
+    private void storeActiveProfileToArray() {
+        arrayOfInt1[0] = Integer.parseInt(leftHeadphoneGainProperty.getValue(true));
+        arrayOfInt1[1] = Integer.parseInt(rightHeadphoneGainProperty.getValue(true));
+        arrayOfInt1[2] = Integer.parseInt(leftPowerAmpGainProperty.getValue(true));
+        arrayOfInt1[3] = Integer.parseInt(rightPowerAmpGainProperty.getValue(true));
+        arrayOfInt1[4] = Integer.parseInt(speakerGainProperty.getValue(true));
+        arrayOfInt1[5] = Integer.parseInt(micGainProperty.getValue(true));
+        arrayOfInt1[6] = Integer.parseInt(camcorderGainProperty.getValue(true));
     }
 
     public void refresh(boolean fromUser) {
         for (FauxSoundProperty property : properties) {
             if (property != null) {
-                property.setDisplayedValue(property.getValue());
+                property.setDisplayedValue(property.getValue(true));
             }
         }
+        storeActiveProfileToArray();
+        String activeProfile = Arrays.toString(arrayOfInt1);
+        int[] array;
+        boolean bool = false;
+        for (int i = 0; i < SoundProfiles.length; i++) {
+            array = SoundProfiles[i];
+            if (Arrays.toString(array).equals(activeProfile)) {
+                ((WheelPicker) findViewById(R.id.wheel)).setSelection(i + 1);
+                bool = true;
+                break;
+            }
+        }
+        if (!bool) ((WheelPicker) findViewById(R.id.wheel)).setSelection(0);
         UIHelper.removeEmptyCards((LinearLayout) findViewById(R.id.cardHolder));
+        if (!new File(getScriptsDir(mActivity), HKMTools.ScriptUtils.SND_SETTINGS_SCRIPT_NAME).exists()) {
+            mView.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    saveAll(false);
+                }
+            }, 1000);
+        }
     }
 
     public void saveAll(boolean fromUser) {
         HKMTools tools = HKMTools.getInstance();
-        tools.getReady();
+        tools.clear();
         for (FauxSoundProperty property : properties) {
             property.setValue(property.readDisplayedValue());
         }
@@ -196,12 +259,21 @@ public class SoundControl extends Fragment implements Observer {
         if (fromUser) {
             Toast.makeText(mActivity, R.string.message_action_successful, Toast.LENGTH_SHORT).show();
         }
+        mContainer.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                refresh(false);
+            }
+        }, 100);
     }
 
-    public void changeSetOnBootState(boolean enabled) {
-        sharedPreferences.edit().putBoolean(SET_SND_SETTINGS_ON_BOOT, enabled).apply();
-        saveAll(false);
-        Toast.makeText(mActivity, enabled ? R.string.message_set_on_boot_enabled : R.string.message_set_on_boot_disabled, Toast.LENGTH_SHORT).show();
+    public void changeSetOnBootState(boolean state, boolean updateScript) {
+        final boolean oldState = sharedPreferences.getBoolean(SET_SND_SETTINGS_ON_BOOT, false);
+        sharedPreferences.edit().putBoolean(SET_SND_SETTINGS_ON_BOOT, state).apply();
+        if (updateScript) saveAll(false);
+        if (oldState != state) {
+            Toast.makeText(mActivity, state ? R.string.message_set_on_boot_enabled : R.string.message_set_on_boot_disabled, Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void createScript(List<String> commandList) {
@@ -214,5 +286,10 @@ public class SoundControl extends Fragment implements Observer {
 
     private View getContainerView() {
         return LayoutInflater.from(mActivity).inflate(R.layout.sound_ctrl_entry_layout, null, false);
+    }
+
+    @Override
+    public int getTitleId() {
+        return R.string.soundCtl;
     }
 }

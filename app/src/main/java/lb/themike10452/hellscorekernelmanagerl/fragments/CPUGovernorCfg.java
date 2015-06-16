@@ -28,16 +28,17 @@ import java.util.List;
 import lb.themike10452.hellscorekernelmanagerl.CustomWidgets.NumberModifier;
 import lb.themike10452.hellscorekernelmanagerl.R;
 import lb.themike10452.hellscorekernelmanagerl.utils.HKMTools;
-import lb.themike10452.hellscorekernelmanagerl.utils.Library;
+import lb.themike10452.hellscorekernelmanagerl.utils.SysfsLib;
 
 import static lb.themike10452.hellscorekernelmanagerl.Settings.Constants.SET_GOV_SETTINGS_ON_BOOT;
 import static lb.themike10452.hellscorekernelmanagerl.Settings.Constants.SHARED_PREFS_ID;
 import static lb.themike10452.hellscorekernelmanagerl.utils.HKMTools.ScriptUtils.GOV_SETTINGS_SCRIPT_NAME;
+import static lb.themike10452.hellscorekernelmanagerl.utils.HKMTools.ScriptUtils.getScriptsDir;
 
 /**
  * Created by Mike on 2/28/2015.
  */
-public class CPUGovernorCfg extends Fragment {
+public class CPUGovernorCfg extends Fragment implements HKMFragment {
 
     private static CPUGovernorCfg instance;
 
@@ -52,7 +53,7 @@ public class CPUGovernorCfg extends Fragment {
         if (instance == null) {
             instance = new CPUGovernorCfg();
         }
-        instance.title = title;
+        CPUGovernorCfg.title = title;
         return instance;
     }
 
@@ -70,16 +71,16 @@ public class CPUGovernorCfg extends Fragment {
 
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
-        super.onPrepareOptionsMenu(menu);
-        Switch setOnBootSwitch = ((Switch) menu.findItem(R.id.action_setOnBoot).getActionView().findViewById(R.id.sob_switch));
-        boolean sobEnabled = sharedPreferences.getBoolean(SET_GOV_SETTINGS_ON_BOOT, false);
+        final Switch setOnBootSwitch = ((Switch) menu.findItem(R.id.action_setOnBoot).getActionView().findViewById(R.id.sob_switch));
+        final boolean sobEnabled = new File(getScriptsDir(mActivity), GOV_SETTINGS_SCRIPT_NAME).canExecute();
         setOnBootSwitch.setChecked(sobEnabled);
         setOnBootSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                changeSetOnBootState(isChecked);
+                changeSetOnBootState(isChecked, true);
             }
         });
+        changeSetOnBootState(sobEnabled, false);
     }
 
     @Override
@@ -101,7 +102,7 @@ public class CPUGovernorCfg extends Fragment {
         mView = inflater.inflate(R.layout.fragment_gov_cfg, null, false);
         ((TextView) mView.findViewById(R.id.title)).setText(title);
 
-        File cfgDir = new File(String.format(Library.CPU_GOV_CFG_PATH, title));
+        File cfgDir = new File(String.format(SysfsLib.CPU_GOV_CFG_PATH, title));
         if (cfgDir.exists() && cfgDir.isDirectory()) {
             final File[] params = cfgDir.listFiles();
             adapter = new mAdapter(mActivity, params);
@@ -116,6 +117,19 @@ public class CPUGovernorCfg extends Fragment {
         return mView;
     }
 
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        if (!new File(getScriptsDir(mActivity), HKMTools.ScriptUtils.GOV_SETTINGS_SCRIPT_NAME).exists()) {
+            mView.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    saveAll(false);
+                }
+            }, 1000);
+        }
+    }
+
     public void refresh() {
         adapter.reset();
         list.removeAllViews();
@@ -128,7 +142,7 @@ public class CPUGovernorCfg extends Fragment {
 
     public void saveAll(boolean fromUser) {
         HKMTools tools = HKMTools.getInstance();
-        tools.getReady();
+        tools.clear();
         for (int i = 0; i < adapter.getCount(); i++) {
             String value = adapter.getValue(i);
             if (value != null) {
@@ -142,10 +156,13 @@ public class CPUGovernorCfg extends Fragment {
         }
     }
 
-    public void changeSetOnBootState(boolean enabled) {
-        sharedPreferences.edit().putBoolean(SET_GOV_SETTINGS_ON_BOOT, enabled).apply();
-        saveAll(false);
-        Toast.makeText(mActivity, enabled ? R.string.message_set_on_boot_enabled : R.string.message_set_on_boot_disabled, Toast.LENGTH_SHORT).show();
+    public void changeSetOnBootState(boolean state, boolean updateScript) {
+        final boolean oldState = sharedPreferences.getBoolean(SET_GOV_SETTINGS_ON_BOOT, false);
+        sharedPreferences.edit().putBoolean(SET_GOV_SETTINGS_ON_BOOT, state).apply();
+        if (updateScript) saveAll(false);
+        if (oldState != state) {
+            Toast.makeText(mActivity, state ? R.string.message_set_on_boot_enabled : R.string.message_set_on_boot_disabled, Toast.LENGTH_SHORT).show();
+        }
     }
 
     private PopupWindow getPopupWindow() {
@@ -163,6 +180,11 @@ public class CPUGovernorCfg extends Fragment {
 
     private void createScript(List<String> commandList) {
         HKMTools.ScriptUtils.createScript(mActivity.getApplicationContext(), sharedPreferences, SET_GOV_SETTINGS_ON_BOOT, GOV_SETTINGS_SCRIPT_NAME, commandList);
+    }
+
+    @Override
+    public int getTitleId() {
+        return R.string.cpuCtl;
     }
 
     class mAdapter extends ArrayAdapter<File> {

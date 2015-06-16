@@ -12,7 +12,7 @@ import java.util.List;
 import lb.themike10452.hellscorekernelmanagerl.R;
 import lb.themike10452.hellscorekernelmanagerl.properties.VoltageProperty;
 import lb.themike10452.hellscorekernelmanagerl.utils.HKMTools;
-import lb.themike10452.hellscorekernelmanagerl.utils.Library;
+import lb.themike10452.hellscorekernelmanagerl.utils.SysfsLib;
 
 /**
  * Created by Mike on 3/29/2015.
@@ -28,7 +28,7 @@ public class GPUVoltagesAdapter extends BaseAdapter {
     public GPUVoltagesAdapter(Context context, LinearLayout containerView) {
         mContext = context;
         mContainer = containerView;
-        filePath = Library.GPU_MV_TABLE;
+        filePath = SysfsLib.GPU_MV_TABLE;
         init();
     }
 

@@ -85,5 +85,9 @@ public class ObservableScrollView extends ScrollView implements ObservableScroll
         void scrollChanged(ObservableScrollViewInterface v, int l, int t, int oldl, int oldt);
 
         void touchChanged(ObservableScrollViewInterface v, boolean isTouched);
+
+        void onAnimationStart();
+
+        void onAnimationEnd();
     }
 }

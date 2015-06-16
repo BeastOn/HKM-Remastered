@@ -15,6 +15,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -47,16 +48,17 @@ import lb.themike10452.hellscorekernelmanagerl.properties.StringProperty;
 import lb.themike10452.hellscorekernelmanagerl.properties.intProperty;
 import lb.themike10452.hellscorekernelmanagerl.properties.interfaces.HKMPropertyInterface;
 import lb.themike10452.hellscorekernelmanagerl.utils.HKMTools;
-import lb.themike10452.hellscorekernelmanagerl.utils.Library;
+import lb.themike10452.hellscorekernelmanagerl.utils.SysfsLib;
 import lb.themike10452.hellscorekernelmanagerl.utils.UIHelper;
 
 import static lb.themike10452.hellscorekernelmanagerl.Settings.Constants.SET_LCD_SETTINGS_ON_BOOT;
 import static lb.themike10452.hellscorekernelmanagerl.utils.HKMTools.ScriptUtils.LCD_SETTINGS_SCRIPT_NAME;
+import static lb.themike10452.hellscorekernelmanagerl.utils.HKMTools.ScriptUtils.getScriptsDir;
 
 /**
  * Created by Mike on 3/29/2015.
  */
-public class LCDControl extends Fragment implements ObservableScrollView.CallBack, View.OnClickListener {
+public class LCDControl extends Fragment implements HKMFragment, ObservableScrollView.CallBack, View.OnClickListener {
 
     private static final String PROFILES_CONTAINER_FILE = "mako_color_profiles";
     private static LCDControl instance;
@@ -117,6 +119,14 @@ public class LCDControl extends Fragment implements ObservableScrollView.CallBac
     }
 
     @Override
+    public void onAnimationStart() {
+    }
+
+    @Override
+    public void onAnimationEnd() {
+    }
+
+    @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         mActivity = activity;
@@ -131,16 +141,16 @@ public class LCDControl extends Fragment implements ObservableScrollView.CallBac
 
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
-        super.onPrepareOptionsMenu(menu);
-        Switch setOnBootSwitch = ((Switch) menu.findItem(R.id.action_setOnBoot).getActionView().findViewById(R.id.sob_switch));
-        boolean sobEnabled = sharedPreferences.getBoolean(SET_LCD_SETTINGS_ON_BOOT, false);
+        final Switch setOnBootSwitch = ((Switch) menu.findItem(R.id.action_setOnBoot).getActionView().findViewById(R.id.sob_switch));
+        final boolean sobEnabled = new File(getScriptsDir(mActivity), LCD_SETTINGS_SCRIPT_NAME).canExecute();
         setOnBootSwitch.setChecked(sobEnabled);
         setOnBootSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                changeSetOnBootState(isChecked);
+                changeSetOnBootState(isChecked, true);
             }
         });
+        changeSetOnBootState(sobEnabled, false);
     }
 
     @Override
@@ -207,13 +217,13 @@ public class LCDControl extends Fragment implements ObservableScrollView.CallBac
     }
 
     private void initProperties() {
-        kCalAdapter = new KCalAdapter(findViewById(R.id.pref_kcal), Library.LCD_KGAMMA_KCAL);
-        kgammaRedProperty = new MultiRootPathStringProperty(findViewById(R.id.kgamma_r), Library.LCD_KGAMMA_RED, Library.LCD_KGAMMA_R);
-        kgammaGreenProperty = new MultiRootPathStringProperty(findViewById(R.id.kgamma_g), Library.LCD_KGAMMA_GREEN, Library.LCD_KGAMMA_G);
-        kgammaBlueProperty = new MultiRootPathStringProperty(findViewById(R.id.kgamma_b), Library.LCD_KGAMMA_BLUE, Library.LCD_KGAMMA_B);
-        maxBrightnessProperty = new intProperty(Library.LCD_MAX_BRIGHTNESS, findViewById(R.id.maxBrightness));
-        minBrightnessProperty = new intProperty(Library.LCD_MIN_BRIGHTNESS, findViewById(R.id.minBrightness));
-        expBrightnessProperty = new intProperty(Library.LCD_BRIGHTNESS_MODE, findViewById(R.id.expBr_switch)) {
+        kCalAdapter = new KCalAdapter(findViewById(R.id.pref_kcal), SysfsLib.LCD_KGAMMA_KCAL);
+        kgammaRedProperty = new MultiRootPathStringProperty(findViewById(R.id.kgamma_r), SysfsLib.LCD_KGAMMA_RED, SysfsLib.LCD_KGAMMA_R);
+        kgammaGreenProperty = new MultiRootPathStringProperty(findViewById(R.id.kgamma_g), SysfsLib.LCD_KGAMMA_GREEN, SysfsLib.LCD_KGAMMA_G);
+        kgammaBlueProperty = new MultiRootPathStringProperty(findViewById(R.id.kgamma_b), SysfsLib.LCD_KGAMMA_BLUE, SysfsLib.LCD_KGAMMA_B);
+        maxBrightnessProperty = new intProperty(SysfsLib.LCD_MAX_BRIGHTNESS, findViewById(R.id.maxBrightness));
+        minBrightnessProperty = new intProperty(SysfsLib.LCD_MIN_BRIGHTNESS, findViewById(R.id.minBrightness));
+        expBrightnessProperty = new intProperty(SysfsLib.LCD_BRIGHTNESS_MODE, findViewById(R.id.expBr_switch)) {
             @Override
             public void setDisplayedValue(String value) {
                 if (value != null) {
@@ -292,7 +302,7 @@ public class LCDControl extends Fragment implements ObservableScrollView.CallBac
                 if (fromUser) {
                     mView.clearFocus();
                     findViewById(R.id.extraContent).setVisibility(View.GONE);
-                    ((EditText) findViewById(R.id.newProfileAlias)).setText("");
+                    ((EditText) findViewById(R.id.newProfileName)).setText("");
                 }
             }
 
@@ -313,6 +323,14 @@ public class LCDControl extends Fragment implements ObservableScrollView.CallBac
                 }
                 detectActiveProfile();
                 UIHelper.removeEmptyCards((LinearLayout) findViewById(R.id.cardHolder));
+                if (!new File(getScriptsDir(mActivity), HKMTools.ScriptUtils.LCD_SETTINGS_SCRIPT_NAME).exists()) {
+                    mView.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            saveAll(false);
+                        }
+                    }, 1000);
+                }
             }
         }.execute();
     }
@@ -322,7 +340,7 @@ public class LCDControl extends Fragment implements ObservableScrollView.CallBac
             @Override
             protected Void doInBackground(Void... params) {
                 HKMTools tools = HKMTools.getInstance();
-                tools.getReady();
+                tools.clear();
 
                 for (HKMPropertyInterface property : properties) {
                     if (property.isVisible()) {
@@ -337,7 +355,7 @@ public class LCDControl extends Fragment implements ObservableScrollView.CallBac
 
                 createScript(tools.getRecentCommandsList());
                 tools.flush();
-                tools.run("echo 1 > " + Library.LCD_KGAMMA_APPLY);
+                tools.run("echo 1 > " + SysfsLib.LCD_KGAMMA_APPLY);
                 return null;
             }
 
@@ -350,10 +368,13 @@ public class LCDControl extends Fragment implements ObservableScrollView.CallBac
         }.execute();
     }
 
-    public void changeSetOnBootState(boolean enabled) {
-        sharedPreferences.edit().putBoolean(SET_LCD_SETTINGS_ON_BOOT, enabled).apply();
-        saveAll(false);
-        Toast.makeText(mActivity, enabled ? R.string.message_set_on_boot_enabled : R.string.message_set_on_boot_disabled, Toast.LENGTH_SHORT).show();
+    public void changeSetOnBootState(boolean state, boolean updateScript) {
+        final boolean oldState = sharedPreferences.getBoolean(SET_LCD_SETTINGS_ON_BOOT, false);
+        sharedPreferences.edit().putBoolean(SET_LCD_SETTINGS_ON_BOOT, state).apply();
+        if (updateScript) saveAll(false);
+        if (oldState != state) {
+            Toast.makeText(mActivity, state ? R.string.message_set_on_boot_enabled : R.string.message_set_on_boot_disabled, Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void createScript(List<String> commandList) {
@@ -389,7 +410,7 @@ public class LCDControl extends Fragment implements ObservableScrollView.CallBac
     private void detectActiveProfile() {
         try {
             if (profiles == null) return;
-            activeProfile = getString(R.string.profile_alias_custom);
+            activeProfile = getString(R.string.profile_name_custom);
             MakoColorProfile active = packProfile(activeProfile);
             for (MakoColorProfile profile : profiles) {
                 if (profile.compareTo(active) == 0) {
@@ -451,8 +472,8 @@ public class LCDControl extends Fragment implements ObservableScrollView.CallBac
                 break;
             }
             case R.id.saveProfileBtn: {
-                final EditText editText = (EditText) findViewById(R.id.newProfileAlias);
-                String alias = editText.getText().toString();
+                final EditText editText = (EditText) findViewById(R.id.newProfileName);
+                final String alias = editText.getText().toString();
                 if (alias.length() > 0) {
                     if (dumpProfilesToDisk(alias)) {
                         Toast.makeText(mActivity, R.string.message_action_successful, Toast.LENGTH_SHORT).show();
@@ -465,10 +486,11 @@ public class LCDControl extends Fragment implements ObservableScrollView.CallBac
                         public void run() {
                             editText.setText("");
                             extra.setVisibility(View.GONE);
+                            hideSoftKeyboard();
                         }
                     }, 500);
                 } else {
-                    Toast.makeText(mActivity, R.string.message_alias_empty, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(mActivity, R.string.message_name_empty, Toast.LENGTH_SHORT).show();
                 }
                 break;
             }
@@ -504,9 +526,19 @@ public class LCDControl extends Fragment implements ObservableScrollView.CallBac
                             .setCancelable(true)
                             .show();
                 } else {
-                    Toast.makeText(mActivity, R.string.message_custom_empty, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(mActivity, R.string.message_profiles_empty, Toast.LENGTH_SHORT).show();
                 }
             }
         }
+    }
+
+    private void hideSoftKeyboard() {
+        InputMethodManager manager = (InputMethodManager) mActivity.getSystemService(Context.INPUT_METHOD_SERVICE);
+        manager.hideSoftInputFromWindow(mView.getWindowToken(), 0);
+    }
+
+    @Override
+    public int getTitleId() {
+        return R.string.lcdCtl;
     }
 }

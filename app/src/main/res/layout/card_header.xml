@@ -5,7 +5,10 @@
     android:clipChildren="false"
     android:clipToPadding="false"
     android:orientation="vertical"
-    android:padding="3dp">
+    android:paddingBottom="8dp"
+    android:paddingEnd="3dp"
+    android:paddingStart="3dp"
+    android:paddingTop="3dp">
 
     <TextView
         android:id="@+id/title"
@@ -16,7 +19,6 @@
     <View
         android:layout_width="fill_parent"
         android:layout_height="1dp"
-        android:layout_marginBottom="5dp"
         android:layout_marginTop="5dp"
         android:background="@color/separatorColor" />
 </LinearLayout>

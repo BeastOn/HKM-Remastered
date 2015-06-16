@@ -17,6 +17,7 @@ import android.widget.LinearLayout;
 import android.widget.Switch;
 import android.widget.Toast;
 
+import java.io.File;
 import java.util.List;
 
 import lb.themike10452.hellscorekernelmanagerl.R;
@@ -26,17 +27,18 @@ import lb.themike10452.hellscorekernelmanagerl.properties.StringProperty;
 import lb.themike10452.hellscorekernelmanagerl.properties.intProperty;
 import lb.themike10452.hellscorekernelmanagerl.properties.interfaces.HKMPropertyInterface;
 import lb.themike10452.hellscorekernelmanagerl.utils.HKMTools;
-import lb.themike10452.hellscorekernelmanagerl.utils.Library;
+import lb.themike10452.hellscorekernelmanagerl.utils.SysfsLib;
 import lb.themike10452.hellscorekernelmanagerl.utils.UIHelper;
 
 import static lb.themike10452.hellscorekernelmanagerl.Settings.Constants.SET_MISC_SETTINGS_ON_BOOT;
 import static lb.themike10452.hellscorekernelmanagerl.Settings.Constants.SHARED_PREFS_ID;
 import static lb.themike10452.hellscorekernelmanagerl.utils.HKMTools.ScriptUtils.MSC_SETTINGS_SCRIPT_NAME;
+import static lb.themike10452.hellscorekernelmanagerl.utils.HKMTools.ScriptUtils.getScriptsDir;
 
 /**
  * Created by Mike on 5/3/2015.
  */
-public class MiscControls extends Fragment {
+public class MiscControls extends Fragment implements HKMFragment {
     private static MiscControls instance;
 
     private static Activity mActivity;
@@ -46,7 +48,8 @@ public class MiscControls extends Fragment {
     private static StringProperty ioSchedProperty;
     private static intProperty readAheadProperty;
     private static StringProperty tcpCongestProperty;
-    private static intProperty vibratorAmpProperty;
+    private static intProperty vibratorAmpProperty1;
+    private static intProperty vibratorAmpProperty2;
     private static intProperty msmThermalProperty;
     private static intProperty blxLimitProperty;
     private static intProperty dynFSyncProperty;
@@ -86,15 +89,16 @@ public class MiscControls extends Fragment {
 
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
-        Switch setOnBootSwitch = ((Switch) menu.findItem(R.id.action_setOnBoot).getActionView().findViewById(R.id.sob_switch));
-        boolean sobEnabled = sharedPreferences.getBoolean(SET_MISC_SETTINGS_ON_BOOT, false);
+        final Switch setOnBootSwitch = ((Switch) menu.findItem(R.id.action_setOnBoot).getActionView().findViewById(R.id.sob_switch));
+        final boolean sobEnabled = new File(getScriptsDir(mActivity), MSC_SETTINGS_SCRIPT_NAME).canExecute();
         setOnBootSwitch.setChecked(sobEnabled);
         setOnBootSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                changeSetOnBootState(isChecked);
+                changeSetOnBootState(isChecked, true);
             }
         });
+        changeSetOnBootState(sobEnabled, false);
     }
 
     @Override
@@ -125,7 +129,7 @@ public class MiscControls extends Fragment {
     }
 
     private void initProperties() {
-        ioSchedProperty = new MultiRootPathStringProperty(findViewById(R.id.ioschedulerBtn), Library.MISC_IO_SCHED) {
+        ioSchedProperty = new MultiRootPathStringProperty(findViewById(R.id.ioschedulerBtn), SysfsLib.MISC_IO_SCHED) {
             @Override
             public void setDisplayedValue(String value) {
                 int x, y;
@@ -135,24 +139,26 @@ public class MiscControls extends Fragment {
                 super.setDisplayedValue(value);
             }
         };
-        readAheadProperty = new intProperty(Library.MISC_READ_AHEAD_BUFFER, findViewById(R.id.readaheadBtn));
-        tcpCongestProperty = new StringProperty(Library.MISC_NET_TCP_CONGST, findViewById(R.id.tcpcongestionBtn));
-        vibratorAmpProperty = new intProperty(Library.MISC_VIBRATOR_AMP, findViewById(R.id.vibratorampBtn));
-        msmThermalProperty = new MultiRootPathIntProperty(findViewById(R.id.thermallimitBtn), Library.MISC_MSM_THERMAL_1, Library.MISC_MSM_THERMAL_2);
-        blxLimitProperty = new intProperty(Library.MISC_BLX_LIMIT, findViewById(R.id.blxlimitBtn));
-        dynFSyncProperty = new intProperty(Library.MISC_DYN_FSYNC, findViewById(R.id.dynfsyncSwitch));
-        fastChargeProperty = new intProperty(Library.MISC_FASTCHARGE, findViewById(R.id.fastchargeSwitch));
+        readAheadProperty = new intProperty(SysfsLib.MISC_READ_AHEAD_BUFFER, findViewById(R.id.readaheadBtn));
+        tcpCongestProperty = new StringProperty(SysfsLib.MISC_NET_TCP_CONGST, findViewById(R.id.tcpcongestionBtn));
+        vibratorAmpProperty1 = new intProperty(SysfsLib.MISC_VIBRATOR_AMP_1, findViewById(R.id.vibratorampBtn));
+        vibratorAmpProperty2 = new intProperty(SysfsLib.MISC_VIBRATOR_AMP_2, findViewById(R.id.vibratorampBtn2));
+        msmThermalProperty = new MultiRootPathIntProperty(findViewById(R.id.thermallimitBtn), SysfsLib.MISC_MSM_THERMAL_1, SysfsLib.MISC_MSM_THERMAL_2);
+        blxLimitProperty = new intProperty(SysfsLib.MISC_BLX_LIMIT, findViewById(R.id.blxlimitBtn));
+        dynFSyncProperty = new intProperty(SysfsLib.MISC_DYN_FSYNC, findViewById(R.id.dynfsyncSwitch));
+        fastChargeProperty = new intProperty(SysfsLib.MISC_FASTCHARGE, findViewById(R.id.fastchargeSwitch));
 
-        wakelockSensorIndProperty = new intProperty(Library.MISC_SENSOR_IND_WAKELOCK, findViewById(R.id.sensorIndSwitch));
-        wakelockSmbProperty = new intProperty(Library.MISC_SMB135X_WAKELOCK, findViewById(R.id.smbWLSwitch));
-        wakelockRxProperty = new intProperty(Library.MISC_WLAN_RX_WAKELOCK, findViewById(R.id.rxWLSwitch));
-        wakelockHsicProperty = new intProperty(Library.MISC_HSIC_HOST_WAKELOCK, findViewById(R.id.hsicWLSwitch));
-        wakelockCtrlProperty = new intProperty(Library.MISC_WLAN_CTRL_WAKELOCK, findViewById(R.id.ctrlWLSwitch));
-        wakelockWlanProperty = new intProperty(Library.MISC_WLAN_WAKELOCK, findViewById(R.id.wlanWLSwitch));
-        wakelockRxDividerProperty = new intProperty(Library.MISC_WLAN_RX_WAKELOCK_DIVIDE, findViewById(R.id.rxWLDividerBtn));
-        wakelockHsicDividerProperty = new intProperty(Library.MISC_HSIC_HOST_WAKELOCK_DIVIDE, findViewById(R.id.hsicWLDividerBtn));
+        wakelockSensorIndProperty = new intProperty(SysfsLib.MISC_SENSOR_IND_WAKELOCK, findViewById(R.id.sensorIndSwitch));
+        wakelockSmbProperty = new intProperty(SysfsLib.MISC_SMB135X_WAKELOCK, findViewById(R.id.smbWLSwitch));
+        wakelockRxProperty = new intProperty(SysfsLib.MISC_WLAN_RX_WAKELOCK, findViewById(R.id.rxWLSwitch));
+        wakelockHsicProperty = new intProperty(SysfsLib.MISC_HSIC_HOST_WAKELOCK, findViewById(R.id.hsicWLSwitch));
+        wakelockCtrlProperty = new intProperty(SysfsLib.MISC_WLAN_CTRL_WAKELOCK, findViewById(R.id.ctrlWLSwitch));
+        wakelockWlanProperty = new intProperty(SysfsLib.MISC_WLAN_WAKELOCK, findViewById(R.id.wlanWLSwitch));
+        wakelockRxDividerProperty = new intProperty(SysfsLib.MISC_WLAN_RX_WAKELOCK_DIVIDE, findViewById(R.id.rxWLDividerBtn));
+        wakelockHsicDividerProperty = new intProperty(SysfsLib.MISC_HSIC_HOST_WAKELOCK_DIVIDE, findViewById(R.id.hsicWLDividerBtn));
 
-        vibratorAmpProperty.setMax(100);
+        vibratorAmpProperty1.setMax(100);
+        vibratorAmpProperty2.setMax(127);
         readAheadProperty.setMin(128);
         readAheadProperty.setAdjustStep(128);
         blxLimitProperty.setMax(100);
@@ -161,7 +167,8 @@ public class MiscControls extends Fragment {
                 ioSchedProperty,
                 readAheadProperty,
                 tcpCongestProperty,
-                vibratorAmpProperty,
+                vibratorAmpProperty1,
+                vibratorAmpProperty2,
                 msmThermalProperty,
                 blxLimitProperty,
                 dynFSyncProperty,
@@ -200,6 +207,14 @@ public class MiscControls extends Fragment {
             @Override
             protected void onPostExecute(Void aVoid) {
                 UIHelper.removeEmptyCards((LinearLayout) findViewById(R.id.cardHolder));
+                if (!new File(getScriptsDir(mActivity), HKMTools.ScriptUtils.MSC_SETTINGS_SCRIPT_NAME).exists()) {
+                    mView.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            saveAll(false);
+                        }
+                    }, 1000);
+                }
             }
         }.execute();
     }
@@ -209,7 +224,7 @@ public class MiscControls extends Fragment {
             @Override
             protected Void doInBackground(Void... params) {
                 HKMTools tools = HKMTools.getInstance();
-                tools.getReady();
+                tools.clear();
                 for (HKMPropertyInterface property : properties) {
                     if (property.isVisible()) {
                         property.setValue(property.readDisplayedValue());
@@ -229,10 +244,13 @@ public class MiscControls extends Fragment {
         }.execute();
     }
 
-    public void changeSetOnBootState(boolean enabled) {
-        sharedPreferences.edit().putBoolean(SET_MISC_SETTINGS_ON_BOOT, enabled).apply();
-        saveAll(false);
-        Toast.makeText(mActivity, enabled ? R.string.message_set_on_boot_enabled : R.string.message_set_on_boot_disabled, Toast.LENGTH_SHORT).show();
+    public void changeSetOnBootState(boolean state, boolean updateScript) {
+        final boolean oldState = sharedPreferences.getBoolean(SET_MISC_SETTINGS_ON_BOOT, false);
+        sharedPreferences.edit().putBoolean(SET_MISC_SETTINGS_ON_BOOT, state).apply();
+        if (updateScript) saveAll(false);
+        if (oldState != state) {
+            Toast.makeText(mActivity, state ? R.string.message_set_on_boot_enabled : R.string.message_set_on_boot_disabled, Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void fetchSchedulers() {
@@ -244,7 +262,7 @@ public class MiscControls extends Fragment {
     }
 
     private void fetchCongestAlgorithms() {
-        String str = HKMTools.getInstance().readLineFromFile(Library.MISC_NET_TCP_AVAILABLE);
+        String str = HKMTools.getInstance().readLineFromFile(SysfsLib.MISC_NET_TCP_AVAILABLE);
         if (str != null) {
             congestAlgorithms = str.split(" ");
         }
@@ -256,5 +274,10 @@ public class MiscControls extends Fragment {
 
     private View findViewById(int id) {
         return mView.findViewById(id);
+    }
+
+    @Override
+    public int getTitleId() {
+        return R.string.miscCtl;
     }
 }

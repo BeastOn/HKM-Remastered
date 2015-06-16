@@ -41,7 +41,7 @@ public class PreferenceButton extends LinearLayout {
             valueTv.setId(R.id.value);
             valueTv.setTextAppearance(context, R.style.buttonDetailStyle);
             addView(valueTv);
-        } else {
+        } else if ("none".equals(attrs.getAttributeValue(xmlns, "summary"))) {
             int dp10 = HKMTools.dpToPx(context, 10);
             titleTv.setPadding(0, dp10, 0, dp10);
         }
@@ -64,5 +64,12 @@ public class PreferenceButton extends LinearLayout {
 
     public void setTitle(int titleId) {
         ((TextView) findViewById(R.id.title)).setText(titleId);
+    }
+
+    public void setValue(String value) {
+        try {
+            ((TextView) findViewById(R.id.value)).setText(value);
+        } catch (NullPointerException ignored) {
+        }
     }
 }
