@@ -17,4 +17,12 @@
         <item>ondemand</item>
         <item>performance</item>
     </string-array>
+
+    <string-array name="sound_profiles">
+        <item>@string/profile_custom</item>
+        <item>@string/profile_stock</item>
+        <item>@string/profile_quiet</item>
+        <item>@string/profile_loudness</item>
+        <item>@string/profile_quality</item>
+    </string-array>
 </resources>

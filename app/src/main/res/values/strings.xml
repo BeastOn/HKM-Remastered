@@ -83,6 +83,10 @@
     <string name="pref_spk_gain">Speaker Gain</string>
     <string name="pref_mic_gain">Microphone Gain</string>
     <string name="pref_camc_gain">Camcorder Gain</string>
+    <string name="profile_stock">Stock</string>
+    <string name="profile_quiet">Quiet</string>
+    <string name="profile_loudness">Loudness</string>
+    <string name="profile_quality">Quality</string>
 
     <!-- #LCD Control -->
     <string name="pref_category_profiles">Profiles</string>
@@ -99,7 +103,7 @@
     <string name="green">Green</string>
     <string name="blue">Blue</string>
     <string name="button_save">Save</string>
-    <string name="profile_name_custom">Custom</string>
+    <string name="profile_custom">Custom</string>
     <string name="message_name_empty">Profile name is empty</string>
     <string name="message_profiles_empty">No custom profiles found</string>
 

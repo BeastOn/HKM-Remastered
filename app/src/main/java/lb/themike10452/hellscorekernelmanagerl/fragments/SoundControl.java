@@ -44,9 +44,9 @@ public class SoundControl extends Fragment implements HKMFragment, Observer {
 
     private static final int[][] SoundProfiles = new int[][]{
             {0, 0, 0, 0, 0, 0, 0},//stock
-            {-2, -2, -5, -5, -2, 0, 0},//quality
-            {9, 9, -3, -3, 5, 0, 0},//loudness
-            {-5, -5, 2, 2, -3, 0, 0}//quiet
+            {-5, -5, -2, -2, -3, 0, 0},//quiet
+            {9, 9, 3, 3, 5, 0, 0},//loudness
+            {-2, -2, 5, 5, -2, 0, 0},//quality
     };
 
     public static SoundControl instance;
@@ -142,9 +142,10 @@ public class SoundControl extends Fragment implements HKMFragment, Observer {
             }
         }
 
-        final String[] profiles = new String[]{"Custom", "Stock", "Quiet", "Loudness", "Quality"};
-        ((WheelPicker) findViewById(R.id.wheel)).setDisplayedValues(profiles);
-        ((WheelPicker) findViewById(R.id.wheel)).setOnSelectionChangedListener(new WheelPicker.OnSelectionChangedListener() {
+        final WheelPicker wheelPicker = (WheelPicker) findViewById(R.id.wheel);
+        final String[] profiles = getResources().getStringArray(R.array.sound_profiles);
+        wheelPicker.setDisplayedValues(profiles);
+        wheelPicker.setOnSelectionChangedListener(new WheelPicker.OnSelectionChangedListener() {
             @Override
             public void selectionChanged(int i) {
                 if (i >= 1) {

@@ -410,7 +410,7 @@ public class LCDControl extends Fragment implements HKMFragment, ObservableScrol
     private void detectActiveProfile() {
         try {
             if (profiles == null) return;
-            activeProfile = getString(R.string.profile_name_custom);
+            activeProfile = getString(R.string.profile_custom);
             MakoColorProfile active = packProfile(activeProfile);
             for (MakoColorProfile profile : profiles) {
                 if (profile.compareTo(active) == 0) {
